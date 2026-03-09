@@ -1,0 +1,13 @@
+{
+  "name": "ai-disaster-response-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Frontend for AI Disaster Response system",
+  "scripts": {
+    "dev": "echo 'Frontend not yet implemented - choose React, Vue, or other framework'",
+    "build": "echo 'Frontend build not configured'",
+    "test": "echo 'Frontend tests not configured'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
