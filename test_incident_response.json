@@ -1,0 +1,805 @@
+{
+  "trace": {
+    "requestId": "test-req-001",
+    "traceId": "test-trace-001",
+    "spanId": "test-span-001",
+    "timestamp": "2026-03-10T03:33:17.291110Z",
+    "userId": null,
+    "sessionId": null
+  },
+  "status": "success",
+  "processedAt": "2026-03-10T03:33:17.293947Z",
+  "processingDurationMs": 0,
+  "events": [
+    {
+      "eventId": "evt-56c7e19d4f46",
+      "eventType": "traffic_incident",
+      "title": "Traffic Incident Detected",
+      "description": "Fused event from 5 observations",
+      "confidence": 0.75,
+      "severity": "moderate",
+      "location": {
+        "latitude": 34.0522,
+        "longitude": -118.2437,
+        "uncertainty": 1000,
+        "placeName": "Los Angeles, CA"
+      },
+      "timeReference": {
+        "timestamp": "2026-03-10T03:33:17.293692Z",
+        "precision": "minute"
+      },
+      "sourceSignalIds": [
+        "text-001",
+        "text-002",
+        "vision-001",
+        "quant-001",
+        "quant-002"
+      ],
+      "observations": [
+        {
+          "observationId": "obs-text-0-4dd8a6e6",
+          "observationType": "text_report",
+          "description": "Mock text observation",
+          "sourceSignalIds": [
+            "text-001"
+          ],
+          "confidence": 0.85,
+          "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437,
+            "uncertainty": 1000,
+            "placeName": "Los Angeles, CA"
+          },
+          "timeReference": {
+            "timestamp": "2026-03-10T03:33:17.293633Z"
+          },
+          "severity": "moderate",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "entities": [],
+            "keywords": [
+              "traffic",
+              "incident"
+            ]
+          }
+        },
+        {
+          "observationId": "obs-text-1-501b00d4",
+          "observationType": "text_report",
+          "description": "Mock text observation",
+          "sourceSignalIds": [
+            "text-002"
+          ],
+          "confidence": 0.9,
+          "location": {
+            "latitude": 34.06,
+            "longitude": -118.25,
+            "uncertainty": 500,
+            "placeName": "Los Angeles, CA"
+          },
+          "timeReference": {
+            "timestamp": "2026-03-10T03:33:17.293640Z"
+          },
+          "severity": "moderate",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "entities": [],
+            "keywords": [
+              "traffic",
+              "incident"
+            ]
+          }
+        },
+        {
+          "observationId": "obs-vision-0-12148900",
+          "observationType": "visual_observation",
+          "description": "Mock visual analysis",
+          "sourceSignalIds": [
+            "vision-001"
+          ],
+          "confidence": 0.8,
+          "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437,
+            "uncertainty": 100,
+            "placeName": "Los Angeles, CA"
+          },
+          "timeReference": {
+            "timestamp": "2026-03-10T03:33:17.293646Z"
+          },
+          "severity": "moderate",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "detectedObjects": []
+          }
+        },
+        {
+          "observationId": "obs-quant-0-f0881da9",
+          "observationType": "sensor_reading",
+          "description": "Sensor reading: unknown = 105.0",
+          "sourceSignalIds": [
+            "quant-001"
+          ],
+          "confidence": 0.95,
+          "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437,
+            "uncertainty": 10,
+            "placeName": "Los Angeles, CA"
+          },
+          "timeReference": {
+            "timestamp": "2026-03-10T03:33:17.293670Z"
+          },
+          "severity": "low",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "measurementType": "unknown",
+            "value": 105.0,
+            "deviationScore": 0
+          }
+        },
+        {
+          "observationId": "obs-quant-1-8dbafcfa",
+          "observationType": "sensor_reading",
+          "description": "Sensor reading: unknown = 250.0",
+          "sourceSignalIds": [
+            "quant-002"
+          ],
+          "confidence": 0.92,
+          "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437,
+            "uncertainty": 10,
+            "placeName": "Los Angeles, CA"
+          },
+          "timeReference": {
+            "timestamp": "2026-03-10T03:33:17.293676Z"
+          },
+          "severity": "low",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "measurementType": "unknown",
+            "value": 250.0,
+            "deviationScore": 0
+          }
+        }
+      ],
+      "affectedSectors": [
+        "transportation"
+      ],
+      "affectedAssets": [
+        "road"
+      ],
+      "impactRadiusMeters": 1000,
+      "status": "active",
+      "detectedAt": "2026-03-10T03:33:17.293695Z",
+      "updatedAt": "2026-03-10T03:33:17.293697Z"
+    }
+  ],
+  "disruptions": [
+    {
+      "assessmentId": "assess-56c7e19d4f46",
+      "eventId": "evt-56c7e19d4f46",
+      "disruptionSeverity": "moderate",
+      "confidence": 0.8,
+      "sectorImpacts": [
+        {
+          "sector": "transportation",
+          "severity": "moderate",
+          "description": "Transportation experiencing moderate service disruptions",
+          "estimatedRecoveryHours": 7
+        }
+      ],
+      "assetImpacts": [
+        {
+          "assetType": "road",
+          "assetId": null,
+          "assetName": "Road",
+          "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437,
+            "uncertainty": 1000,
+            "placeName": "Los Angeles, CA"
+          },
+          "status": "degraded",
+          "severity": "moderate",
+          "description": "Road operating at reduced capacity"
+        }
+      ],
+      "economicImpact": {
+        "estimatedCostUSD": 137500,
+        "economicSectors": [
+          "transportation"
+        ],
+        "affectedBusinessCount": 31
+      },
+      "populationImpact": {
+        "affectedPopulation": 3141,
+        "evacuationRequired": false,
+        "criticalServicesDisrupted": []
+      },
+      "cascadingEffects": [
+        {
+          "description": "Delivery delays and supply shortages",
+          "sectors": [
+            "logistics",
+            "retail",
+            "manufacturing"
+          ],
+          "likelihood": 0.5
+        }
+      ],
+      "recommendations": [
+        "Implement traffic management and rerouting plans",
+        "Deploy traffic control personnel to key intersections",
+        "Dispatch infrastructure inspection teams",
+        "Establish alternate transportation routes"
+      ],
+      "assessedAt": "2026-03-10T03:33:17.293732+00:00",
+      "validUntil": "2026-03-10T09:33:17.293734+00:00",
+      "assessedBy": "DisruptionScoringService-v1.0",
+      "metadata": {
+        "baseScore": 0.38,
+        "criticalityMultiplier": 1.0,
+        "multimodalBoost": 0.05,
+        "finalScore": 0.42,
+        "observationCount": 5,
+        "modalityCount": 0
+      }
+    }
+  ],
+  "alerts": [
+    {
+      "alertId": "alert-65667eec001c",
+      "eventId": "evt-56c7e19d4f46",
+      "assessmentId": "assess-56c7e19d4f46",
+      "priority": "normal",
+      "title": "Traffic Incident Detected",
+      "message": "Fused event from 5 observations\n\nEstimated population affected: 3,141\n\nEstimated economic impact: $137,500",
+      "targetAudience": [
+        "infrastructure_operators",
+        "emergency_managers",
+        "transportation_agencies"
+      ],
+      "alertArea": {
+        "latitude": 34.0522,
+        "longitude": -118.2437,
+        "radiusMeters": 1000,
+        "address": null,
+        "locationName": null
+      },
+      "recommendedActions": [
+        "Notify relevant emergency services",
+        "Position response resources for rapid deployment",
+        "Monitor situation closely",
+        "Prepare escalation protocols",
+        "Close or restrict access to affected transportation routes",
+        "Deploy traffic control and establish detours",
+        "Implement traffic management and rerouting plans",
+        "Deploy traffic control personnel to key intersections",
+        "Dispatch infrastructure inspection teams",
+        "Establish alternate transportation routes"
+      ],
+      "resourcesNeeded": [
+        {
+          "resourceType": "Traffic control personnel",
+          "quantity": null,
+          "priority": "normal"
+        },
+        {
+          "resourceType": "Road closure signs",
+          "quantity": null,
+          "priority": "normal"
+        },
+        {
+          "resourceType": "Emergency vehicles",
+          "quantity": null,
+          "priority": "normal"
+        },
+        {
+          "resourceType": "Medical triage teams",
+          "quantity": null,
+          "priority": "high"
+        }
+      ],
+      "timeConstraints": {
+        "issueBy": null,
+        "expiresAt": "2026-03-10T09:33:17.293734+00:00",
+        "responseWindowMinutes": 240
+      },
+      "createdAt": "2026-03-10T03:33:17.293781+00:00",
+      "status": "active",
+      "relatedAlertIds": [],
+      "metadata": {
+        "eventSeverity": "moderate",
+        "eventConfidence": 0.75,
+        "affectedSectors": [
+          "transportation"
+        ],
+        "affectedAssets": [
+          "road"
+        ],
+        "populationImpact": 3141
+      }
+    }
+  ],
+  "mapFeatures": [
+    {
+      "featureId": "map-evt-evt-56c7e19d4f46",
+      "featureType": "event",
+      "dataId": "evt-56c7e19d4f46",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.21988918549316,
+              34.0522
+            ],
+            [
+              -118.22034670361728,
+              34.05395757046861
+            ],
+            [
+              -118.2217016758247,
+              34.05564759848978
+            ],
+            [
+              -118.22390203129339,
+              34.05720513723441
+            ],
+            [
+              -118.22686321159664,
+              34.05857033136204
+            ],
+            [
+              -118.23047142023604,
+              34.05969071722795
+            ],
+            [
+              -118.23458799577712,
+              34.06052323903163
+            ],
+            [
+              -118.23905474053039,
+              34.061035903427054
+            ],
+            [
+              -118.2437,
+              34.061209009009005
+            ],
+            [
+              -118.24834525946962,
+              34.061035903427054
+            ],
+            [
+              -118.25281200422289,
+              34.06052323903163
+            ],
+            [
+              -118.25692857976397,
+              34.05969071722795
+            ],
+            [
+              -118.26053678840337,
+              34.05857033136204
+            ],
+            [
+              -118.26349796870662,
+              34.05720513723441
+            ],
+            [
+              -118.2656983241753,
+              34.05564759848978
+            ],
+            [
+              -118.26705329638273,
+              34.05395757046861
+            ],
+            [
+              -118.26751081450685,
+              34.0522
+            ],
+            [
+              -118.26705329638273,
+              34.05044242953139
+            ],
+            [
+              -118.2656983241753,
+              34.04875240151022
+            ],
+            [
+              -118.26349796870662,
+              34.047194862765586
+            ],
+            [
+              -118.26053678840337,
+              34.04582966863796
+            ],
+            [
+              -118.25692857976397,
+              34.04470928277205
+            ],
+            [
+              -118.25281200422289,
+              34.04387676096837
+            ],
+            [
+              -118.24834525946962,
+              34.043364096572944
+            ],
+            [
+              -118.2437,
+              34.04319099099099
+            ],
+            [
+              -118.23905474053039,
+              34.043364096572944
+            ],
+            [
+              -118.23458799577712,
+              34.04387676096837
+            ],
+            [
+              -118.23047142023604,
+              34.04470928277205
+            ],
+            [
+              -118.22686321159664,
+              34.04582966863796
+            ],
+            [
+              -118.22390203129339,
+              34.047194862765586
+            ],
+            [
+              -118.2217016758247,
+              34.04875240151022
+            ],
+            [
+              -118.22034670361728,
+              34.05044242953139
+            ],
+            [
+              -118.21988918549316,
+              34.0522
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "title": "Traffic Incident Detected",
+        "description": "Fused event from 5 observations",
+        "severity": "moderate",
+        "status": "active",
+        "color": "#f59e0b",
+        "icon": "map-pin"
+      },
+      "style": {
+        "fillColor": "#f59e0b",
+        "strokeColor": "#ab6e07",
+        "strokeWidth": 2,
+        "opacity": 0.7,
+        "iconUrl": "/assets/icons/map-pin-moderate.png",
+        "iconSize": [
+          40,
+          40
+        ]
+      },
+      "layer": "events",
+      "zIndex": 330,
+      "visible": true,
+      "timestamp": "2026-03-10T03:33:17.293695Z",
+      "popupContent": "<div class=\"event-popup\">\n            <h3>Traffic Incident Detected</h3>\n            <div class=\"popup-meta\">\n                <span class=\"badge badge-moderate\">MODERATE</span>\n                <span class=\"badge badge-status\">Active</span>\n            </div>\n            <p><strong>Location:</strong> Los Angeles, CA</p>\n            <p><strong>Description:</strong> Fused event from 5 observations</p>\n            <div class=\"popup-details\">\n                <p><strong>Confidence:</strong> 75%</p>\n                <p><strong>Affected Sectors:</strong> transportation</p>\n                <p><strong>Affected Assets:</strong> road</p>\n                <p><strong>Data Sources:</strong> 5 observations from 5 signals</p>\n            </div>\n            <a href=\"#/events/evt-56c7e19d4f46\" class=\"popup-link\">View Full Details \u2192</a>\n        </div>"
+    },
+    {
+      "featureId": "map-assess-assess-56c7e19d4f46",
+      "featureType": "disruption",
+      "dataId": "assess-56c7e19d4f46",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.21988918549316,
+              34.0522
+            ],
+            [
+              -118.22034670361728,
+              34.05395757046861
+            ],
+            [
+              -118.2217016758247,
+              34.05564759848978
+            ],
+            [
+              -118.22390203129339,
+              34.05720513723441
+            ],
+            [
+              -118.22686321159664,
+              34.05857033136204
+            ],
+            [
+              -118.23047142023604,
+              34.05969071722795
+            ],
+            [
+              -118.23458799577712,
+              34.06052323903163
+            ],
+            [
+              -118.23905474053039,
+              34.061035903427054
+            ],
+            [
+              -118.2437,
+              34.061209009009005
+            ],
+            [
+              -118.24834525946962,
+              34.061035903427054
+            ],
+            [
+              -118.25281200422289,
+              34.06052323903163
+            ],
+            [
+              -118.25692857976397,
+              34.05969071722795
+            ],
+            [
+              -118.26053678840337,
+              34.05857033136204
+            ],
+            [
+              -118.26349796870662,
+              34.05720513723441
+            ],
+            [
+              -118.2656983241753,
+              34.05564759848978
+            ],
+            [
+              -118.26705329638273,
+              34.05395757046861
+            ],
+            [
+              -118.26751081450685,
+              34.0522
+            ],
+            [
+              -118.26705329638273,
+              34.05044242953139
+            ],
+            [
+              -118.2656983241753,
+              34.04875240151022
+            ],
+            [
+              -118.26349796870662,
+              34.047194862765586
+            ],
+            [
+              -118.26053678840337,
+              34.04582966863796
+            ],
+            [
+              -118.25692857976397,
+              34.04470928277205
+            ],
+            [
+              -118.25281200422289,
+              34.04387676096837
+            ],
+            [
+              -118.24834525946962,
+              34.043364096572944
+            ],
+            [
+              -118.2437,
+              34.04319099099099
+            ],
+            [
+              -118.23905474053039,
+              34.043364096572944
+            ],
+            [
+              -118.23458799577712,
+              34.04387676096837
+            ],
+            [
+              -118.23047142023604,
+              34.04470928277205
+            ],
+            [
+              -118.22686321159664,
+              34.04582966863796
+            ],
+            [
+              -118.22390203129339,
+              34.047194862765586
+            ],
+            [
+              -118.2217016758247,
+              34.04875240151022
+            ],
+            [
+              -118.22034670361728,
+              34.05044242953139
+            ],
+            [
+              -118.21988918549316,
+              34.0522
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "title": "Disruption Zone - MODERATE",
+        "description": "Affected sectors: ",
+        "severity": "moderate",
+        "status": "assessed",
+        "color": "#f59e0b",
+        "icon": "alert-triangle"
+      },
+      "style": {
+        "fillColor": "#f59e0b",
+        "strokeColor": "#ab6e07",
+        "strokeWidth": 3,
+        "opacity": 0.4,
+        "iconUrl": "/assets/icons/disruption-moderate.png",
+        "iconSize": [
+          32,
+          32
+        ]
+      },
+      "layer": "disruptions",
+      "zIndex": 230,
+      "visible": true,
+      "timestamp": "2026-03-10T03:33:17.293732+00:00",
+      "popupContent": "<div class=\"assessment-popup\">\n            <h3>Disruption Assessment</h3>\n            <div class=\"popup-meta\">\n                <span class=\"badge badge-moderate\">MODERATE</span>\n                <span class=\"badge badge-confidence\">Confidence: 80%</span>\n            </div>\n            <h4>Impacts</h4>\n            <ul><li><strong>transportation:</strong> moderate - Transportation experiencing moderate service disruptions...</li></ul>\n            <div class=\"popup-details\">\n                <p><strong>Economic Impact:</strong> $137,500 estimated loss</p>\n                <p><strong>Population Impact:</strong> 3,141 people affected</p>\n                \n            </div>\n            <a href=\"#/assessments/assess-56c7e19d4f46\" class=\"popup-link\">View Full Assessment \u2192</a>\n        </div>"
+    }
+  ],
+  "dashboardSummary": {
+    "generatedAt": "2026-03-10T03:33:17.293858+00:00",
+    "timeWindow": {
+      "startTime": "2026-03-09T03:33:17.293858+00:00",
+      "endTime": "2026-03-10T03:33:17.293858+00:00"
+    },
+    "situationStatus": {
+      "overallSeverity": "moderate",
+      "activeEventsCount": 1,
+      "criticalAlertsCount": 0,
+      "affectedRegions": [
+        "Los Angeles, CA"
+      ]
+    },
+    "eventsBySeverity": [
+      {
+        "severity": "critical",
+        "count": 0,
+        "trend": "stable"
+      },
+      {
+        "severity": "high",
+        "count": 0,
+        "trend": "stable"
+      },
+      {
+        "severity": "moderate",
+        "count": 1,
+        "trend": "increasing"
+      },
+      {
+        "severity": "low",
+        "count": 0,
+        "trend": "stable"
+      },
+      {
+        "severity": "informational",
+        "count": 0,
+        "trend": "stable"
+      }
+    ],
+    "sectorDisruptions": [
+      {
+        "sector": "transportation",
+        "severity": "moderate",
+        "affectedAssetsCount": 1,
+        "description": "Transportation experiencing moderate service disruptions"
+      }
+    ],
+    "alerts": {
+      "urgent": 0,
+      "high": 0,
+      "normal": 1,
+      "low": 0
+    },
+    "keyMetrics": [
+      {
+        "label": "Total Economic Impact",
+        "value": "$138K",
+        "unit": "USD",
+        "trend": "up"
+      },
+      {
+        "label": "Affected Population",
+        "value": "3.1K",
+        "unit": "people",
+        "trend": "stable"
+      },
+      {
+        "label": "Active Events",
+        "value": 1,
+        "trend": "stable"
+      },
+      {
+        "label": "Critical Assets Affected",
+        "value": 1,
+        "trend": "stable"
+      },
+      {
+        "label": "Data Confidence",
+        "value": "75%",
+        "trend": "stable"
+      }
+    ],
+    "recentSignificantEvents": [
+      {
+        "eventId": "evt-56c7e19d4f46",
+        "title": "Traffic Incident Detected",
+        "severity": "moderate",
+        "timestamp": "2026-03-10T03:33:17.293695Z"
+      }
+    ],
+    "hotspots": [
+      {
+        "location": {
+          "latitude": 34.0522,
+          "longitude": -118.2437,
+          "placeName": "Los Angeles, CA",
+          "region": "Los Angeles, CA"
+        },
+        "eventCount": 1,
+        "highestSeverity": "moderate"
+      }
+    ]
+  },
+  "warnings": [],
+  "errors": [],
+  "metadata": {
+    "signalsProcessed": 5,
+    "observationsExtracted": 5,
+    "eventsCreated": 1,
+    "disruptionsAssessed": 1,
+    "alertsGenerated": 1,
+    "pipeline": "5-phase",
+    "version": "1.0.0"
+  }
+}

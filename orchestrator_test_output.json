@@ -1,0 +1,522 @@
+{
+  "trace": {
+    "requestId": "req-test-001",
+    "traceId": "trace-001",
+    "spanId": "03626d81-6ae9-40",
+    "timestamp": "2026-03-09T10:30:00Z",
+    "userId": "test-user",
+    "sessionId": null
+  },
+  "status": "success",
+  "processedAt": "2026-03-09T20:41:09.481131Z",
+  "processingDurationMs": 0,
+  "events": [
+    {
+      "eventId": "evt-743ae3250b62",
+      "eventType": "traffic_incident",
+      "title": "Traffic Incident Detected",
+      "description": "Fused event from 4 observations",
+      "confidence": 0.75,
+      "severity": "moderate",
+      "location": {
+        "latitude": 47.6101,
+        "longitude": -122.2015,
+        "address": "I-405 N, Bellevue, WA"
+      },
+      "timeReference": {
+        "timestamp": "2026-03-09T20:41:09.481091Z",
+        "precision": "minute"
+      },
+      "sourceSignalIds": [
+        "txt-001",
+        "txt-002",
+        "vis-001",
+        "qnt-001"
+      ],
+      "observations": [
+        {
+          "observationId": "obs-text-0-44aa2c51",
+          "observationType": "text_report",
+          "description": "Major traffic accident on I-405 northbound near Bellevue. Multiple vehicles involved. Avoid the area",
+          "sourceSignalIds": [
+            "txt-001"
+          ],
+          "confidence": 0.8,
+          "location": {
+            "latitude": 47.6101,
+            "longitude": -122.2015,
+            "address": "I-405 N, Bellevue, WA"
+          },
+          "timeReference": {
+            "timestamp": "2026-03-09T10:25:00Z"
+          },
+          "severity": "moderate",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "entities": [],
+            "keywords": [
+              "traffic",
+              "incident"
+            ]
+          }
+        },
+        {
+          "observationId": "obs-text-1-c86eba2c",
+          "observationType": "text_report",
+          "description": "Traffic collision I-405 NB at NE 8th St. 3 vehicles. Fire dept en route.",
+          "sourceSignalIds": [
+            "txt-002"
+          ],
+          "confidence": 0.95,
+          "location": {
+            "latitude": 47.6105,
+            "longitude": -122.201
+          },
+          "timeReference": {
+            "timestamp": "2026-03-09T10:26:00Z"
+          },
+          "severity": "moderate",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "entities": [],
+            "keywords": [
+              "traffic",
+              "incident"
+            ]
+          }
+        },
+        {
+          "observationId": "obs-vision-0-9610f811",
+          "observationType": "visual_observation",
+          "description": "Mock visual analysis",
+          "sourceSignalIds": [
+            "vis-001"
+          ],
+          "confidence": 0.85,
+          "location": {
+            "latitude": 47.6103,
+            "longitude": -122.2012
+          },
+          "timeReference": {
+            "timestamp": "2026-03-09T10:25:30Z"
+          },
+          "severity": "moderate",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "detectedObjects": [
+              {
+                "label": "vehicle",
+                "confidence": 0.95,
+                "bbox": [
+                  100,
+                  100,
+                  200,
+                  200
+                ]
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.93,
+                "bbox": [
+                  220,
+                  120,
+                  320,
+                  220
+                ]
+              },
+              {
+                "label": "emergency_vehicle",
+                "confidence": 0.88,
+                "bbox": [
+                  50,
+                  150,
+                  150,
+                  250
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "observationId": "obs-quant-0-6bb6d668",
+          "observationType": "sensor_reading",
+          "description": "Sensor reading: traffic_flow = 15",
+          "sourceSignalIds": [
+            "qnt-001"
+          ],
+          "confidence": 0.9,
+          "location": {
+            "latitude": 47.61,
+            "longitude": -122.2013
+          },
+          "timeReference": {
+            "timestamp": "2026-03-09T10:25:00Z"
+          },
+          "severity": "moderate",
+          "affectedSectors": [
+            "transportation"
+          ],
+          "affectedAssets": [
+            "road"
+          ],
+          "extractedData": {
+            "measurementType": "traffic_flow",
+            "value": 15,
+            "deviationScore": 0.85
+          }
+        }
+      ],
+      "affectedSectors": [
+        "transportation"
+      ],
+      "affectedAssets": [
+        "road"
+      ],
+      "impactRadiusMeters": 1000,
+      "status": "active",
+      "detectedAt": "2026-03-09T20:41:09.481094Z",
+      "updatedAt": "2026-03-09T20:41:09.481096Z"
+    }
+  ],
+  "disruptions": [
+    {
+      "assessmentId": "assess-743ae3250b62",
+      "eventId": "evt-743ae3250b62",
+      "disruptionSeverity": "moderate",
+      "confidence": 0.75,
+      "sectorImpacts": [
+        {
+          "sector": "transportation",
+          "impactLevel": "moderate",
+          "description": "Road network disruption",
+          "estimatedDurationHours": 4
+        }
+      ],
+      "assetImpacts": [
+        {
+          "assetType": "road",
+          "specificAsset": "Highway section",
+          "operationalStatus": "degraded",
+          "estimatedDowntimeHours": 4
+        }
+      ],
+      "economicImpact": {
+        "estimatedCostUSD": 50000,
+        "currency": "USD",
+        "confidence": 0.5
+      },
+      "populationImpact": {
+        "estimatedAffected": 1000,
+        "categories": [
+          "commuters",
+          "residents"
+        ],
+        "confidence": 0.6
+      },
+      "cascadingEffects": [
+        "Traffic delays on alternate routes",
+        "Delivery delays"
+      ],
+      "recommendations": [
+        "Implement traffic diversion",
+        "Monitor adjacent roads"
+      ],
+      "assessedAt": "2026-03-09T20:41:09.481104Z"
+    }
+  ],
+  "alerts": [],
+  "mapFeatures": [
+    {
+      "featureId": "map-evt-743ae3250b62",
+      "featureType": "event",
+      "dataId": "evt-743ae3250b62",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.2015,
+          47.6101
+        ]
+      },
+      "properties": {
+        "title": "Traffic Incident Detected",
+        "severity": "moderate",
+        "status": "active"
+      },
+      "style": {
+        "fillColor": "#f57c00",
+        "strokeColor": "#e65100",
+        "strokeWidth": 2
+      },
+      "layer": "events",
+      "visible": true,
+      "timestamp": "2026-03-09T20:41:09.481094Z"
+    }
+  ],
+  "dashboardSummary": {
+    "generatedAt": "2026-03-09T20:41:09.481117Z",
+    "timeWindow": {
+      "startTime": "2026-03-09T20:41:09.481119Z",
+      "endTime": "2026-03-09T20:41:09.481120Z"
+    },
+    "situationStatus": {
+      "overallSeverity": "moderate",
+      "activeEventsCount": 1,
+      "criticalAlertsCount": 0,
+      "affectedRegions": [
+        "Mock Region"
+      ]
+    },
+    "eventsBySeverity": [
+      {
+        "severity": "critical",
+        "count": 0,
+        "trend": "stable"
+      },
+      {
+        "severity": "high",
+        "count": 0,
+        "trend": "stable"
+      },
+      {
+        "severity": "moderate",
+        "count": 1,
+        "trend": "stable"
+      },
+      {
+        "severity": "low",
+        "count": 0,
+        "trend": "stable"
+      }
+    ],
+    "sectorDisruptions": [
+      {
+        "sector": "transportation",
+        "disruptionLevel": "moderate",
+        "affectedAssets": 1
+      }
+    ],
+    "alerts": {
+      "urgent": 0,
+      "high": 0,
+      "normal": 0,
+      "low": 0
+    },
+    "keyMetrics": [
+      {
+        "metricName": "Total Events",
+        "value": 1,
+        "unit": "count",
+        "trend": "stable"
+      }
+    ],
+    "recentSignificantEvents": [
+      {
+        "eventId": "evt-743ae3250b62",
+        "eventType": "traffic_incident",
+        "title": "Traffic Incident Detected",
+        "description": "Fused event from 4 observations",
+        "confidence": 0.75,
+        "severity": "moderate",
+        "location": {
+          "latitude": 47.6101,
+          "longitude": -122.2015,
+          "address": "I-405 N, Bellevue, WA"
+        },
+        "timeReference": {
+          "timestamp": "2026-03-09T20:41:09.481091Z",
+          "precision": "minute"
+        },
+        "sourceSignalIds": [
+          "txt-001",
+          "txt-002",
+          "vis-001",
+          "qnt-001"
+        ],
+        "observations": [
+          {
+            "observationId": "obs-text-0-44aa2c51",
+            "observationType": "text_report",
+            "description": "Major traffic accident on I-405 northbound near Bellevue. Multiple vehicles involved. Avoid the area",
+            "sourceSignalIds": [
+              "txt-001"
+            ],
+            "confidence": 0.8,
+            "location": {
+              "latitude": 47.6101,
+              "longitude": -122.2015,
+              "address": "I-405 N, Bellevue, WA"
+            },
+            "timeReference": {
+              "timestamp": "2026-03-09T10:25:00Z"
+            },
+            "severity": "moderate",
+            "affectedSectors": [
+              "transportation"
+            ],
+            "affectedAssets": [
+              "road"
+            ],
+            "extractedData": {
+              "entities": [],
+              "keywords": [
+                "traffic",
+                "incident"
+              ]
+            }
+          },
+          {
+            "observationId": "obs-text-1-c86eba2c",
+            "observationType": "text_report",
+            "description": "Traffic collision I-405 NB at NE 8th St. 3 vehicles. Fire dept en route.",
+            "sourceSignalIds": [
+              "txt-002"
+            ],
+            "confidence": 0.95,
+            "location": {
+              "latitude": 47.6105,
+              "longitude": -122.201
+            },
+            "timeReference": {
+              "timestamp": "2026-03-09T10:26:00Z"
+            },
+            "severity": "moderate",
+            "affectedSectors": [
+              "transportation"
+            ],
+            "affectedAssets": [
+              "road"
+            ],
+            "extractedData": {
+              "entities": [],
+              "keywords": [
+                "traffic",
+                "incident"
+              ]
+            }
+          },
+          {
+            "observationId": "obs-vision-0-9610f811",
+            "observationType": "visual_observation",
+            "description": "Mock visual analysis",
+            "sourceSignalIds": [
+              "vis-001"
+            ],
+            "confidence": 0.85,
+            "location": {
+              "latitude": 47.6103,
+              "longitude": -122.2012
+            },
+            "timeReference": {
+              "timestamp": "2026-03-09T10:25:30Z"
+            },
+            "severity": "moderate",
+            "affectedSectors": [
+              "transportation"
+            ],
+            "affectedAssets": [
+              "road"
+            ],
+            "extractedData": {
+              "detectedObjects": [
+                {
+                  "label": "vehicle",
+                  "confidence": 0.95,
+                  "bbox": [
+                    100,
+                    100,
+                    200,
+                    200
+                  ]
+                },
+                {
+                  "label": "vehicle",
+                  "confidence": 0.93,
+                  "bbox": [
+                    220,
+                    120,
+                    320,
+                    220
+                  ]
+                },
+                {
+                  "label": "emergency_vehicle",
+                  "confidence": 0.88,
+                  "bbox": [
+                    50,
+                    150,
+                    150,
+                    250
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "observationId": "obs-quant-0-6bb6d668",
+            "observationType": "sensor_reading",
+            "description": "Sensor reading: traffic_flow = 15",
+            "sourceSignalIds": [
+              "qnt-001"
+            ],
+            "confidence": 0.9,
+            "location": {
+              "latitude": 47.61,
+              "longitude": -122.2013
+            },
+            "timeReference": {
+              "timestamp": "2026-03-09T10:25:00Z"
+            },
+            "severity": "moderate",
+            "affectedSectors": [
+              "transportation"
+            ],
+            "affectedAssets": [
+              "road"
+            ],
+            "extractedData": {
+              "measurementType": "traffic_flow",
+              "value": 15,
+              "deviationScore": 0.85
+            }
+          }
+        ],
+        "affectedSectors": [
+          "transportation"
+        ],
+        "affectedAssets": [
+          "road"
+        ],
+        "impactRadiusMeters": 1000,
+        "status": "active",
+        "detectedAt": "2026-03-09T20:41:09.481094Z",
+        "updatedAt": "2026-03-09T20:41:09.481096Z"
+      }
+    ]
+  },
+  "warnings": [],
+  "errors": [],
+  "metadata": {
+    "signalsProcessed": 4,
+    "observationsExtracted": 4,
+    "eventsCreated": 1,
+    "disruptionsAssessed": 1,
+    "alertsGenerated": 0,
+    "pipeline": "5-phase",
+    "version": "1.0.0"
+  }
+}
