@@ -1,0 +1,839 @@
+"""
+Incident processing orchestrator.
+
+Coordinates the end-to-end pipeline for processing disaster signals.
+This is the central coordinator that manages the flow from raw signals
+to actionable intelligence.
+
+Flow:
+    Signals → Extraction → Fusion → Scoring → Alerts → Visualization → Response
+"""
+
+from typing import Dict, Any, List, Optional, Tuple
+from datetime import datetime, timezone
+import time
+import uuid
+import traceback
+
+
+class IncidentOrchestrator:
+    """
+    Main orchestrator for incident processing.
+    
+    Coordinates the complete 5-phase pipeline:
+    1. Signal Extraction: Raw signals → Structured observations
+    2. Observation Fusion: Multiple observations → Coherent events
+    3. Disruption Scoring: Events → Impact assessments
+    4. Alert Generation: Assessments → Actionable recommendations
+    5. Visualization Prep: All data → Frontend-ready formats
+    
+    The orchestrator maintains clear separation of concerns:
+    - Does NOT contain domain logic (delegates to agents/services)
+    - Does NOT call external APIs directly (delegates to providers)
+    - DOES coordinate workflow and error handling
+    - DOES ensure observability (tracing, logging)
+    """
+    
+    def __init__(self):
+        """
+        Initialize orchestrator with all required dependencies.
+        
+        Dependencies are injected for testability and flexibility.
+        """
+        # TODO: Replace with real implementations
+        # from backend.agents import TextExtractionAgent, VisionAnalysisAgent
+        # from backend.services.fusion import SignalFusionService
+        # from backend.services.scoring import DisruptionScoringService
+        # from backend.services.alerts import AlertGenerationService
+        # from backend.mappers import visualization_mapper
+        
+        self.text_agent = None  # TextExtractionAgent()
+        self.vision_agent = None  # VisionAnalysisAgent()
+        self.quant_agent = None  # QuantitativeAnalysisAgent()
+        self.fusion_service = None  # SignalFusionService()
+        self.scoring_service = None  # DisruptionScoringService()
+        self.alert_service = None  # AlertGenerationService()
+        self.visualization_mapper = None  # VisualizationMapper()
+        
+        # Configuration
+        self.config = {
+            "max_processing_time_seconds": 30,
+            "enable_partial_success": True,
+            "default_confidence_threshold": 0.5
+        }
+    
+    async def process_incident(
+        self,
+        request: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Process incident input request through full pipeline.
+        
+        This is the main entry point that coordinates all processing phases.
+        
+        Args:
+            request: IncidentInputRequest with:
+                - trace: TraceContext for request correlation
+                - textSignals: List of text-based inputs
+                - visionSignals: List of image/video inputs
+                - quantSignals: List of sensor/quantitative inputs
+                - options: Processing configuration
+                - requestor: Who/what initiated the request
+                
+        Returns:
+            FinalApiResponse with:
+                - trace: Request correlation info
+                - status: "success" | "partial_success" | "error"
+                - events: Fused disaster events
+                - disruptions: Supply chain impact assessments
+                - alerts: Actionable recommendations
+                - mapFeatures: GeoJSON features for visualization
+                - dashboardSummary: Aggregated situational awareness
+                - warnings: Non-fatal issues encountered
+                - errors: Fatal errors (if any)
+                - metadata: Processing statistics
+        """
+        start_time = time.time()
+        warnings = []
+        
+        # Step 0: Ensure trace context exists
+        trace = self._ensure_trace_context(request.get("trace"))
+        
+        try:
+            print(f"[Orchestrator] Starting incident processing: {trace['requestId']}")
+            
+            # ============================================================
+            # PHASE 1: SIGNAL EXTRACTION
+            # Extract structured observations from raw multimodal signals
+            # ============================================================
+            print("[Orchestrator] Phase 1: Extracting observations from signals...")
+            observations, extraction_warnings = await self._extract_observations(request)
+            warnings.extend(extraction_warnings)
+            print(f"[Orchestrator] → Extracted {len(observations)} observations")
+            
+            # ============================================================
+            # PHASE 2: OBSERVATION FUSION
+            # Combine observations into coherent events using spatial-temporal
+            # correlation and semantic similarity
+            # ============================================================
+            print("[Orchestrator] Phase 2: Fusing observations into events...")
+            events, fusion_warnings = await self._fuse_observations(observations, request)
+            warnings.extend(fusion_warnings)
+    def _ensure_trace_context(self, trace: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Ensure trace context exists for request correlation.
+        
+        Creates trace context if not provided, ensuring all processing
+        can be correlated for debugging and observability.
+        
+        Args:
+            trace: Existing trace context or None
+            
+        Returns:
+            TraceContext with requestId, traceId, timestamp, etc.
+        """
+        if trace and trace.get("requestId"):
+            # Trace exists, ensure required fields
+            return {
+                "requestId": trace.get("requestId"),
+                "traceId": trace.get("traceId", str(uuid.uuid4())),
+                "spanId": trace.get("spanId", str(uuid.uuid4())[:16]),
+                "timestamp": trace.get("timestamp", self._utc_now()),
+                "userId": trace.get("userId"),
+                "sessionId": trace.get("sessionId")
+            }
+        else:
+            # Create new trace context
+            return {
+                "requestId": f"req-{uuid.uuid4().hex[:12]}",
+                "traceId": str(uuid.uuid4()),
+                "spanId": str(uuid.uuid4())[:16],
+                "timestamp": self._utc_now(),
+                "userId": None,
+                "sessionId": None
+            }
+    
+    async def _extract_observations(
+        self,
+        request: Dict[str, Any]
+    ) -> Tuple[List[Dict[str, Any]], List[str]]:
+        """
+        Phase 1: Extract structured observations from raw signals.
+        
+        Routes signals to appropriate analysis agents:
+        - Text signals → TextExtractionAgent (NLP, entity extraction)
+        - Vision signals → VisionAnalysisAgent (object detection, damage assessment)
+        - Quantitative signals → QuantAnalysisAgent (anomaly detection, trends)
+        
+        Args:
+            request: IncidentInputRequest with signal arrays
+            
+        Returns:
+            Tuple of (observations, warnings):
+                - observations: List of ExtractedObservation objects
+                - warnings: List of warning messages for non-fatal issues
+        """
+        observations = []
+        warnings = []
+        
+        # Extract from text signals
+        text_signals = request.get("textSignals", [])
+        for i, signal in enumerate(text_signals):
+            try:
+                # TODO: Replace with real agent call
+                # obs = await self.text_agent.extract(signal)
+                obs = self._mock_text_extraction(signal, i)
+                observations.extend(obs)
+            except Exception as e:
+                warning = f"Failed to extract from text signal {i}: {str(e)}"
+                warnings.append(warning)
+                print(f"[Orchestrator] Warning: {warning}")
+        
+        # Extract from vision signals
+        vision_signals = request.get("visionSignals", [])
+        for i, signal in enumerate(vision_signals):
+            try:
+                # TODO: Replace with real agent call
+                # obs = await self.vision_agent.analyze(signal)
+                obs = self._mock_vision_analysis(signal, i)
+                observations.extend(obs)
+            except Exception as e:
+                warning = f"Failed to analyze vision signal {i}: {str(e)}"
+                warnings.append(warning)
+                print(f"[Orchestrator] Warning: {warning}")
+        
+        # Extract from quantitative signals
+        quant_signals = request.get("quantSignals", [])
+        for i, signal in enumerate(quant_signals):
+            try:
+                # TODO: Replace with real agent call
+                # obs = await self.quant_agent.analyze(signal)
+                obs = self._mock_quantitative_analysis(signal, i)
+                observations.extend(obs)
+            except Exception as e:
+                warning = f"Failed to analyze quantitative signal {i}: {str(e)}"
+                warnings.append(warning)
+                print(f"[Orchestrator] Warning: {warning}")
+        
+        return observations, warning
+            # ============================================================
+            # BUILD FINAL RESPONSE
+            # ============================================================
+            processing_duration_ms = int((time.time() - start_time) * 1000)
+            
+            responseobservations(
+        self,
+        observations: List[Dict[str, Any]],
+        request: Dict[str, Any]
+    ) -> Tuple[List[Dict[str, Any]], List[str]]:
+        """
+        Phase 2: Fuse observations into coherent events.
+        
+        Combines observations from multiple modalities using:
+        - Spatial-temporal clustering (observations near in space/time)
+        - Semantic correlation (observations describing similar things)
+        - Cross-modal validation (text + vision + sensor agreement)
+        - Confidence aggregation (multiple sources → higher confidence)
+        
+        Args:
+            observations: List of ExtractedObservation objects
+            request: Original request with options
+            
+        Returns:
+            Tupscore_disruptions(
+        self,
+        events: List[Dict[str, Any]],
+        request: Dict[str, Any]
+    ) -> Tuple[List[Dict[str, Any]], List[str]]:
+        """
+        Phase 3: Score supply chain disruptions.
+        
+        Analyzes each event to determine:
+        - Affected supply chain sectors (transportation, energy, etc.)
+        - Affected critical assets (bridges, ports, warehouses, etc.)
+        - Economic impact (estimated cost, GDP impact)
+        - Population impact (people affected, evacuations needed)
+        - Cascading risks (downstream effects, dependencies)
+        - Overall disruption severity score
+        
+        Args:
+            events: List of FusedEvent objects
+            request: Original request with options
+            
+        Returns:
+            Tuple of (disruptions, warnings):
+                - disruptions: List of DisruptionAssessment objects
+                - warnings: List of warning messages
+        disruptions: List[Dict[str, Any]],
+        request: Dict[str, Any]
+    ) -> tuple[List[Dict[str, Any]], List[str]]:
+        """
+        Phase 4: Generate actionable alert recommendations.
+        
+        Creates prioritized alerts with:
+        - Priority level (urgent, high, normal, low)
+        - Clear title and message
+        - List of recommended actions
+        - Required resources (personnel, equipment)
+        - Time constraints (response window)
+        - Target audiences (emergency managers, first responders, etc.)
+        
+        Alerts are generated for events that meet threshold criteria
+        (e.g., high severity, significant population impact).
+        
+        Args:
+            eveprepare_visualizations(
+        self,
+        events: List[Dict[str, Any]],
+        disruptions: List[Dict[str, Any]],
+        alerts: List[Dict[str, Any]]
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        """
+        Phase 5: Prepare visualization outputs for frontend.
+        
+        Transforms domain objects into frontend-ready formats:
+        - Map features: GeoJSON-compatible features for mapping
+        - Dashboard summary: Aggregated situational awareness data
+        
+        Args:
+            events: List of FusedEvent objects
+            disruptions: List of DisruptionAssessment objects
+            alerts: List of AlertRecommendation objects
+            
+        Returns:
+            Tuple of (map_features, dashboard_summary):
+                - map_features: List of MapFeaturePayload objects (GeoJSON)
+                - dashboard_summary: DashboardSummary object
+        """
+        # TODO: Replace with real visualization mapper
+        # map_features = await self.visualization_mapper.events_to_map_features(events)
+        # dashboard = await self.visualization_mapper.create_dashboard_summary(
+        #     events, disruptions, alerts
+        # )
+        
+        map_features = self._mock_map_features(events)
+        dashboard = self._mock_dashboard_summary(events, disruptions, alerts)
+        
+        return map_features, dashboard   "pipeline": "5-phase",
+                    "version": "1.0.0"
+    # ================================================================
+    # MOCK IMPLEMENTATIONS
+    # These should be replaced with real agent/service calls
+    # ================================================================
+    
+    def _mock_text_extraction(
+        self,
+        signal: Dict[str, Any],
+        index: int
+    ) -> List[Dict[str, Any]]:
+        """Mock: Extract observation from text signal."""
+        content = signal.get("content", "")
+        return [{
+            "observationId": f"obs-text-{index}-{uuid.uuid4().hex[:8]}",
+            "observationType": "text_report",
+            "description": content[:100] if content else "Mock text observation",
+            "sourceSignalIds": [signal.get("signalId", f"txt-{index}")],
+            "confidence": signal.get("confidence", 0.7),
+            "location": signal.get("location"),
+            "timeReference": {
+                "timestamp": signal.get("createdAt", self._utc_now())
+            },
+            "severity": "moderate",
+            "affectedSectors": ["transportation"],
+            "affectedAssets": ["road"],
+            "extractedData": {
+                "entities": [],
+                "keywords": ["traffic", "incident"]
+            }
+        }]
+    
+    def _mock_vision_analysis(
+        self,
+        signal: Dict[str, Any],
+        index: int
+    ) -> List[Dict[str, Any]]:
+        """Mock: Extract observation from vision signal."""
+        return [{
+            "observationId": f"obs-vision-{index}-{uuid.uuid4().hex[:8]}",
+            "observationType": "visual_observation",
+            "description": "Mock visual analysis",
+            "sourceSignalIds": [signal.get("signalId", f"vis-{index}")],
+            "confidence": signal.get("confidence", 0.8),
+            "location": signal.get("location"),
+            "timeReference": {
+                "timestamp": signal.get("createdAt", self._utc_now())
+            },
+            "severity": "moderate",
+            "affectedSectors": ["transportation"],
+            "affectedAssets": ["road"],
+            "extractedData": {
+                "detectedObjects": signal.get("detectedObjects", [])
+            }
+        }]
+    
+    def _mock_quantitative_analysis(
+        self,
+        signal: Dict[str, Any],
+        index: int
+    ) -> List[Dict[str, Any]]:
+        """Mock: Extract observation from quantitative signal."""
+        measurement_type = signal.get("measurementType", "unknown")
+        value = signal.get("value", 0)
+        
+        return [{
+            "observationId": f"obs-quant-{index}-{uuid.uuid4().hex[:8]}",
+            "observationType": "sensor_reading",
+            "description": f"Sensor reading: {measurement_type} = {value}",
+            "sourceSignalIds": [signal.get("signalId", f"qnt-{index}")],
+            "confidence": signal.get("confidence", 0.9),
+            "location": signal.get("location"),
+            "timeReference": {
+                "timestamp": signal.get("createdAt", self._utc_now())
+            },
+            "severity": "moderate" if signal.get("deviationScore", 0) > 0.5 else "low",
+            "affectedSectors": ["transportation"],
+            "affectedAssets": ["road"],
+            "extractedData": {
+                "measurementType": measurement_type,
+                "value": value,
+                "deviationScore": signal.get("deviationScore", 0)
+            }
+        }]
+    
+    def _mock_fusion(
+        self,
+        observations: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Mock: Fuse observations into events.
+        
+        Real implementation would:
+        - Cluster observations by location/time
+        - Match semantically similar observations
+        - Aggregate confidence scores
+        - Validate cross-modal consistency
+        """
+        if not observations:
+            return []
+        
+        # Simple mock: create one event from all observations
+        event_id = f"evt-{uuid.uuid4().hex[:12]}"
+        
+        return [{
+            "eventId": event_id,
+            "eventType": "traffic_incident",
+            "title": "Traffic Incident Detected",
+            "description": f"Fused event from {len(observations)} observations",
+            "confidence": 0.75,
+            "severity": "moderate",
+            "location": observations[0].get("location", {}),
+            "timeReference": {
+                "timestamp": self._utc_now(),
+                "precision": "minute"
+            },
+            "sourceSignalIds": [
+                sig_id for obs in observations
+                for sig_id in obs.get("sourceSignalIds", [])
+            ],
+            "observations": observations,
+            "affectedSectors": ["transportation"],
+            "affectedAssets": ["road"],
+            "impactRadiusMeters": 1000,
+            "status": "active",
+            "detectedAt": self._utc_now(),
+            "updatedAt": self._utc_now()
+        }]
+    
+    def _mock_disruption_scoring(
+        self,
+        events: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Mock: Score supply chain disruptions.
+        
+        Real implementation would:
+        - Analyze affected sectors and assets
+        - Estimate economic impact
+        - Calculate population impact
+        - Identify cascading risks
+        - Compute overall severity score
+        """
+        disruptions = []
+        
+        for event in events:
+            assessment_id = f"assess-{event['eventId'].split('-')[-1]}"
+            
+            disruptions.append({
+                "assessmentId": assessment_id,
+                "eventId": event["eventId"],
+                "disruptionSeverity": event.get("severity", "moderate"),
+                "confidence": event.get("confidence", 0.7),
+                "sectorImpacts": [{
+                    "sector": "transportation",
+                    "impactLevel": "moderate",
+                    "description": "Road network disruption",
+                    "estimatedDurationHours": 4
+                }],
+                "assetImpacts": [{
+                    "assetType": "road",
+                    "specificAsset": "Highway section",
+                    "operationalStatus": "degraded",
+                    "estimatedDowntimeHours": 4
+                }],
+                "economicImpact": {
+                    "estimatedCostUSD": 50000,
+                    "currency": "USD",
+                    "confidence": 0.5
+                },
+                "populationImpact": {
+                    "estimatedAffected": 1000,
+                    "categories": ["commuters", "residents"],
+                    "confidence": 0.6
+                },
+                "cascadingEffects": [
+                    "Traffic delays on alternate routes",
+                    "Delivery delays"
+                ],
+                "recommendations": [
+                    "Implement traffic diversion",
+                    "Monitor adjacent roads"
+                ],
+                "assessedAt": self._utc_now()
+            })
+        
+        return disruptions
+    
+    def _mock_alert_generation(
+        self,
+        events: List[Dict[str, Any]],
+        disruptions: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Mock: Generate alert recommendations.
+        
+        Real implementation would:
+        - Determine priority based on severity and impact
+        - Generate natural language descriptions
+        - Identify specific recommended actions
+        - Estimate resource requirements
+        - Set time constraints
+        """
+        alerts = []
+        
+        for event in events:
+            if event.get("severity") in ["high", "critical"]:
+                alert_id = f"alert-{event['eventId'].split('-')[-1]}"
+                
+                alerts.append({
+                    "alertId": alert_id,
+                    "priority": "high" if event["severity"] == "high" else "urgent",
+                    "title": event.get("title", "Incident Alert"),
+                    "message": event.get("description", "No description"),
+                    "recommendedActions": [
+                        "Deploy emergency response teams",
+                        "Notify affected population",
+                        "Establish traffic control"
+                    ],
+                    "resourcesNeeded": [
+                        "Traffic control personnel",
+                        "Emergency vehicles"
+                    ],
+                    "timeConstraints": {
+                        "responseNeededBy": "Within 1 hour",
+                        "estimatedDuration": "4 hours"
+                    },
+                    "targetAudiences": ["emergency_managers", "first_responders"],
+                    "relatedEventIds": [event["eventId"]],
+                    "status": "active",
+                    "createdAt": self._utc_now(),
+                    "expiresAt": None
+                })
+        
+        return alerts
+    
+    def _mock_map_features(
+        self,
+        events: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Mock: Create GeoJSON map features."""
+        features = []
+        
+        for event in events:
+            location = event.get("location", {})
+            if not location or not location.get("latitude"):
+                continue
+            
+            features.append({
+                "featureId": f"map-{event['eventId']}",
+                "featureType": "event",
+                "dataId": event["eventId"],
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        location.get("longitude", 0),
+                        location.get("latitude", 0)
+                    ]
+                },
+                "properties": {
+                    "title": event.get("title", "Event"),
+                    "severity": event.get("severity", "moderate"),
+                    "status": event.get("status", "active")
+                },
+                "style": {
+                    "fillColor": "#f57c00",
+                    "strokeColor": "#e65100",
+                    "strokeWidth": 2
+                },
+                "layer": "events",
+                "visible": True,
+                "timestamp": event.get("detectedAt", self._utc_now())
+            })
+        
+        return features
+    
+    def _mock_dashboard_summary(
+        self,
+        events: List[Dict[str, Any]],
+        disruptions: List[Dict[str, Any]],
+        alerts: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Mock: Create dashboard summary."""
+        return {
+            "generatedAt": self._utc_now(),
+            "timeWindow": {
+                "startTime": self._utc_now(),
+                "endTime": self._utc_now()
+            },
+            "situationStatus": {
+                "overallSeverity": "moderate",
+                "activeEventsCount": len(events),
+                "criticalAlertsCount": sum(
+                    1 for a in alerts if a.get("priority") == "urgent"
+                ),
+                "affectedRegions": ["Mock Region"]
+            },
+            "eventsBySeverity": [
+                {
+                    "severity": sev,
+                    "count": sum(1 for e in events if e.get("severity") == sev),
+                    "trend": "stable"
+                }
+                for sev in ["critical", "high", "moderate", "low"]
+            ],
+            "sectorDisruptions": [
+                {
+                    "sector": "transportation",
+                    "disruptionLevel": "moderate",
+                    "affectedAssets": len(events)
+                }
+            ],
+            "alerts": {
+                "urgent": sum(1 for a in alerts if a.get("priority") == "urgent"),
+                "high": sum(1 for a in alerts if a.get("priority") == "high"),
+                "normal": sum(1 for a in alerts if a.get("priority") == "normal"),
+                "low": sum(1 for a in alerts if a.get("priority") == "low")
+            },
+            "keyMetrics": [
+                {
+                    "metricName": "Total Events",
+                    "value": len(events),
+                    "unit": "count",
+                    "trend": "stable"
+                }
+            ],
+            "recentSignificantEvents": events[:5]
+        }
+    
+    # ================================================================
+    # UTILITY METHODS
+    # ================================================================
+    
+    def _count_signals(self, request: Dict[str, Any]) -> int:
+        """Count total signals in request."""
+        return (
+            len(request.get("textSignals", [])) +
+            len(request.get("visionSignals", [])) +
+            len(request.get("quantSignals", []))
+        )
+    
+    def _utc_now(self) -> str:
+        """Get current UTC timestamp in ISO 8601 format."""
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    
+    def _handle_processing_error(
+        self,
+        error: Exception,
+        trace: Dict[str, Any],
+        start_time: float
+    ) -> Dict[str, Any]:
+        """
+        Handle catastrophic processing errors.
+        
+        Returns error response with trace context for debugging.
+        """
+        processing_duration_ms = int((time.time() - start_time) * 1000)
+        
+        return {
+            "trace": trace,
+            "status": "error",
+            "processedAt": self._utc_now(),
+            "processingDurationMs": processing_duration_ms,
+            "events": [],
+            "disruptions": [],
+            "alerts": [],
+            "mapFeatures": [],
+            "dashboardSummary": {},
+            "warnings": [],
+            "errors": [{
+                "code": "PROCESSING_ERROR",
+                "message": str(error),
+                "statusCode": 500,
+                "timestamp": self._utc_now(),
+                "trace": trace
+            }],
+            "metadata": {
+                "signalsProcessed": 0,
+                "pipeline": "5-phase",
+                "failedAt": "unknown"
+            }observations.extend(obs)
+        
+        # TODO: Process vision signals
+        # for signal in request.get("visionSignals", []):
+        #     obs = await self.vision_agent.analyze(signal)
+        #     observations.extend(obs)
+        
+        # TODO: Process quantitative signals
+        # for signal in request.get("quantSignals", []):
+        #     obs = await self.quant_agent.analyze(signal)
+        #     observations.extend(obs)
+        
+        return observations
+    
+    async def _fuse_events(
+        self,
+        observations: List[Dict[str, Any]],
+        request: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Phase 2: Fuse observations into events.
+        
+        Combines observations using:
+        - Spatial-temporal correlation
+        - Semantic similarity
+        - Confidence aggregation
+        
+        Returns list of FusedEvent objects.
+        """
+        # TODO: Implement fusion logic
+        # return await self.fusion_service.fuse(observations, request.get("options", {}))
+        return []
+    
+    async def _assess_disruptions(
+        self,
+        events: List[Dict[str, Any]],
+        request: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Phase 3: Assess supply chain disruptions.
+        
+        Analyzes:
+        - Sector impacts
+        - Asset impacts
+        - Economic effects
+        - Population effects
+        - Cascading risks
+        
+        Returns list of DisruptionAssessment objects.
+        """
+        # TODO: Implement assessment logic
+        # return await self.assessment_service.assess(events, request.get("options", {}))
+        return []
+    
+    async def _generate_alerts(
+        self,
+        events: List[Dict[str, Any]],
+        assessments: List[Dict[str, Any]],
+        request: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Phase 4: Generate alert recommendations.
+        
+        Creates actionable alerts with:
+        - Priority determination
+        - Recommended actions
+        - Resource requirements
+        - Target audiences
+        
+        Returns list of AlertRecommendation objects.
+        """
+        # TODO: Implement alert generation
+        # return await self.alert_service.generate(events, assessments, request.get("options", {}))
+        return []
+    
+    async def _create_map_features(
+        self,
+        events: List[Dict[str, Any]],
+        assessments: List[Dict[str, Any]],
+        alerts: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Phase 5a: Create map features for visualization.
+        
+        Converts events/assessments/alerts to GeoJSON-compatible features.
+        
+        Returns list of MapFeaturePayload objects.
+        """
+        # TODO: Implement mapping
+        # return await self.mapper_service.create_map_features(events, assessments, alerts)
+        return []
+    
+    async def _create_dashboard_summary(
+        self,
+        events: List[Dict[str, Any]],
+        assessments: List[Dict[str, Any]],
+        alerts: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Phase 5b: Create dashboard summary.
+        
+        Aggregates data for situational awareness display.
+        
+        Returns DashboardSummary object.
+        """
+        # TODO: Implement dashboard creation
+        # return await self.mapper_service.create_dashboard_summary(events, assessments, alerts)
+        return {}
+    
+    def _count_signals(self, request: Dict[str, Any]) -> int:
+        """Count total signals in request."""
+        return (
+            len(request.get("textSignals", [])) +
+            len(request.get("visionSignals", [])) +
+            len(request.get("quantSignals", []))
+        )
+    
+    def _handle_processing_error(
+        self,
+        error: Exception,
+        request: Dict[str, Any],
+        start_time: float
+    ) -> Dict[str, Any]:
+        """Handle processing errors and return error response."""
+        processing_duration_ms = int((time.time() - start_time) * 1000)
+        
+        return {
+            "trace": request.get("trace", {}),
+            "status": "error",
+            "processedAt": datetime.utcnow().isoformat() + "Z",
+            "processingDurationMs": processing_duration_ms,
+            "events": [],
+            "disruptions": [],
+            "alerts": [],
+            "mapFeatures": [],
+            "errors": [{
+                "code": "PROCESSING_ERROR",
+                "message": str(error),
+                "statusCode": 500,
+                "timestamp": datetime.utcnow().isoformat() + "Z"
+            }]
+        }

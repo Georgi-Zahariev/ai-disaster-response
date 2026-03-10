@@ -1,0 +1,24 @@
+{
+  "name": "@ai-disaster-response/shared-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript schemas for multimodal disaster response system",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "validate": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "keywords": [
+    "disaster-response",
+    "typescript",
+    "schemas",
+    "types",
+    "supply-chain",
+    "situational-awareness"
+  ],
+  "author": "AI Disaster Response Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
