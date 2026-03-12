@@ -3,11 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "description": "Frontend for AI Disaster Response system",
+  "type": "module",
   "scripts": {
-    "dev": "echo 'Frontend not yet implemented - choose React, Vue, or other framework'",
-    "build": "echo 'Frontend build not configured'",
-    "test": "echo 'Frontend tests not configured'"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^7.3.1"
+  }
 }
