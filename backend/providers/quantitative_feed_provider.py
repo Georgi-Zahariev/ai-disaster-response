@@ -1,363 +1,33 @@
-"""
-Quantitative Feed Provider - Mock implementation.
+"""Tampa Bay route/traffic signal provider and adapter.
 
-Provides quantitative/sensor-based signals from various sources:
-- Traffic sensors (flow, speed, volume)
-- Weather stations (temperature, precipitation, wind)
-- Port throughput sensors (container counts, dwell time)
-- Fuel level monitors (gas stations, storage facilities)
-- Rail counters (freight volume, delays)
-- Environmental sensors (air quality, water levels)
+This provider keeps the existing `QuantitativeFeedProvider` class name for
+compatibility, but the responsibility is now route/traffic ingestion for the
+active Tampa Bay MVP path.
 
-In production, this will integrate with:
-- WSDOT traffic sensor APIs
-- NOAA weather APIs
-- Port authority data feeds
-- Energy/fuel monitoring systems
-- Rail tracking systems
+Scope:
+- incidents
+- closures
+- restricted access
+- abnormal slowdown/congestion anomalies
 """
 
-from typing import List, Dict, Any, Optional
+from __future__ import annotations
+
 from datetime import datetime, timezone, timedelta
-import random
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+import json
 import uuid
+
+from backend.utils.tampa_bay_scope import ALLOWED_COUNTIES
 
 
 class QuantitativeFeedProvider:
-    """
-    Mock provider for quantitative/sensor signals.
-    
-    Simulates various sensor readings that indicate disaster events
-    and supply chain disruptions through numerical deviations.
-    """
-    
-    def __init__(self):
-        """Initialize the quantitative feed provider."""
-        self.mock_scenarios = self._initialize_scenarios()
-    
-    def _initialize_scenarios(self) -> List[Dict[str, Any]]:
-        """
-        Initialize library of mock quantitative scenarios.
-        
-        Each scenario represents a sensor reading with anomalous
-        values indicating a disruption.
-        """
-        return [
-            # TRAFFIC FLOW SENSORS
-            {
-                "source": "wsdot_traffic_sensor",
-                "measurement_type": "traffic_flow",
-                "description": "Severe traffic flow reduction indicating major blockage",
-                "value": 8,
-                "units": "vehicles_per_minute",
-                "baseline_value": 45,
-                "deviation_score": 0.95,
-                "severity": "high",
-                "location": {"latitude": 47.6062, "longitude": -122.3321, "address": "I-5 N, Seattle, WA"},
-                "sectors": ["transportation"],
-                "assets": ["highway"]
-            },
-            {
-                "source": "traffic_loop_detector",
-                "measurement_type": "average_speed",
-                "description": "Average speed dropped to near-zero indicating complete stoppage",
-                "value": 3,
-                "units": "mph",
-                "baseline_value": 55,
-                "deviation_score": 0.98,
-                "severity": "critical",
-                "location": {"latitude": 47.6543, "longitude": -122.1891, "address": "I-405 S, Kirkland, WA"},
-                "sectors": ["transportation"],
-                "assets": ["highway"]
-            },
-            {
-                "source": "traffic_count_station",
-                "measurement_type": "hourly_volume",
-                "description": "Traffic volume spike indicating diversion from primary route",
-                "value": 8500,
-                "units": "vehicles_per_hour",
-                "baseline_value": 3200,
-                "deviation_score": 0.87,
-                "severity": "moderate",
-                "location": {"latitude": 47.5932, "longitude": -122.2788, "address": "I-90 E, Bellevue, WA"},
-                "sectors": ["transportation"],
-                "assets": ["highway"]
-            },
-            
-            # PORT THROUGHPUT SENSORS
-            {
-                "source": "port_terminal_system",
-                "measurement_type": "container_moves_per_hour",
-                "description": "Container processing rate dropped to zero",
-                "value": 0,
-                "units": "containers_per_hour",
-                "baseline_value": 42,
-                "deviation_score": 1.0,
-                "severity": "critical",
-                "location": {"latitude": 47.5768, "longitude": -122.3505, "address": "Port of Seattle, Terminal 5"},
-                "sectors": ["transportation", "logistics"],
-                "assets": ["port", "terminal"]
-            },
-            {
-                "source": "port_monitoring",
-                "measurement_type": "container_dwell_time",
-                "description": "Container dwell time increased significantly",
-                "value": 8.5,
-                "units": "days",
-                "baseline_value": 2.1,
-                "deviation_score": 0.82,
-                "severity": "high",
-                "location": {"latitude": 47.5768, "longitude": -122.3505, "address": "Port of Seattle"},
-                "sectors": ["logistics"],
-                "assets": ["port"]
-            },
-            {
-                "source": "vessel_tracking",
-                "measurement_type": "ships_in_queue",
-                "description": "Vessel queue length increased dramatically",
-                "value": 23,
-                "units": "vessels",
-                "baseline_value": 4,
-                "deviation_score": 0.89,
-                "severity": "high",
-                "location": {"latitude": 47.6097, "longitude": -122.6319, "address": "Puget Sound"},
-                "sectors": ["transportation", "logistics"],
-                "assets": ["port", "waterway"]
-            },
-            
-            # RAIL MONITORING
-            {
-                "source": "rail_counter",
-                "measurement_type": "freight_trains_per_day",
-                "description": "Rail freight volume dropped to zero",
-                "value": 0,
-                "units": "trains_per_day",
-                "baseline_value": 18,
-                "deviation_score": 1.0,
-                "severity": "critical",
-                "location": {"latitude": 47.9790, "longitude": -122.2021, "address": "BNSF Railway, Everett, WA"},
-                "sectors": ["transportation", "logistics"],
-                "assets": ["rail", "tracks"]
-            },
-            {
-                "source": "rail_delay_tracker",
-                "measurement_type": "average_delay",
-                "description": "Freight train delays increased dramatically",
-                "value": 12.5,
-                "units": "hours",
-                "baseline_value": 1.2,
-                "deviation_score": 0.91,
-                "severity": "high",
-                "location": {"latitude": 47.9790, "longitude": -122.2021, "address": "BNSF Railway Network"},
-                "sectors": ["transportation", "logistics"],
-                "assets": ["rail"]
-            },
-            
-            # FUEL & ENERGY SENSORS
-            {
-                "source": "fuel_level_monitor",
-                "measurement_type": "fuel_inventory",
-                "description": "Gas station fuel levels critically low",
-                "value": 8,
-                "units": "percent",
-                "baseline_value": 65,
-                "deviation_score": 0.94,
-                "severity": "high",
-                "location": {"latitude": 47.6062, "longitude": -122.3321, "address": "Seattle Metro Area"},
-                "sectors": ["energy", "transportation"],
-                "assets": ["fuel_station"]
-            },
-            {
-                "source": "refinery_output_monitor",
-                "measurement_type": "daily_production",
-                "description": "Refinery production dropped by 40%",
-                "value": 60000,
-                "units": "barrels_per_day",
-                "baseline_value": 100000,
-                "deviation_score": 0.88,
-                "severity": "high",
-                "location": {"latitude": 48.8628, "longitude": -122.7572, "address": "BP Refinery, Cherry Point, WA"},
-                "sectors": ["energy", "manufacturing"],
-                "assets": ["refinery"]
-            },
-            {
-                "source": "pipeline_pressure_sensor",
-                "measurement_type": "pipeline_pressure",
-                "description": "Natural gas pipeline pressure dropped suddenly",
-                "value": 120,
-                "units": "psi",
-                "baseline_value": 800,
-                "deviation_score": 0.96,
-                "severity": "critical",
-                "location": {"latitude": 47.6101, "longitude": -122.2015, "address": "Bellevue, WA"},
-                "sectors": ["energy", "utilities"],
-                "assets": ["pipeline"]
-            },
-            {
-                "source": "power_grid_monitor",
-                "measurement_type": "grid_load",
-                "description": "Power grid load in industrial area dropped to near zero",
-                "value": 15,
-                "units": "megawatts",
-                "baseline_value": 150,
-                "deviation_score": 0.93,
-                "severity": "high",
-                "location": {"latitude": 47.5937, "longitude": -122.2697, "address": "East Seattle Industrial"},
-                "sectors": ["utilities", "manufacturing"],
-                "assets": ["power_grid", "industrial_area"]
-            },
-            
-            # WAREHOUSE & DISTRIBUTION SENSORS
-            {
-                "source": "warehouse_throughput",
-                "measurement_type": "packages_per_hour",
-                "description": "Package processing stopped completely",
-                "value": 0,
-                "units": "packages_per_hour",
-                "baseline_value": 12000,
-                "deviation_score": 1.0,
-                "severity": "critical",
-                "location": {"latitude": 47.3809, "longitude": -122.2348, "address": "Amazon FC, Kent, WA"},
-                "sectors": ["logistics", "retail"],
-                "assets": ["warehouse", "distribution_center"]
-            },
-            {
-                "source": "temperature_monitor",
-                "measurement_type": "cold_storage_temp",
-                "description": "Cold storage temperature rising above safe threshold",
-                "value": 45,
-                "units": "fahrenheit",
-                "baseline_value": 35,
-                "deviation_score": 0.79,
-                "severity": "moderate",
-                "location": {"latitude": 47.2034, "longitude": -122.2401, "address": "Costco DC, Sumner, WA"},
-                "sectors": ["logistics", "retail"],
-                "assets": ["warehouse", "cold_storage"]
-            },
-            {
-                "source": "inventory_system",
-                "measurement_type": "daily_shipments",
-                "description": "Outbound shipments reduced by 80%",
-                "value": 120,
-                "units": "shipments_per_day",
-                "baseline_value": 600,
-                "deviation_score": 0.86,
-                "severity": "high",
-                "location": {"latitude": 47.4473, "longitude": -122.3014, "address": "UPS Hub, SeaTac, WA"},
-                "sectors": ["logistics"],
-                "assets": ["distribution_center", "hub"]
-            },
-            
-            # WEATHER SENSORS
-            {
-                "source": "weather_station",
-                "measurement_type": "precipitation",
-                "description": "Extreme precipitation indicating flooding conditions",
-                "value": 4.8,
-                "units": "inches_per_hour",
-                "baseline_value": 0.2,
-                "deviation_score": 0.92,
-                "severity": "critical",
-                "location": {"latitude": 47.5216, "longitude": -122.3540, "address": "Duwamish Valley, Seattle, WA"},
-                "sectors": ["transportation", "manufacturing"],
-                "assets": ["industrial_area"]
-            },
-            {
-                "source": "snow_depth_sensor",
-                "measurement_type": "snow_depth",
-                "description": "Rapid snow accumulation on mountain pass",
-                "value": 36,
-                "units": "inches",
-                "baseline_value": 4,
-                "deviation_score": 0.89,
-                "severity": "high",
-                "location": {"latitude": 47.4239, "longitude": -121.4147, "address": "Snoqualmie Pass, WA"},
-                "sectors": ["transportation"],
-                "assets": ["highway", "mountain_pass"]
-            },
-            {
-                "source": "wind_sensor",
-                "measurement_type": "wind_speed",
-                "description": "High winds potentially dangerous for high-profile vehicles",
-                "value": 65,
-                "units": "mph",
-                "baseline_value": 12,
-                "deviation_score": 0.84,
-                "severity": "moderate",
-                "location": {"latitude": 47.2529, "longitude": -122.4443, "address": "I-5 Corridor, Tacoma, WA"},
-                "sectors": ["transportation"],
-                "assets": ["highway"]
-            },
-            
-            # ENVIRONMENTAL SENSORS
-            {
-                "source": "air_quality_monitor",
-                "measurement_type": "aqi",
-                "description": "Air quality index hazardous due to wildfire smoke",
-                "value": 285,
-                "units": "aqi",
-                "baseline_value": 45,
-                "deviation_score": 0.93,
-                "severity": "high",
-                "location": {"latitude": 47.3977, "longitude": -121.5562, "address": "I-90 Corridor, North Bend, WA"},
-                "sectors": ["transportation"],
-                "assets": ["highway"]
-            },
-            {
-                "source": "water_level_sensor",
-                "measurement_type": "flood_stage",
-                "description": "River at flood stage, industrial area threatened",
-                "value": 9.2,
-                "units": "feet_above_flood_stage",
-                "baseline_value": -2.5,
-                "deviation_score": 0.97,
-                "severity": "critical",
-                "location": {"latitude": 47.5216, "longitude": -122.3540, "address": "Duwamish River, Seattle, WA"},
-                "sectors": ["manufacturing", "transportation"],
-                "assets": ["industrial_area", "waterway"]
-            },
-            {
-                "source": "seismic_sensor",
-                "measurement_type": "shake_intensity",
-                "description": "Moderate earthquake detected, infrastructure may be damaged",
-                "value": 5.2,
-                "units": "magnitude",
-                "baseline_value": 0.0,
-                "deviation_score": 0.88,
-                "severity": "high",
-                "location": {"latitude": 47.6062, "longitude": -122.3321, "address": "Seattle, WA"},
-                "sectors": ["infrastructure", "transportation"],
-                "assets": ["bridge", "highway", "building"]
-            },
-            
-            # SUPPLY CHAIN TIMING
-            {
-                "source": "delivery_tracking",
-                "measurement_type": "average_delivery_delay",
-                "description": "Delivery delays increased dramatically across region",
-                "value": 18,
-                "units": "hours",
-                "baseline_value": 2,
-                "deviation_score": 0.91,
-                "severity": "high",
-                "location": {"latitude": 47.6062, "longitude": -122.3321, "address": "Seattle Metro Area"},
-                "sectors": ["logistics"],
-                "assets": ["distribution_network"]
-            },
-            {
-                "source": "truck_gps_aggregator",
-                "measurement_type": "active_trucks",
-                "description": "Number of active delivery trucks dropped significantly",
-                "value": 45,
-                "units": "trucks",
-                "baseline_value": 250,
-                "deviation_score": 0.86,
-                "severity": "high",
-                "location": {"latitude": 47.6062, "longitude": -122.3321, "address": "Seattle Metro Area"},
-                "sectors": ["logistics", "transportation"],
-                "assets": ["fleet"]
-            }
-        ]
+    """Adapter-ready route/traffic provider under the quantitative interface."""
+
+    def __init__(self, data_path: Optional[str] = None):
+        default_path = Path(__file__).parent / "data" / "tampa_route_traffic_signals.json"
+        self.data_path = Path(data_path) if data_path else default_path
     
     async def fetch_quantitative_signals(
         self,
@@ -366,104 +36,91 @@ class QuantitativeFeedProvider:
         measurement_types: Optional[List[str]] = None,
         severity_filter: Optional[str] = None
     ) -> List[Dict[str, Any]]:
-        """
-        Fetch mock quantitative signals.
-        
-        In production, this would:
-        - Query WSDOT traffic sensor APIs
-        - Poll NOAA weather station data
-        - Fetch port authority throughput metrics
-        - Query fuel level monitoring systems
-        - Access rail tracking data feeds
-        
-        Args:
-            count: Number of signals to return
-            sources: Filter by source types
-            measurement_types: Filter by measurement types
-            severity_filter: Filter by severity
-            
-        Returns:
-            List of QuantSignal objects
-        """
-        # TODO: Replace with real API calls
-        # Example integrations:
-        # - WSDOT: wsdot_client.get_traffic_flow(station_id=...)
-        # - NOAA: noaa_client.get_weather_observations(station=...)
-        # - Port: port_client.get_throughput_metrics(terminal=...)
-        # - Energy: fuel_monitor_client.get_inventory_levels(region=...)
-        
-        # Filter scenarios
-        available_scenarios = self.mock_scenarios
-        
+        """Fetch deterministic Tampa Bay route/traffic quantitative signals."""
+        raw_records = self._load_seed_records()
+        signals, _warnings = self.normalize_route_traffic_signals(raw_records)
+
+        filtered = list(signals)
         if sources:
-            available_scenarios = [
-                s for s in available_scenarios
-                if s["source"] in sources
-            ]
-        
+            source_set = set(sources)
+            filtered = [s for s in filtered if s.get("source") in source_set]
         if measurement_types:
-            available_scenarios = [
-                s for s in available_scenarios
-                if s["measurement_type"] in measurement_types
-            ]
-        
+            measurement_set = set(measurement_types)
+            filtered = [s for s in filtered if s.get("measurementType") in measurement_set]
         if severity_filter:
-            available_scenarios = [
-                s for s in available_scenarios
-                if s["severity"] == severity_filter
+            filtered = [
+                s for s in filtered
+                if (s.get("metadata", {}).get("severity_hint") == severity_filter)
             ]
-        
-        # Randomly select scenarios
-        selected = random.sample(
-            available_scenarios,
-            min(count, len(available_scenarios))
-        )
-        
-        # Convert to QuantSignal format
-        signals = []
-        for scenario in selected:
-            signals.append(self._create_quantitative_signal(scenario))
-        
-        return signals
+
+        return filtered[: max(0, count)]
     
-    def _create_quantitative_signal(self, scenario: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a QuantSignal from a scenario.
-        
-        Matches the TypeScript QuantSignal interface from shared-schemas.ts
-        """
-        now = datetime.now(timezone.utc)
-        created_at = now - timedelta(minutes=random.randint(1, 30))
-        
-        # Map severity to confidence (sensor data is typically high confidence)
-        confidence_map = {
-            "low": 0.85,
-            "moderate": 0.90,
-            "high": 0.94,
-            "critical": 0.98
+    async def fetch_recent_signals(self, limit: int = 5) -> List[Dict[str, Any]]:
+        """Compatibility alias used by generic provider tests."""
+        return await self.fetch_quantitative_signals(count=limit)
+
+    def normalize_route_traffic_signals(
+        self,
+        signals: List[Any],
+        counties: Optional[List[str]] = None
+    ) -> Tuple[List[Dict[str, Any]], List[str]]:
+        """Normalize provider-specific route/traffic records into quantSignals."""
+        warnings: List[str] = []
+        allowed_counties = {
+            c.strip().lower().replace(" county", "")
+            for c in (counties or list(ALLOWED_COUNTIES))
+        }.intersection(ALLOWED_COUNTIES)
+
+        normalized: List[Dict[str, Any]] = []
+        for idx, record in enumerate(signals):
+            try:
+                signal = self._normalize_single_signal(record)
+            except ValueError as exc:
+                warnings.append(f"Skipped invalid route traffic signal index {idx}: {exc}")
+                continue
+
+            location = signal.get("location", {})
+            county = str(location.get("county", "")).strip().lower().replace(" county", "")
+            if county not in allowed_counties:
+                continue
+
+            normalized.append(signal)
+
+        return normalized, warnings
+
+    def summarize_route_traffic(self, signals: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Build small deterministic route/traffic context summary."""
+        concept_counts = {
+            "incident": 0,
+            "closure": 0,
+            "restricted": 0,
+            "abnormal_slowdown": 0,
         }
-        
+        county_counts: Dict[str, int] = {}
+        routes_closed: List[str] = []
+
+        for signal in signals:
+            metadata = signal.get("metadata", {}) if isinstance(signal, dict) else {}
+            route_meta = metadata.get("routeTraffic", {}) if isinstance(metadata, dict) else {}
+            concept = route_meta.get("concept")
+            if concept in concept_counts:
+                concept_counts[concept] += 1
+
+            location = signal.get("location", {}) if isinstance(signal, dict) else {}
+            county = str(location.get("county", "")).strip().lower().replace(" county", "")
+            if county:
+                county_counts[county] = county_counts.get(county, 0) + 1
+
+            if route_meta.get("accessStatus") == "closed":
+                route_name = route_meta.get("routeName") or route_meta.get("routeId")
+                if isinstance(route_name, str) and route_name and route_name not in routes_closed:
+                    routes_closed.append(route_name)
+
         return {
-            "signalId": f"qnt-{uuid.uuid4().hex[:12]}",
-            "signalType": "quantitative",
-            "source": scenario["source"],
-            "measurementType": scenario["measurement_type"],
-            "value": scenario["value"],
-            "units": scenario["units"],
-            "baselineValue": scenario["baseline_value"],
-            "deviationScore": scenario["deviation_score"],
-            "confidence": confidence_map.get(scenario["severity"], 0.90),
-            "location": scenario["location"],
-            "createdAt": created_at.isoformat().replace("+00:00", "Z"),
-            "receivedAt": now.isoformat().replace("+00:00", "Z"),
-            "metadata": {
-                "severity_hint": scenario["severity"],
-                "description": scenario["description"],
-                "sectors_hint": scenario["sectors"],
-                "assets_hint": scenario["assets"],
-                "anomaly_type": "deviation",
-                "mock": True
-            }
+            "signalCount": len(signals),
+            "conceptCounts": concept_counts,
+            "countyCounts": county_counts,
+            "closedRoutes": routes_closed,
         }
     
     async def get_time_series(
@@ -473,97 +130,209 @@ class QuantitativeFeedProvider:
         location: Dict[str, Any],
         hours: int = 24
     ) -> List[Dict[str, Any]]:
-        """
-        Get historical time series data for a sensor (mock).
-        
-        In production, this would query historical sensor data
-        to show trends and patterns over time.
-        
-        Args:
-            source: Sensor source identifier
-            measurement_type: Type of measurement
-            location: Geographic location
-            hours: Number of hours of history to retrieve
-            
-        Returns:
-            List of time series data points
-        """
-        # TODO: Implement historical data retrieval
-        # Example:
-        # - time_series_db.query(source, measurement_type, time_range=...)
-        # - influxdb_client.query(from=hours_ago, to=now, ...)
-        
-        # Return mock time series
+        """Return deterministic placeholder time series for adapter validation."""
         time_series = []
+        now = datetime.now(timezone.utc)
         for i in range(hours):
-            timestamp = datetime.now(timezone.utc) - timedelta(hours=hours-i)
-            
-            # Simulate normal values trending toward anomaly
-            if i < hours - 2:
-                value = 45 + random.uniform(-5, 5)  # Baseline with noise
-            else:
-                value = 45 - (hours - i) * 15  # Sharp drop
-            
+            timestamp = now - timedelta(hours=hours - i)
+            value = 38 if i < max(hours - 2, 0) else 12
             time_series.append({
                 "timestamp": timestamp.isoformat().replace("+00:00", "Z"),
-                "value": max(0, value),
-                "units": "vehicles_per_minute"
+                "value": float(value),
+                "units": "mph",
+                "measurementType": measurement_type,
+                "source": source,
             })
-        
+
         return time_series
     
     def get_supported_sources(self) -> List[str]:
-        """Get list of supported quantitative sources."""
+        """Get route/traffic sources currently supported by the adapter."""
         return [
-            "wsdot_traffic_sensor",
-            "traffic_loop_detector",
-            "traffic_count_station",
-            "port_terminal_system",
-            "port_monitoring",
-            "vessel_tracking",
-            "rail_counter",
-            "rail_delay_tracker",
-            "fuel_level_monitor",
-            "refinery_output_monitor",
-            "pipeline_pressure_sensor",
-            "power_grid_monitor",
-            "warehouse_throughput",
-            "temperature_monitor",
-            "inventory_system",
-            "weather_station",
-            "snow_depth_sensor",
-            "wind_sensor",
-            "air_quality_monitor",
-            "water_level_sensor",
-            "seismic_sensor",
-            "delivery_tracking",
-            "truck_gps_aggregator"
+            "fl511_adapter_seed",
+            "county_dot_seed",
+            "traffic_probe_seed",
+            "tampa_route_traffic_adapter",
         ]
     
     def get_supported_measurement_types(self) -> List[str]:
-        """Get list of supported measurement types."""
+        """Get route/traffic-focused measurement types."""
         return [
-            "traffic_flow",
+            "route_access_state",
+            "traffic_incident_count",
             "average_speed",
-            "hourly_volume",
-            "container_moves_per_hour",
-            "container_dwell_time",
-            "ships_in_queue",
-            "freight_trains_per_day",
-            "average_delay",
-            "fuel_inventory",
-            "daily_production",
-            "pipeline_pressure",
-            "grid_load",
-            "packages_per_hour",
-            "cold_storage_temp",
-            "daily_shipments",
-            "precipitation",
-            "snow_depth",
-            "wind_speed",
-            "aqi",
-            "flood_stage",
-            "shake_intensity",
-            "average_delivery_delay",
-            "active_trucks"
+            "travel_time_index",
         ]
+
+    def _load_seed_records(self) -> List[Dict[str, Any]]:
+        if not self.data_path.exists():
+            return []
+        try:
+            payload = json.loads(self.data_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        if isinstance(payload, dict) and isinstance(payload.get("signals"), list):
+            return payload["signals"]
+        if isinstance(payload, list):
+            return payload
+        return []
+
+    def _normalize_single_signal(self, raw: Any) -> Dict[str, Any]:
+        if not isinstance(raw, dict):
+            raise ValueError("signal must be an object")
+
+        concept = self._normalize_concept(raw)
+        severity = str(
+            raw.get("severity")
+            or raw.get("severity_hint")
+            or (raw.get("metadata", {}) or {}).get("severity_hint")
+            or self._severity_from_concept(concept)
+        ).strip().lower()
+
+        measurement_type = str(raw.get("measurementType") or raw.get("measurement_type") or "").strip()
+        if not measurement_type:
+            measurement_type = "average_speed" if concept == "abnormal_slowdown" else "route_access_state"
+
+        value = self._numeric(
+            raw.get("value"),
+            fallback=9.0 if concept == "abnormal_slowdown" else 0.0,
+        )
+        baseline_value = self._numeric(raw.get("baselineValue") or raw.get("baseline_value"), fallback=1.0)
+        deviation_score = self._numeric(raw.get("deviationScore") or raw.get("deviation_score"), fallback=0.7)
+        deviation_score = max(0.0, min(deviation_score, 1.0))
+
+        source = str(raw.get("source") or raw.get("provider") or "tampa_route_traffic_adapter").strip()
+
+        location = self._normalize_location(raw.get("location"), raw)
+
+        route_id = str(raw.get("routeId") or raw.get("route_id") or "").strip() or None
+        route_name = str(raw.get("routeName") or raw.get("route_name") or "").strip() or None
+        access_status = str(raw.get("accessStatus") or raw.get("access_status") or self._status_from_concept(concept)).strip().lower()
+
+        evidence = raw.get("evidence") if isinstance(raw.get("evidence"), dict) else {}
+        source_record_id = str(raw.get("sourceRecordId") or raw.get("source_record_id") or evidence.get("sourceRecordId") or "").strip() or None
+
+        created_at = self._normalize_timestamp(raw.get("createdAt") or raw.get("created_at"))
+        received_at = self._normalize_timestamp(raw.get("receivedAt") or raw.get("received_at"))
+
+        signal_id = str(raw.get("signalId") or "").strip() or f"qnt-traffic-{uuid.uuid4().hex[:10]}"
+        confidence = max(0.0, min(self._numeric(raw.get("confidence"), fallback=self._confidence_from_severity(severity)), 1.0))
+
+        metadata = raw.get("metadata") if isinstance(raw.get("metadata"), dict) else {}
+        description = str(raw.get("description") or metadata.get("description") or "Route/traffic anomaly detected").strip()
+
+        route_meta = {
+            "concept": concept,
+            "accessStatus": access_status,
+            "routeId": route_id,
+            "routeName": route_name,
+            "sourceRecordId": source_record_id,
+            "evidenceRef": {
+                "cameraId": evidence.get("cameraId") or evidence.get("camera_id"),
+                "sourceUrl": evidence.get("sourceUrl") or evidence.get("source_url"),
+                "sourceRecordId": source_record_id,
+            },
+        }
+
+        return {
+            "signalId": signal_id,
+            "signalType": "quantitative",
+            "source": source,
+            "measurementType": measurement_type,
+            "value": value,
+            "units": str(raw.get("units") or "index"),
+            "baselineValue": baseline_value,
+            "deviationScore": deviation_score,
+            "confidence": confidence,
+            "location": location,
+            "createdAt": created_at,
+            "receivedAt": received_at,
+            "metadata": {
+                **metadata,
+                "severity_hint": severity,
+                "description": description,
+                "sectors_hint": ["transportation"],
+                "assets_hint": ["road", "route_access"],
+                "sourceRecordId": source_record_id,
+                "routeTraffic": route_meta,
+            },
+        }
+
+    def _normalize_location(self, location_value: Any, raw: Dict[str, Any]) -> Dict[str, Any]:
+        location = location_value if isinstance(location_value, dict) else {}
+        latitude = self._numeric(location.get("latitude") or raw.get("latitude"), fallback=None)
+        longitude = self._numeric(location.get("longitude") or raw.get("longitude"), fallback=None)
+        county_raw = location.get("county") or raw.get("county")
+
+        if latitude is None or longitude is None:
+            raise ValueError("location latitude/longitude are required")
+
+        county = str(county_raw or "").strip().lower().replace(" county", "")
+        if county not in ALLOWED_COUNTIES:
+            raise ValueError(f"county '{county}' outside Tampa Bay scope")
+
+        normalized: Dict[str, Any] = {
+            "latitude": float(latitude),
+            "longitude": float(longitude),
+            "county": county,
+        }
+        place_name = location.get("placeName") or raw.get("placeName")
+        if isinstance(place_name, str) and place_name.strip():
+            normalized["placeName"] = place_name.strip()
+        return normalized
+
+    def _normalize_concept(self, raw: Dict[str, Any]) -> str:
+        metadata = raw.get("metadata") if isinstance(raw.get("metadata"), dict) else {}
+        route_meta = metadata.get("routeTraffic") if isinstance(metadata.get("routeTraffic"), dict) else {}
+
+        candidate = (
+            raw.get("concept")
+            or raw.get("eventType")
+            or raw.get("event_type")
+            or route_meta.get("concept")
+            or metadata.get("concept")
+        )
+        concept = str(candidate or "incident").strip().lower().replace("-", "_")
+        if concept in {"slowdown", "congestion", "severe_slowdown"}:
+            concept = "abnormal_slowdown"
+        if concept not in {"incident", "closure", "restricted", "abnormal_slowdown"}:
+            raise ValueError(f"unsupported concept '{concept}'")
+        return concept
+
+    def _severity_from_concept(self, concept: str) -> str:
+        if concept == "closure":
+            return "high"
+        if concept in {"restricted", "abnormal_slowdown"}:
+            return "moderate"
+        return "moderate"
+
+    def _status_from_concept(self, concept: str) -> str:
+        if concept == "closure":
+            return "closed"
+        if concept == "restricted":
+            return "restricted"
+        return "open"
+
+    def _confidence_from_severity(self, severity: str) -> float:
+        confidence_map = {
+            "critical": 0.98,
+            "high": 0.94,
+            "moderate": 0.9,
+            "low": 0.85,
+        }
+        return confidence_map.get(severity, 0.9)
+
+    def _normalize_timestamp(self, raw_value: Any) -> str:
+        if isinstance(raw_value, str) and raw_value.strip():
+            return raw_value
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+    def _numeric(self, value: Any, fallback: Optional[float]) -> Optional[float]:
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except ValueError:
+                return fallback
+        return fallback

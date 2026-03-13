@@ -32,9 +32,10 @@ class IncidentOrchestrator:
         """Initialize orchestrator with all required dependencies."""
         # TODO: Replace with real implementations
         # from backend.agents import TextExtractionAgent, VisionAnalysisAgent
-        # from backend.services.fusion import SignalFusionService
+        # from backend.agents import QuantitativeAnalysisAgent
         
         # Import real services that are now implemented
+        from backend.services.fusion import SignalFusionService
         from backend.services.scoring import DisruptionScoringService
         from backend.services.alerts import AlertGenerationService
         from backend.services.mappers import VisualizationMapper
@@ -42,7 +43,7 @@ class IncidentOrchestrator:
         self.text_agent = None  # TextExtractionAgent()
         self.vision_agent = None  # VisionAnalysisAgent()
         self.quant_agent = None  # QuantitativeAnalysisAgent()
-        self.fusion_service = None  # SignalFusionService()
+        self.fusion_service = SignalFusionService()  # ✅ Active deterministic fusion
         self.scoring_service = DisruptionScoringService()  # ✅ Real implementation
         self.alert_service = AlertGenerationService()  # ✅ Real implementation
         self.visualization_mapper = VisualizationMapper()  # ✅ Real implementation
@@ -68,7 +69,8 @@ class IncidentOrchestrator:
             FinalApiResponse with events, disruptions, alerts, visualizations
         """
         start_time = time.time()
-        warnings = []
+        request_warnings = request.get("_systemWarnings", [])
+        warnings = list(request_warnings) if isinstance(request_warnings, list) else []
         
         # Step 0: Ensure trace context exists
         trace = self._ensure_trace_context(request.get("trace"))
@@ -107,25 +109,43 @@ class IncidentOrchestrator:
             
             # BUILD FINAL RESPONSE
             processing_duration_ms = int((time.time() - start_time) * 1000)
+            summary = self._build_mvp_summary(request, events, disruptions, alerts)
+            cases = self._build_cases(events, disruptions)
+            evidence = self._build_live_evidence(events)
+            planning_context = self._build_planning_context_view(request, events)
+            map_view = self._build_map_view(map_features)
+            dashboard_view = self._build_dashboard_view(dashboard)
             
             response = {
                 "trace": trace,
                 "status": "partial_success" if warnings else "success",
                 "processedAt": self._utc_now(),
                 "processingDurationMs": processing_duration_ms,
+                "summary": summary,
+                "cases": cases,
+                "alerts": alerts,
+                "evidence": evidence,
+                "map": map_view,
+                "dashboard": dashboard_view,
+                "planningContext": planning_context,
+
+                # Lightweight compatibility fields for existing consumers.
                 "events": events,
                 "disruptions": disruptions,
-                "alerts": alerts,
                 "mapFeatures": map_features,
                 "dashboardSummary": dashboard,
                 "warnings": warnings,
                 "errors": [],
                 "metadata": {
                     "signalsProcessed": self._count_signals(request),
+                    "facilityBaselineCount": self._count_facilities(request),
                     "observationsExtracted": len(observations),
                     "eventsCreated": len(events),
                     "disruptionsAssessed": len(disruptions),
                     "alertsGenerated": len(alerts),
+                    "casesCreated": len(cases),
+                    "evidenceRecords": len(evidence),
+                    "fusionSummary": self._build_fusion_summary(events, request),
                     "pipeline": "5-phase",
                     "version": "1.0.0"
                 }
@@ -222,9 +242,13 @@ class IncidentOrchestrator:
             return [], warnings
         
         try:
-            # TODO: Replace with real fusion service
-            # events = await self.fusion_service.fuse(observations, options)
-            events = self._mock_fusion(observations)
+            raw_options = request.get("options")
+            base_options = raw_options if isinstance(raw_options, dict) else {}
+            options = {
+                **base_options,
+                "context": request.get("context", {}),
+            }
+            events = await self.fusion_service.fuse(observations, options)
             return events, warnings
         except Exception as e:
             error_msg = f"Fusion failed: {str(e)}"
@@ -245,7 +269,12 @@ class IncidentOrchestrator:
         
         try:
             # Use real scoring service
-            options = request.get("options", {})
+            raw_options = request.get("options")
+            base_options = raw_options if isinstance(raw_options, dict) else {}
+            options = {
+                **base_options,
+                "context": request.get("context", {})
+            }
             disruptions = await self.scoring_service.score(events, options)
             return disruptions, warnings
         except Exception as e:
@@ -372,58 +401,79 @@ class IncidentOrchestrator:
         signal: Dict[str, Any],
         index: int
     ) -> List[Dict[str, Any]]:
-        """Mock: Extract observation from quantitative signal."""
+        """Extract route/traffic observation from normalized quantitative signal."""
         measurement_type = signal.get("measurementType", "unknown")
         value = signal.get("value", 0)
+        metadata = signal.get("metadata") or {}
+        route_meta = metadata.get("routeTraffic") if isinstance(metadata, dict) else {}
+        weather_meta = metadata.get("weatherHazard") if isinstance(metadata, dict) else {}
+        concept = route_meta.get("concept") if isinstance(route_meta, dict) else None
+        weather_concept = weather_meta.get("concept") if isinstance(weather_meta, dict) else None
+        weather_state = weather_meta.get("state") if isinstance(weather_meta, dict) else None
+
+        observation_type_map = {
+            "incident": "traffic_incident",
+            "closure": "route_closure",
+            "restricted": "route_restriction",
+            "abnormal_slowdown": "traffic_congestion",
+        }
+        weather_type_map = {
+            "flood": "weather_flood_hazard",
+            "hurricane": "weather_hurricane_hazard",
+            "heavy_rain": "weather_heavy_rain_hazard",
+            "storm_surge": "weather_storm_surge_hazard",
+            "high_wind": "weather_high_wind_hazard",
+        }
+
+        if isinstance(weather_concept, str) and weather_concept in weather_type_map:
+            observation_type = weather_type_map[weather_concept]
+        else:
+            observation_type = observation_type_map.get(concept, "sensor_reading")
+
+        severity_hint = metadata.get("severity_hint") if isinstance(metadata, dict) else None
+        severity = severity_hint if isinstance(severity_hint, str) else (
+            "high" if signal.get("deviationScore", 0) >= 0.8 else "moderate"
+        )
+
+        if weather_state == "warning" and severity in {"low", "moderate"}:
+            severity = "high"
+
+        description = metadata.get("description") if isinstance(metadata, dict) else None
+        if not isinstance(description, str) or not description.strip():
+            if isinstance(weather_concept, str):
+                description = f"Weather hazard signal: {weather_concept} ({weather_state})"
+            else:
+                description = f"Route traffic signal: {measurement_type} = {value}"
         
         return [{
             "observationId": f"obs-quant-{index}-{uuid.uuid4().hex[:8]}",
-            "observationType": "sensor_reading",
-            "description": f"Sensor reading: {measurement_type} = {value}",
+            "observationType": observation_type,
+            "description": description,
             "sourceSignalIds": [signal.get("signalId", f"qnt-{index}")],
             "confidence": signal.get("confidence", 0.9),
             "location": signal.get("location"),
             "timeReference": {"timestamp": signal.get("createdAt", self._utc_now())},
-            "severity": "moderate" if signal.get("deviationScore", 0) > 0.5 else "low",
+            "severity": severity,
             "affectedSectors": ["transportation"],
-            "affectedAssets": ["road"],
+            "affectedAssets": ["road", "route_access"],
             "extractedData": {
+                "provider": signal.get("source"),
                 "measurementType": measurement_type,
                 "value": value,
-                "deviationScore": signal.get("deviationScore", 0)
+                "deviationScore": signal.get("deviationScore", 0),
+                "routeTrafficConcept": concept,
+                "accessStatus": route_meta.get("accessStatus") if isinstance(route_meta, dict) else None,
+                "routeId": route_meta.get("routeId") if isinstance(route_meta, dict) else None,
+                "routeName": route_meta.get("routeName") if isinstance(route_meta, dict) else None,
+                "weatherHazardConcept": weather_concept,
+                "weatherHazardState": weather_state,
+                "sourceRecordId": metadata.get("sourceRecordId") if isinstance(metadata, dict) else None,
+                "evidenceRef": (
+                    route_meta.get("evidenceRef") if isinstance(route_meta, dict) and route_meta.get("evidenceRef")
+                    else weather_meta.get("evidenceRef") if isinstance(weather_meta, dict)
+                    else None
+                ),
             }
-        }]
-    
-    def _mock_fusion(
-        self,
-        observations: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
-        """Mock: Fuse observations into events."""
-        if not observations:
-            return []
-        
-        event_id = f"evt-{uuid.uuid4().hex[:12]}"
-        
-        return [{
-            "eventId": event_id,
-            "eventType": "traffic_incident",
-            "title": "Traffic Incident Detected",
-            "description": f"Fused event from {len(observations)} observations",
-            "confidence": 0.75,
-            "severity": "moderate",
-            "location": observations[0].get("location", {}),
-            "timeReference": {"timestamp": self._utc_now(), "precision": "minute"},
-            "sourceSignalIds": [
-                sig_id for obs in observations
-                for sig_id in obs.get("sourceSignalIds", [])
-            ],
-            "observations": observations,
-            "affectedSectors": ["transportation"],
-            "affectedAssets": ["road"],
-            "impactRadiusMeters": 1000,
-            "status": "active",
-            "detectedAt": self._utc_now(),
-            "updatedAt": self._utc_now()
         }]
     
     def _mock_disruption_scoring(
@@ -606,6 +656,304 @@ class IncidentOrchestrator:
             len(request.get("visionSignals", [])) +
             len(request.get("quantSignals", []))
         )
+
+    def _count_facilities(self, request: Dict[str, Any]) -> int:
+        """Count facility baseline records attached in request context."""
+        context = request.get("context") or {}
+        facilities = context.get("facilityBaseline") if isinstance(context, dict) else []
+        return len(facilities) if isinstance(facilities, list) else 0
+
+    def _build_fusion_summary(
+        self,
+        events: List[Dict[str, Any]],
+        request: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Build deterministic time/space/source fusion metadata."""
+        timestamps: List[str] = []
+        source_counts: Dict[str, int] = {}
+        county_counts: Dict[str, int] = {}
+        route_concept_counts: Dict[str, int] = {}
+        weather_hazard_counts: Dict[str, int] = {}
+        route_signal_count = 0
+        weather_signal_count = 0
+
+        for signal_type in ("textSignals", "visionSignals", "quantSignals"):
+            for signal in request.get(signal_type, []):
+                created_at = signal.get("createdAt")
+                if isinstance(created_at, str) and created_at:
+                    timestamps.append(created_at)
+
+                source_name = signal.get("source")
+                if isinstance(source_name, str) and source_name:
+                    source_counts[source_name] = source_counts.get(source_name, 0) + 1
+
+                location = signal.get("location") or {}
+                county_raw = (
+                    location.get("county")
+                    or location.get("countyName")
+                    or (signal.get("metadata") or {}).get("county")
+                )
+                if isinstance(county_raw, str) and county_raw.strip():
+                    county = county_raw.strip().lower().replace(" county", "")
+                    county_counts[county] = county_counts.get(county, 0) + 1
+
+                if signal_type == "quantSignals":
+                    metadata = signal.get("metadata") if isinstance(signal, dict) else {}
+                    route_meta = metadata.get("routeTraffic") if isinstance(metadata, dict) else {}
+                    concept = route_meta.get("concept") if isinstance(route_meta, dict) else None
+                    if isinstance(concept, str) and concept:
+                        route_signal_count += 1
+                        route_concept_counts[concept] = route_concept_counts.get(concept, 0) + 1
+
+                    weather_meta = metadata.get("weatherHazard") if isinstance(metadata, dict) else {}
+                    hazard = weather_meta.get("concept") if isinstance(weather_meta, dict) else None
+                    if isinstance(hazard, str) and hazard:
+                        weather_signal_count += 1
+                        weather_hazard_counts[hazard] = weather_hazard_counts.get(hazard, 0) + 1
+
+        return {
+            "eventCount": len(events),
+            "facilityBaselineCount": self._count_facilities(request),
+            "planningContextRecordCount": self._count_planning_context_records(request),
+            "routeTrafficSignalCount": route_signal_count,
+            "weatherHazardSignalCount": weather_signal_count,
+            "routeTrafficConcepts": route_concept_counts,
+            "weatherHazardConcepts": weather_hazard_counts,
+            "sources": source_counts,
+            "counties": county_counts,
+            "timeWindow": {
+                "start": min(timestamps) if timestamps else None,
+                "end": max(timestamps) if timestamps else None,
+            },
+        }
+
+    def _count_planning_context_records(self, request: Dict[str, Any]) -> int:
+        """Count planning-context records attached in request context."""
+        context = request.get("context") if isinstance(request.get("context"), dict) else {}
+        planning = context.get("planningContext") if isinstance(context, dict) else {}
+        records = planning.get("records") if isinstance(planning, dict) else []
+        return len(records) if isinstance(records, list) else 0
+
+    def _build_mvp_summary(
+        self,
+        request: Dict[str, Any],
+        events: List[Dict[str, Any]],
+        disruptions: List[Dict[str, Any]],
+        alerts: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build frontend-focused Tampa MVP summary metrics."""
+        fusion = self._build_fusion_summary(events, request)
+
+        severity_counts = {
+            "critical": 0,
+            "high": 0,
+            "moderate": 0,
+            "low": 0,
+            "informational": 0,
+        }
+        for assessment in disruptions:
+            severity = assessment.get("disruptionSeverity")
+            if isinstance(severity, str) and severity in severity_counts:
+                severity_counts[severity] += 1
+
+        priority_counts: Dict[str, int] = {}
+        for alert in alerts:
+            priority = alert.get("priority")
+            if isinstance(priority, str) and priority:
+                priority_counts[priority] = priority_counts.get(priority, 0) + 1
+
+        context = request.get("context") if isinstance(request.get("context"), dict) else {}
+        planning_context = context.get("planningContext") if isinstance(context, dict) else {}
+        planning_summary = planning_context.get("summary") if isinstance(planning_context, dict) else {}
+
+        return {
+            "scope": {
+                "region": "tampa_bay",
+                "counties": ["hillsborough", "pinellas", "pasco"],
+            },
+            "signals": {
+                "processed": self._count_signals(request),
+                "observations": sum(len(event.get("observations", [])) for event in events if isinstance(event, dict)),
+                "routeTrafficSignals": fusion.get("routeTrafficSignalCount", 0),
+                "weatherHazardSignals": fusion.get("weatherHazardSignalCount", 0),
+            },
+            "cases": {
+                "total": len(events),
+                "severity": severity_counts,
+            },
+            "alerts": {
+                "active": len(alerts),
+                "priorities": priority_counts,
+            },
+            "facilities": {
+                "baselineCount": self._count_facilities(request),
+            },
+            "planningContext": {
+                "requested": bool(planning_context.get("requested")) if isinstance(planning_context, dict) else False,
+                "recordCount": self._count_planning_context_records(request),
+                "summary": planning_summary if isinstance(planning_summary, dict) else {},
+                "isLiveEvidence": False,
+            },
+            "counties": fusion.get("counties", {}),
+            "timeWindow": fusion.get("timeWindow", {}),
+        }
+
+    def _build_cases(
+        self,
+        events: List[Dict[str, Any]],
+        disruptions: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Build frontend-ready fused case records from events + disruptions."""
+        assessments_by_event: Dict[str, Dict[str, Any]] = {}
+        for assessment in disruptions:
+            event_id = assessment.get("eventId")
+            if isinstance(event_id, str) and event_id:
+                assessments_by_event[event_id] = assessment
+
+        cases: List[Dict[str, Any]] = []
+        for event in events:
+            if not isinstance(event, dict):
+                continue
+
+            event_id = event.get("eventId")
+            assessment = assessments_by_event.get(event_id) if isinstance(event_id, str) else None
+            metadata = event.get("metadata") if isinstance(event.get("metadata"), dict) else {}
+            fusion_basis = metadata.get("fusionBasis") if isinstance(metadata.get("fusionBasis"), dict) else {}
+
+            case = {
+                "caseId": event_id,
+                "event": {
+                    "eventId": event_id,
+                    "eventType": event.get("eventType"),
+                    "title": event.get("title"),
+                    "description": event.get("description"),
+                    "severity": event.get("severity"),
+                    "confidence": event.get("confidence"),
+                    "status": event.get("status"),
+                    "location": event.get("location"),
+                    "timeReference": event.get("timeReference"),
+                    "affectedSectors": event.get("affectedSectors", []),
+                    "affectedAssets": event.get("affectedAssets", []),
+                },
+                "assessment": {
+                    "assessmentId": assessment.get("assessmentId") if isinstance(assessment, dict) else None,
+                    "disruptionSeverity": assessment.get("disruptionSeverity") if isinstance(assessment, dict) else None,
+                    "confidence": assessment.get("confidence") if isinstance(assessment, dict) else None,
+                    "recommendations": assessment.get("recommendations", []) if isinstance(assessment, dict) else [],
+                },
+                "routeTraffic": {
+                    "routeIds": fusion_basis.get("routeIds", []),
+                    "conceptCounts": fusion_basis.get("routeConceptCounts", {}),
+                },
+                "weatherHazard": {
+                    "conceptCounts": fusion_basis.get("weatherHazardCounts", {}),
+                    "stateCounts": fusion_basis.get("weatherHazardStateCounts", {}),
+                },
+                "facilities": {
+                    "relatedFacilityIds": fusion_basis.get("relatedFacilityIds", []),
+                    "relatedFuelFacilityIds": fusion_basis.get("relatedFuelFacilityIds", []),
+                    "relatedGroceryFacilityIds": fusion_basis.get("relatedGroceryFacilityIds", []),
+                },
+                "planningContext": {
+                    "requested": bool(fusion_basis.get("planningContextRequested")),
+                    "isLiveEvidence": False,
+                    "matches": fusion_basis.get("planningContextMatches", []),
+                },
+                "provenance": {
+                    "sourceSignalIds": event.get("sourceSignalIds", []),
+                    "evidenceRefs": fusion_basis.get("evidenceRefs", []),
+                },
+            }
+            cases.append(case)
+
+        return cases
+
+    def _build_live_evidence(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Build flattened live-evidence records for evidence panel rendering."""
+        evidence: List[Dict[str, Any]] = []
+
+        for event in events:
+            if not isinstance(event, dict):
+                continue
+
+            event_id = event.get("eventId")
+            observations = event.get("observations") if isinstance(event.get("observations"), list) else []
+
+            for obs in observations:
+                if not isinstance(obs, dict):
+                    continue
+                extracted = obs.get("extractedData") if isinstance(obs.get("extractedData"), dict) else {}
+                evidence.append({
+                    "eventId": event_id,
+                    "observationId": obs.get("observationId"),
+                    "observationType": obs.get("observationType"),
+                    "description": obs.get("description"),
+                    "severity": obs.get("severity"),
+                    "confidence": obs.get("confidence"),
+                    "location": obs.get("location"),
+                    "timeReference": obs.get("timeReference"),
+                    "sourceSignalIds": obs.get("sourceSignalIds", []),
+                    "provenance": {
+                        "sourceRecordId": extracted.get("sourceRecordId"),
+                        "evidenceRef": extracted.get("evidenceRef"),
+                        "provider": extracted.get("provider"),
+                    },
+                    "isLiveEvidence": True,
+                })
+
+        return evidence
+
+    def _build_planning_context_view(
+        self,
+        request: Dict[str, Any],
+        events: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build explicit non-live planning context view for frontend."""
+        context = request.get("context") if isinstance(request.get("context"), dict) else {}
+        planning = context.get("planningContext") if isinstance(context, dict) else {}
+
+        requested = bool(planning.get("requested")) if isinstance(planning, dict) else False
+        records = planning.get("records") if isinstance(planning, dict) and isinstance(planning.get("records"), list) else []
+        summary = planning.get("summary") if isinstance(planning, dict) and isinstance(planning.get("summary"), dict) else {}
+
+        case_matches: List[Dict[str, Any]] = []
+        for event in events:
+            if not isinstance(event, dict):
+                continue
+            metadata = event.get("metadata") if isinstance(event.get("metadata"), dict) else {}
+            fusion_basis = metadata.get("fusionBasis") if isinstance(metadata.get("fusionBasis"), dict) else {}
+            matches = fusion_basis.get("planningContextMatches") if isinstance(fusion_basis.get("planningContextMatches"), list) else []
+            if not matches:
+                continue
+            case_matches.append({
+                "eventId": event.get("eventId"),
+                "eventType": event.get("eventType"),
+                "matches": matches,
+            })
+
+        return {
+            "requested": requested,
+            "isLiveEvidence": False,
+            "recordCount": len(records),
+            "summary": summary,
+            "matchesByCase": case_matches,
+        }
+
+    def _build_map_view(self, map_features: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Wrap map features in explicit typed structure."""
+        return {
+            "type": "mapFeatureCollection",
+            "featureCount": len(map_features),
+            "features": map_features,
+        }
+
+    def _build_dashboard_view(self, dashboard: Dict[str, Any]) -> Dict[str, Any]:
+        """Wrap dashboard summary in explicit typed structure."""
+        payload = dashboard if isinstance(dashboard, dict) else {}
+        return {
+            "type": "dashboardSummary",
+            "data": payload,
+        }
     
     def _utc_now(self) -> str:
         """Get current UTC timestamp in ISO 8601 format."""
@@ -625,9 +973,33 @@ class IncidentOrchestrator:
             "status": "error",
             "processedAt": self._utc_now(),
             "processingDurationMs": processing_duration_ms,
+            "summary": {
+                "scope": {
+                    "region": "tampa_bay",
+                    "counties": ["hillsborough", "pinellas", "pasco"],
+                },
+                "signals": {"processed": 0, "observations": 0, "routeTrafficSignals": 0, "weatherHazardSignals": 0},
+                "cases": {"total": 0, "severity": {}},
+                "alerts": {"active": 0, "priorities": {}},
+                "facilities": {"baselineCount": 0},
+                "planningContext": {"requested": False, "recordCount": 0, "summary": {}, "isLiveEvidence": False},
+                "counties": {},
+                "timeWindow": {"start": None, "end": None},
+            },
+            "cases": [],
+            "alerts": [],
+            "evidence": [],
+            "map": {"type": "mapFeatureCollection", "featureCount": 0, "features": []},
+            "dashboard": {"type": "dashboardSummary", "data": {}},
+            "planningContext": {
+                "requested": False,
+                "isLiveEvidence": False,
+                "recordCount": 0,
+                "summary": {},
+                "matchesByCase": [],
+            },
             "events": [],
             "disruptions": [],
-            "alerts": [],
             "mapFeatures": [],
             "dashboardSummary": {},
             "warnings": [],

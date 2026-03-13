@@ -15,10 +15,14 @@ from .weather_provider import WeatherProvider
 from .text_feed_provider import TextFeedProvider
 from .vision_feed_provider import VisionFeedProvider
 from .quantitative_feed_provider import QuantitativeFeedProvider
+from .facility_baseline_provider import FacilityBaselineProvider
+from .planning_context_provider import PlanningContextProvider
 
 __all__ = [
     "WeatherProvider",
     "TextFeedProvider",
     "VisionFeedProvider",
     "QuantitativeFeedProvider",
+    "FacilityBaselineProvider",
+    "PlanningContextProvider",
 ]

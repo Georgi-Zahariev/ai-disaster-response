@@ -254,21 +254,3 @@ class TraceLogger:
 # Initialize logging on module import
 # Will be reconfigured by app.py with actual settings
 setup_logging()
-
-    logger = get_logger(__name__)
-    trace_logger = LoggerAdapter(logger, {"trace_context": trace})
-    trace_logger.info("Processing request")  # Includes trace context
-    ```
-    """
-    
-    def process(self, msg: str, kwargs: Dict[str, Any]) -> tuple:
-        """Add trace context to log record."""
-        # Add extra fields from adapter
-        extra = kwargs.get("extra", {})
-        extra.update(self.extra)
-        kwargs["extra"] = extra
-        return msg, kwargs
-
-
-# Initialize logging on module import
-setup_logging()

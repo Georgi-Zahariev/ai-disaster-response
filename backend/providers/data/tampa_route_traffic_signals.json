@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "dataset": "tampa_route_traffic_signals",
+    "version": "0.1.0",
+    "placeholder": true,
+    "note": "Adapter-ready Tampa Bay route traffic seed. Replace with live provider integration in production."
+  },
+  "signals": [
+    {
+      "sourceRecordId": "fl511-hillsborough-001",
+      "provider": "fl511_adapter_seed",
+      "concept": "closure",
+      "description": "I-275 NB full closure near downtown Tampa due to crash response",
+      "severity": "high",
+      "routeId": "I-275-NB",
+      "routeName": "I-275 Northbound",
+      "accessStatus": "closed",
+      "measurementType": "route_access_state",
+      "value": 0,
+      "units": "open_lanes_ratio",
+      "baselineValue": 1,
+      "deviationScore": 1.0,
+      "location": {
+        "latitude": 27.9513,
+        "longitude": -82.4571,
+        "county": "hillsborough",
+        "placeName": "Tampa"
+      },
+      "evidence": {
+        "cameraId": "cam-tpa-001"
+      },
+      "createdAt": "2026-03-12T13:50:00Z"
+    },
+    {
+      "sourceRecordId": "fl511-pinellas-002",
+      "provider": "fl511_adapter_seed",
+      "concept": "restricted",
+      "description": "US-19 SB restricted to one lane near Clearwater due to flooding debris",
+      "severity": "moderate",
+      "routeId": "US-19-SB",
+      "routeName": "US-19 Southbound",
+      "accessStatus": "restricted",
+      "measurementType": "route_access_state",
+      "value": 0.5,
+      "units": "open_lanes_ratio",
+      "baselineValue": 1,
+      "deviationScore": 0.72,
+      "location": {
+        "latitude": 27.9659,
+        "longitude": -82.7987,
+        "county": "pinellas",
+        "placeName": "Clearwater"
+      },
+      "evidence": {
+        "sourceUrl": "https://example.local/fl511/pinellas/002"
+      },
+      "createdAt": "2026-03-12T13:58:00Z"
+    },
+    {
+      "sourceRecordId": "pasco-speed-003",
+      "provider": "traffic_probe_seed",
+      "concept": "abnormal_slowdown",
+      "description": "SR-54 speed anomaly in Pasco indicates severe congestion",
+      "severity": "moderate",
+      "routeId": "SR-54",
+      "routeName": "State Road 54",
+      "accessStatus": "open",
+      "measurementType": "average_speed",
+      "value": 9,
+      "units": "mph",
+      "baselineValue": 42,
+      "deviationScore": 0.79,
+      "location": {
+        "latitude": 28.2358,
+        "longitude": -82.6635,
+        "county": "pasco",
+        "placeName": "New Port Richey"
+      },
+      "evidence": {
+        "sourceRecordId": "probe-segment-54-003"
+      },
+      "createdAt": "2026-03-12T14:02:00Z"
+    },
+    {
+      "sourceRecordId": "hillsborough-incident-004",
+      "provider": "county_dot_seed",
+      "concept": "incident",
+      "description": "Multi-vehicle incident reported on Selmon Expressway",
+      "severity": "moderate",
+      "routeId": "SR-618",
+      "routeName": "Selmon Expressway",
+      "accessStatus": "restricted",
+      "measurementType": "traffic_incident_count",
+      "value": 1,
+      "units": "incidents",
+      "baselineValue": 0,
+      "deviationScore": 0.65,
+      "location": {
+        "latitude": 27.9455,
+        "longitude": -82.4458,
+        "county": "hillsborough",
+        "placeName": "Tampa"
+      },
+      "evidence": {
+        "cameraId": "cam-tpa-204"
+      },
+      "createdAt": "2026-03-12T14:05:00Z"
+    }
+  ]
+}

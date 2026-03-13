@@ -319,7 +319,12 @@ class AlertGenerationService:
                 "eventConfidence": confidence,
                 "affectedSectors": affected_sectors,
                 "affectedAssets": affected_assets,
-                "populationImpact": assessment.get("populationImpact", {}).get("affectedPopulation", 0) if assessment else 0
+                "populationImpact": assessment.get("populationImpact", {}).get("affectedPopulation", 0) if assessment else 0,
+                "planningContext": (
+                    assessment.get("metadata", {}).get("planningContext")
+                    if isinstance(assessment, dict)
+                    else None
+                ),
             }
         }
         

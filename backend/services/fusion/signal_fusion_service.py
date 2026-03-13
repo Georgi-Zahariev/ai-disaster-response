@@ -85,6 +85,10 @@ class SignalFusionService:
         # Step 3: Create events from clusters
         events = self._create_events_from_clusters(refined_clusters)
         print(f"[Fusion] → Created {len(events)} events")
+
+        # Step 3b: Enrich fused events with route/facility context.
+        context = options.get("context", {}) if isinstance(options, dict) else {}
+        events = self._enrich_events_with_context(events, context)
         
         # Step 4: Validate cross-modal consistency and boost confidence
         validated_events = self._validate_cross_modal(events)
@@ -169,6 +173,14 @@ class SignalFusionService:
         Returns:
             True if observations likely refer to same event
         """
+        # Deterministic county guardrail for Tampa Bay MVP.
+        if not self._counties_align(obs1, obs2):
+            return False
+
+        # Route-concept grouping first (same route/concept + time aligned).
+        if self._route_concepts_align(obs1, obs2) and self._within_temporal_threshold(obs1, obs2):
+            return True
+
         # Check spatial proximity
         if self._within_spatial_threshold(obs1, obs2):
             # Spatial proximity alone is strong signal
@@ -186,6 +198,41 @@ class SignalFusionService:
             if self._have_overlapping_impacts(obs1, obs2):
                 return True
         
+        return False
+
+    def _counties_align(self, obs1: Dict[str, Any], obs2: Dict[str, Any]) -> bool:
+        """Require county alignment when both observations provide county."""
+        county1 = self._extract_county(obs1)
+        county2 = self._extract_county(obs2)
+        if not county1 or not county2:
+            return True
+        return county1 == county2
+
+    def _extract_county(self, obs: Dict[str, Any]) -> Optional[str]:
+        location = obs.get("location") if isinstance(obs.get("location"), dict) else {}
+        county_raw = location.get("county") or location.get("countyName")
+        if not isinstance(county_raw, str):
+            return None
+        county = county_raw.strip().lower().replace(" county", "")
+        return county or None
+
+    def _route_concepts_align(self, obs1: Dict[str, Any], obs2: Dict[str, Any]) -> bool:
+        """Check whether route-specific evidence should be grouped together."""
+        data1 = obs1.get("extractedData") if isinstance(obs1.get("extractedData"), dict) else {}
+        data2 = obs2.get("extractedData") if isinstance(obs2.get("extractedData"), dict) else {}
+
+        concept1 = data1.get("routeTrafficConcept")
+        concept2 = data2.get("routeTrafficConcept")
+        route1 = data1.get("routeId")
+        route2 = data2.get("routeId")
+
+        if isinstance(route1, str) and isinstance(route2, str) and route1 and route2:
+            if route1 == route2:
+                return True
+
+        if isinstance(concept1, str) and isinstance(concept2, str) and concept1 and concept2:
+            return concept1 == concept2
+
         return False
     
     def _within_spatial_threshold(
@@ -305,7 +352,11 @@ class SignalFusionService:
     def _get_observation_timestamp(self, obs: Dict[str, Any]) -> Optional[str]:
         """Extract best timestamp from observation."""
         time_ref = obs.get("timeReference", {})
-        return time_ref.get("observedAt") or time_ref.get("reportedAt")
+        return (
+            time_ref.get("observedAt")
+            or time_ref.get("reportedAt")
+            or time_ref.get("timestamp")
+        )
     
     def _observation_types_similar(
         self,
@@ -571,6 +622,8 @@ class SignalFusionService:
                 observed_times.append(time_ref["observedAt"])
             if "reportedAt" in time_ref:
                 reported_times.append(time_ref["reportedAt"])
+            if "timestamp" in time_ref:
+                observed_times.append(time_ref["timestamp"])
         
         time_reference = {}
         
@@ -582,6 +635,187 @@ class SignalFusionService:
             time_reference["lastReportedAt"] = max(reported_times)
         
         return time_reference
+
+    def _enrich_events_with_context(
+        self,
+        events: List[Dict[str, Any]],
+        context: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """Attach deterministic route/facility fusion metadata to each event."""
+        facilities = context.get("facilityBaseline", []) if isinstance(context, dict) else []
+        if not isinstance(facilities, list):
+            facilities = []
+        weather_summary = context.get("weatherHazard", {}).get("summary", {}) if isinstance(context, dict) else {}
+        planning_context = context.get("planningContext", {}) if isinstance(context, dict) else {}
+        planning_records = planning_context.get("records", []) if isinstance(planning_context, dict) else []
+        planning_requested = bool(planning_context.get("requested")) if isinstance(planning_context, dict) else False
+        if not isinstance(planning_records, list):
+            planning_records = []
+
+        for event in events:
+            observations = event.get("observations") if isinstance(event.get("observations"), list) else []
+
+            route_concepts: Dict[str, int] = {}
+            weather_concepts: Dict[str, int] = {}
+            weather_states: Dict[str, int] = {}
+            evidence_refs: List[Dict[str, Any]] = []
+            route_ids: List[str] = []
+
+            for obs in observations:
+                extracted = obs.get("extractedData") if isinstance(obs, dict) else {}
+                if not isinstance(extracted, dict):
+                    continue
+
+                concept = extracted.get("routeTrafficConcept")
+                if isinstance(concept, str) and concept:
+                    route_concepts[concept] = route_concepts.get(concept, 0) + 1
+
+                weather_concept = extracted.get("weatherHazardConcept")
+                if isinstance(weather_concept, str) and weather_concept:
+                    weather_concepts[weather_concept] = weather_concepts.get(weather_concept, 0) + 1
+
+                weather_state = extracted.get("weatherHazardState")
+                if isinstance(weather_state, str) and weather_state:
+                    weather_states[weather_state] = weather_states.get(weather_state, 0) + 1
+
+                route_id = extracted.get("routeId")
+                if isinstance(route_id, str) and route_id and route_id not in route_ids:
+                    route_ids.append(route_id)
+
+                evidence = extracted.get("evidenceRef")
+                if isinstance(evidence, dict):
+                    evidence_refs.append({
+                        "sourceSignalIds": obs.get("sourceSignalIds", []),
+                        "evidenceRef": evidence,
+                        "sourceRecordId": extracted.get("sourceRecordId"),
+                    })
+
+            nearby_facilities = self._find_nearby_facilities(event.get("location", {}), facilities)
+            fuel_ids = [item["facilityId"] for item in nearby_facilities if item.get("facilityType") == "fuel"]
+            grocery_ids = [item["facilityId"] for item in nearby_facilities if item.get("facilityType") == "grocery"]
+
+            planning_matches = self._match_planning_context(event, planning_records)
+
+            event_type = self._derive_event_type(route_concepts)
+            if event_type:
+                event["eventType"] = event_type
+
+            assets = event.get("affectedAssets", []) if isinstance(event.get("affectedAssets"), list) else []
+            if fuel_ids and "fuel_access" not in assets:
+                assets.append("fuel_access")
+            if grocery_ids and "grocery_access" not in assets:
+                assets.append("grocery_access")
+            event["affectedAssets"] = sorted(set(assets))
+
+            metadata = event.get("metadata", {}) if isinstance(event.get("metadata"), dict) else {}
+            metadata["fusionBasis"] = {
+                "rules": [
+                    "county_alignment",
+                    "time_window_alignment",
+                    "spatial_proximity",
+                    "route_concept_grouping",
+                    "nearby_facility_relevance",
+                ],
+                "routeConceptCounts": route_concepts,
+                "weatherHazardCounts": weather_concepts,
+                "weatherHazardStateCounts": weather_states,
+                "routeIds": route_ids,
+                "relatedFacilityIds": [item["facilityId"] for item in nearby_facilities],
+                "relatedFuelFacilityIds": fuel_ids,
+                "relatedGroceryFacilityIds": grocery_ids,
+                "planningContextRequested": planning_requested,
+                "planningContextMatches": planning_matches,
+                "planningContextIsLiveEvidence": False,
+                "evidenceRefs": evidence_refs,
+                "county": self._extract_county({"location": event.get("location", {})}),
+                "weatherSummary": weather_summary,
+            }
+            metadata["fusion_method"] = "deterministic_mvp"
+            event["metadata"] = metadata
+
+        return events
+
+    def _derive_event_type(self, route_concepts: Dict[str, int]) -> Optional[str]:
+        if not route_concepts:
+            return None
+        if route_concepts.get("closure", 0) > 0:
+            return "route_closure_case"
+        if route_concepts.get("restricted", 0) > 0:
+            return "route_restriction_case"
+        if route_concepts.get("abnormal_slowdown", 0) > 0:
+            return "route_slowdown_case"
+        if route_concepts.get("incident", 0) > 0:
+            return "route_incident_case"
+        return None
+
+    def _find_nearby_facilities(
+        self,
+        location: Dict[str, Any],
+        facilities: List[Dict[str, Any]],
+        radius_meters: float = 10000.0
+    ) -> List[Dict[str, Any]]:
+        """Return facilities within radius of event location."""
+        lat = location.get("latitude") if isinstance(location, dict) else None
+        lon = location.get("longitude") if isinstance(location, dict) else None
+        if not isinstance(lat, (int, float)) or not isinstance(lon, (int, float)):
+            return []
+
+        nearby: List[Dict[str, Any]] = []
+        for facility in facilities:
+            if not isinstance(facility, dict):
+                continue
+            loc = facility.get("location") if isinstance(facility.get("location"), dict) else {}
+            f_lat = loc.get("latitude")
+            f_lon = loc.get("longitude")
+            if not isinstance(f_lat, (int, float)) or not isinstance(f_lon, (int, float)):
+                continue
+            distance = self._haversine_distance(float(lat), float(lon), float(f_lat), float(f_lon))
+            if distance <= radius_meters:
+                nearby.append({
+                    "facilityId": facility.get("facilityId"),
+                    "facilityType": facility.get("facilityType"),
+                    "distanceMeters": round(distance, 1),
+                })
+
+        nearby.sort(key=lambda item: item.get("distanceMeters", 0))
+        return nearby
+
+    def _match_planning_context(
+        self,
+        event: Dict[str, Any],
+        planning_records: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Match planning context records by county and optional corridor reference."""
+        event_county = self._extract_county({"location": event.get("location", {})})
+        metadata = event.get("metadata") if isinstance(event.get("metadata"), dict) else {}
+        fusion_basis = metadata.get("fusionBasis") if isinstance(metadata.get("fusionBasis"), dict) else {}
+        event_route_ids = set(fusion_basis.get("routeIds", []) if isinstance(fusion_basis.get("routeIds"), list) else [])
+
+        matches: List[Dict[str, Any]] = []
+        for record in planning_records:
+            if not isinstance(record, dict):
+                continue
+
+            county = record.get("county")
+            if isinstance(event_county, str) and isinstance(county, str) and county != event_county:
+                continue
+
+            corridor = record.get("corridorRef")
+            if isinstance(corridor, str) and corridor and event_route_ids and corridor not in event_route_ids:
+                continue
+
+            matches.append({
+                "planningId": record.get("planningId"),
+                "concept": record.get("concept"),
+                "county": record.get("county"),
+                "corridorRef": corridor,
+                "areaRef": record.get("areaRef"),
+                "summary": record.get("summary"),
+                "source": record.get("source"),
+                "validity": record.get("validity"),
+            })
+
+        return matches
     
     def _aggregate_confidence(self, cluster: List[Dict[str, Any]]) -> float:
         """
@@ -665,11 +899,11 @@ class SignalFusionService:
         modalities = set()
         for obs in cluster:
             obs_id = obs.get("observationId", "")
-            if obs_id.startswith("obs-txt-"):
+            if obs_id.startswith("obs-txt-") or obs_id.startswith("obs-text-"):
                 modalities.add("text")
-            elif obs_id.startswith("obs-vis-"):
+            elif obs_id.startswith("obs-vis-") or obs_id.startswith("obs-vision-"):
                 modalities.add("vision")
-            elif obs_id.startswith("obs-qnt-"):
+            elif obs_id.startswith("obs-qnt-") or obs_id.startswith("obs-quant-"):
                 modalities.add("quantitative")
         return modalities
     
@@ -691,7 +925,7 @@ class SignalFusionService:
         title_type = event_type.replace("_", " ").title()
         
         # Get location name
-        address = location.get("address", "")
+        address = location.get("address", "") or location.get("placeName", "")
         if address:
             # Extract city or main location identifier
             parts = address.split(",")

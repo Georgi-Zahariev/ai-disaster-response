@@ -11,6 +11,7 @@ rules to evaluate severity, confidence, cascading effects, and recovery time.
 from typing import List, Dict, Any, Tuple, Optional
 from datetime import datetime, timezone, timedelta
 import uuid
+import math
 
 
 class DisruptionScoringService:
@@ -263,6 +264,27 @@ class DisruptionScoringService:
             sector_impacts,
             asset_impacts
         )
+
+        # Add deterministic facility access context for fuel/grocery scoring.
+        facility_access_context = self._summarize_facility_access_context(event, options)
+        recommendations.extend(
+            self._generate_facility_access_recommendations(facility_access_context)
+        )
+
+        route_traffic_context = self._summarize_route_traffic_context(event, options)
+        recommendations.extend(
+            self._generate_route_traffic_recommendations(route_traffic_context)
+        )
+
+        weather_hazard_context = self._summarize_weather_hazard_context(event, options)
+        recommendations.extend(
+            self._generate_weather_hazard_recommendations(weather_hazard_context)
+        )
+
+        planning_context = self._summarize_planning_context(event, options)
+        recommendations.extend(
+            self._generate_planning_context_recommendations(planning_context)
+        )
         
         # Create assessment object
         assessment = {
@@ -285,7 +307,11 @@ class DisruptionScoringService:
                 "multimodalBoost": round(multimodal_boost, 2),
                 "finalScore": round(final_score, 2),
                 "observationCount": len(observations),
-                "modalityCount": len(modalities)
+                "modalityCount": len(modalities),
+                "facilityAccessContext": facility_access_context,
+                "routeTrafficContext": route_traffic_context,
+                "weatherHazardContext": weather_hazard_context,
+                "planningContext": planning_context,
             }
         }
         
@@ -830,6 +856,282 @@ class DisruptionScoringService:
             "informational": 4
         }
         return ranks.get(severity, 99)
+
+    def _summarize_facility_access_context(
+        self,
+        event: Dict[str, Any],
+        options: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Summarize nearby fuel/grocery facilities for the event location."""
+        context = options.get("context", {}) if isinstance(options, dict) else {}
+        facilities = context.get("facilityBaseline", []) if isinstance(context, dict) else []
+        if not isinstance(facilities, list) or not facilities:
+            return {
+                "facilityBaselineAvailable": False,
+                "nearbyFuelCount": 0,
+                "nearbyGroceryCount": 0,
+                "radiusKm": 10,
+            }
+
+        location = event.get("location") or {}
+        latitude = location.get("latitude")
+        longitude = location.get("longitude")
+
+        if not isinstance(latitude, (int, float)) or not isinstance(longitude, (int, float)):
+            return {
+                "facilityBaselineAvailable": True,
+                "nearbyFuelCount": 0,
+                "nearbyGroceryCount": 0,
+                "radiusKm": 10,
+                "note": "Event location missing coordinates",
+            }
+
+        radius_km = 10.0
+        nearby_fuel = 0
+        nearby_grocery = 0
+
+        for facility in facilities:
+            if not isinstance(facility, dict):
+                continue
+
+            facility_type = facility.get("facilityType")
+            facility_location = facility.get("location") or {}
+            f_lat = facility_location.get("latitude")
+            f_lon = facility_location.get("longitude")
+
+            if not isinstance(f_lat, (int, float)) or not isinstance(f_lon, (int, float)):
+                continue
+
+            distance_km = self._distance_km(float(latitude), float(longitude), float(f_lat), float(f_lon))
+            if distance_km > radius_km:
+                continue
+
+            if facility_type == "fuel":
+                nearby_fuel += 1
+            elif facility_type == "grocery":
+                nearby_grocery += 1
+
+        return {
+            "facilityBaselineAvailable": True,
+            "nearbyFuelCount": nearby_fuel,
+            "nearbyGroceryCount": nearby_grocery,
+            "radiusKm": int(radius_km),
+        }
+
+    def _generate_facility_access_recommendations(self, context: Dict[str, Any]) -> List[str]:
+        """Generate small additive recommendations from facility context."""
+        if not context.get("facilityBaselineAvailable"):
+            return [
+                "Facility baseline unavailable: add Tampa fuel/grocery baseline context for access analysis"
+            ]
+
+        recommendations: List[str] = []
+        if context.get("nearbyFuelCount", 0) == 0:
+            recommendations.append("No nearby fuel facilities detected: verify fuel access on alternate routes")
+        if context.get("nearbyGroceryCount", 0) == 0:
+            recommendations.append("No nearby grocery facilities detected: assess food access risk in affected area")
+        return recommendations
+
+    def _distance_km(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """Compute great-circle distance between two points in kilometers."""
+        earth_radius_km = 6371.0
+        lat1_rad = math.radians(lat1)
+        lat2_rad = math.radians(lat2)
+        d_lat = math.radians(lat2 - lat1)
+        d_lon = math.radians(lon2 - lon1)
+
+        a = (
+            math.sin(d_lat / 2) ** 2
+            + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(d_lon / 2) ** 2
+        )
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        return earth_radius_km * c
+
+    def _summarize_route_traffic_context(
+        self,
+        event: Dict[str, Any],
+        options: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Summarize route/traffic concept evidence tied to this event."""
+        context = options.get("context", {}) if isinstance(options, dict) else {}
+        route_traffic = context.get("routeTraffic", {}) if isinstance(context, dict) else {}
+        summary = route_traffic.get("summary", {}) if isinstance(route_traffic, dict) else {}
+
+        concept_counts = summary.get("conceptCounts", {}) if isinstance(summary, dict) else {}
+        closed_routes = summary.get("closedRoutes", []) if isinstance(summary, dict) else []
+
+        observations = event.get("observations", []) if isinstance(event, dict) else []
+        event_concepts: Dict[str, int] = {}
+        for obs in observations:
+            extracted = obs.get("extractedData", {}) if isinstance(obs, dict) else {}
+            concept = extracted.get("routeTrafficConcept") if isinstance(extracted, dict) else None
+            if isinstance(concept, str) and concept:
+                event_concepts[concept] = event_concepts.get(concept, 0) + 1
+
+        return {
+            "available": bool(summary),
+            "signalCount": summary.get("signalCount", 0) if isinstance(summary, dict) else 0,
+            "conceptCounts": concept_counts,
+            "eventConceptCounts": event_concepts,
+            "closedRoutes": closed_routes if isinstance(closed_routes, list) else [],
+        }
+
+    def _generate_route_traffic_recommendations(self, context: Dict[str, Any]) -> List[str]:
+        """Generate route-access recommendations from route/traffic context."""
+        if not context.get("available"):
+            return []
+
+        concept_counts = context.get("conceptCounts", {})
+        if not isinstance(concept_counts, dict):
+            concept_counts = {}
+
+        recommendations: List[str] = []
+        if concept_counts.get("closure", 0) > 0:
+            recommendations.append("Route closures detected: prioritize alternate corridor routing and detour validation")
+        if concept_counts.get("restricted", 0) > 0:
+            recommendations.append("Restricted access segments detected: adjust dispatch windows and lane-aware routing")
+        if concept_counts.get("abnormal_slowdown", 0) > 0:
+            recommendations.append("Severe slowdown anomalies detected: increase ETA buffers for affected deliveries")
+        if concept_counts.get("incident", 0) > 0:
+            recommendations.append("Traffic incidents detected: monitor clearance updates before route commitment")
+
+        closed_routes = context.get("closedRoutes", [])
+        if isinstance(closed_routes, list) and closed_routes:
+            route_label = ", ".join(str(route) for route in closed_routes[:3])
+            recommendations.append(f"Closed routes in current context: {route_label}")
+
+        return recommendations
+
+    def _summarize_weather_hazard_context(
+        self,
+        event: Dict[str, Any],
+        options: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Summarize weather/hazard corroboration for current event."""
+        context = options.get("context", {}) if isinstance(options, dict) else {}
+        weather_hazard = context.get("weatherHazard", {}) if isinstance(context, dict) else {}
+        summary = weather_hazard.get("summary", {}) if isinstance(weather_hazard, dict) else {}
+
+        concept_counts = summary.get("conceptCounts", {}) if isinstance(summary, dict) else {}
+        state_counts = summary.get("stateCounts", {}) if isinstance(summary, dict) else {}
+
+        observations = event.get("observations", []) if isinstance(event, dict) else []
+        event_weather_concepts: Dict[str, int] = {}
+        for obs in observations:
+            extracted = obs.get("extractedData", {}) if isinstance(obs, dict) else {}
+            concept = extracted.get("weatherHazardConcept") if isinstance(extracted, dict) else None
+            if isinstance(concept, str) and concept:
+                event_weather_concepts[concept] = event_weather_concepts.get(concept, 0) + 1
+
+        return {
+            "available": bool(summary),
+            "signalCount": summary.get("signalCount", 0) if isinstance(summary, dict) else 0,
+            "conceptCounts": concept_counts,
+            "stateCounts": state_counts,
+            "eventConceptCounts": event_weather_concepts,
+            "hasWarning": state_counts.get("warning", 0) > 0 if isinstance(state_counts, dict) else False,
+        }
+
+    def _generate_weather_hazard_recommendations(self, context: Dict[str, Any]) -> List[str]:
+        """Generate explainable weather/hazard recommendations."""
+        if not context.get("available"):
+            return []
+
+        concept_counts = context.get("conceptCounts", {})
+        if not isinstance(concept_counts, dict):
+            concept_counts = {}
+
+        recommendations: List[str] = []
+        if concept_counts.get("flood", 0) > 0 or concept_counts.get("storm_surge", 0) > 0:
+            recommendations.append("Flood or surge hazards present: prioritize passable inland routes and low-water checks")
+            recommendations.append("Elevated flood hazard: validate fuel and grocery access on non-flood-prone corridors")
+        if concept_counts.get("hurricane", 0) > 0:
+            recommendations.append("Hurricane conditions indicated: pre-stage alternate routing and critical supply distribution")
+        if concept_counts.get("high_wind", 0) > 0:
+            recommendations.append("High wind hazard present: avoid exposed bridge segments and high-profile vehicle routes")
+        if concept_counts.get("heavy_rain", 0) > 0:
+            recommendations.append("Heavy rain hazard present: increase travel-time buffers and monitor drainage chokepoints")
+
+        if context.get("hasWarning"):
+            recommendations.append("Active weather warning detected: elevate route, fuel, and grocery access risk posture")
+
+        return recommendations
+
+    def _summarize_planning_context(
+        self,
+        event: Dict[str, Any],
+        options: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Summarize optional planning context separate from live evidence."""
+        context = options.get("context", {}) if isinstance(options, dict) else {}
+        planning = context.get("planningContext", {}) if isinstance(context, dict) else {}
+        requested = bool(planning.get("requested")) if isinstance(planning, dict) else False
+        records = planning.get("records", []) if isinstance(planning, dict) else []
+        summary = planning.get("summary", {}) if isinstance(planning, dict) else {}
+
+        if not isinstance(records, list):
+            records = []
+
+        event_metadata = event.get("metadata", {}) if isinstance(event, dict) else {}
+        fusion_basis = event_metadata.get("fusionBasis", {}) if isinstance(event_metadata, dict) else {}
+        matched = fusion_basis.get("planningContextMatches", []) if isinstance(fusion_basis, dict) else []
+        if not isinstance(matched, list):
+            matched = []
+
+        concept_counts: Dict[str, int] = {}
+        for item in matched:
+            if not isinstance(item, dict):
+                continue
+            concept = item.get("concept")
+            if isinstance(concept, str) and concept:
+                concept_counts[concept] = concept_counts.get(concept, 0) + 1
+
+        return {
+            "available": bool(records),
+            "requested": requested,
+            "isLiveEvidence": False,
+            "recordCount": len(records),
+            "summary": summary if isinstance(summary, dict) else {},
+            "matchedRecordCount": len(matched),
+            "matchedConceptCounts": concept_counts,
+        }
+
+    def _generate_planning_context_recommendations(self, context: Dict[str, Any]) -> List[str]:
+        """Generate planning-oriented recommendations without treating planning as live evidence."""
+        if not context.get("available"):
+            return []
+
+        matched_counts = context.get("matchedConceptCounts", {})
+        if not isinstance(matched_counts, dict):
+            matched_counts = {}
+
+        requested = bool(context.get("requested"))
+        recommendations: List[str] = []
+
+        if matched_counts.get("known_bottleneck", 0) > 0:
+            msg = "Planning context indicates known bottleneck corridors: pre-position detour and traffic-control resources"
+            if requested:
+                msg = "Planning mode: prioritize known bottleneck corridors for pre-disaster route hardening and detour readiness"
+            recommendations.append(msg)
+
+        if matched_counts.get("historical_pattern", 0) > 0:
+            msg = "Historical access-loss pattern detected: validate backup fuel and grocery corridor coverage"
+            if requested:
+                msg = "Planning mode: prioritize historical access-loss zones for fuel and grocery continuity drills"
+            recommendations.append(msg)
+
+        if matched_counts.get("seasonal_risk", 0) > 0:
+            msg = "Seasonal risk context detected: increase monitoring of route reliability during forecast escalation"
+            if requested:
+                msg = "Planning mode: pre-stage seasonal hurricane/flood response playbooks in matched risk corridors"
+            recommendations.append(msg)
+
+        if requested and not recommendations:
+            recommendations.append(
+                "Planning mode requested: review county-level planning baseline even when no corridor-specific matches were found"
+            )
+
+        return recommendations
     
     def _utc_now(self) -> str:
         """Return current UTC timestamp in ISO 8601 format."""

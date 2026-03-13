@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "dataset": "tampa_planning_context",
+    "version": "0.1.0",
+    "placeholder": true,
+    "note": "Static Tampa planning context for pre-disaster enrichment. Replace with validated local planning inputs in production."
+  },
+  "planningContext": [
+    {
+      "planningId": "plan-hillsborough-bottleneck-001",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "corridorRef": "I-275-NB",
+      "areaRef": "Downtown Tampa interchange",
+      "summary": "Historic hurricane evacuations cause prolonged lane saturation and closure spillover.",
+      "source": {
+        "provider": "tampa_planning_seed",
+        "sourceRecordId": "tbep-plan-001"
+      },
+      "validity": {
+        "season": "hurricane",
+        "startMonth": 6,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "plan-pinellas-pattern-002",
+      "concept": "historical_pattern",
+      "county": "pinellas",
+      "corridorRef": "US-19-SB",
+      "areaRef": "Clearwater coastal approach",
+      "summary": "Flood watch conditions historically correlate with restricted access and detour overload.",
+      "source": {
+        "provider": "tampa_planning_seed",
+        "sourceRecordId": "tbep-plan-002"
+      },
+      "validity": {
+        "season": "rainy",
+        "startMonth": 6,
+        "endMonth": 10
+      }
+    },
+    {
+      "planningId": "plan-pasco-seasonal-003",
+      "concept": "seasonal_risk",
+      "county": "pasco",
+      "corridorRef": "SR-54",
+      "areaRef": "New Port Richey corridor",
+      "summary": "High-wind and heavy-rain season increases travel-time unreliability and access degradation.",
+      "source": {
+        "provider": "tampa_planning_seed",
+        "sourceRecordId": "tbep-plan-003"
+      },
+      "validity": {
+        "season": "hurricane",
+        "startMonth": 6,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "plan-pinellas-facility-004",
+      "concept": "historical_pattern",
+      "county": "pinellas",
+      "areaRef": "St. Petersburg coastal distribution zone",
+      "summary": "Storm surge periods repeatedly reduce practical grocery and fuel access in coastal distribution areas.",
+      "source": {
+        "provider": "tampa_planning_seed",
+        "sourceRecordId": "tbep-plan-004"
+      },
+      "validity": {
+        "season": "hurricane",
+        "startMonth": 6,
+        "endMonth": 11
+      }
+    }
+  ]
+}

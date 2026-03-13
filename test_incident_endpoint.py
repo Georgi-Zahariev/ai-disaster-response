@@ -29,13 +29,14 @@ async def test_incident_endpoint():
                 "signalId": "text-001",
                 "sourceType": "social_media",
                 "collectedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-                "rawText": "Major wildfire reported in Los Angeles County. Multiple roads closed. Heavy smoke visible.",
+                "rawText": "Major flooding reported near US-19 in Pinellas County. Multiple lanes closed and fuel deliveries delayed.",
                 "language": "en",
                 "location": {
-                    "latitude": 34.0522,
-                    "longitude": -118.2437,
+                    "latitude": 27.9506,
+                    "longitude": -82.4572,
                     "uncertainty": 1000,
-                    "placeName": "Los Angeles, CA"
+                    "placeName": "Tampa, FL",
+                    "county": "Hillsborough"
                 },
                 "confidence": 0.85,
                 "metadata": {
@@ -47,13 +48,14 @@ async def test_incident_endpoint():
                 "signalId": "text-002",
                 "sourceType": "human_report",
                 "collectedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-                "rawText": "Highway 101 northbound closed due to wildfire. Emergency services on scene.",
+                "rawText": "I-275 northbound partially closed due to storm surge debris near downtown St. Petersburg.",
                 "language": "en",
                 "location": {
-                    "latitude": 34.0600,
-                    "longitude": -118.2500,
+                    "latitude": 27.7676,
+                    "longitude": -82.6403,
                     "uncertainty": 500,
-                    "placeName": "Los Angeles, CA"
+                    "placeName": "St. Petersburg, FL",
+                    "county": "Pinellas"
                 },
                 "confidence": 0.90,
                 "metadata": {
@@ -70,10 +72,11 @@ async def test_incident_endpoint():
                 "imageFormat": "jpeg",
                 "resolution": "10m",
                 "location": {
-                    "latitude": 34.0522,
-                    "longitude": -118.2437,
+                    "latitude": 28.2920,
+                    "longitude": -82.6510,
                     "uncertainty": 100,
-                    "placeName": "Los Angeles, CA"
+                    "placeName": "New Port Richey, FL",
+                    "county": "Pasco"
                 },
                 "metadata": {
                     "satellite": "Sentinel-2",
@@ -90,10 +93,11 @@ async def test_incident_endpoint():
                 "value": 105.0,
                 "unit": "fahrenheit",
                 "location": {
-                    "latitude": 34.0522,
-                    "longitude": -118.2437,
+                    "latitude": 27.9506,
+                    "longitude": -82.4572,
                     "uncertainty": 10,
-                    "placeName": "Los Angeles, CA"
+                    "placeName": "Tampa, FL",
+                    "county": "Hillsborough"
                 },
                 "confidence": 0.95,
                 "metadata": {
@@ -108,10 +112,11 @@ async def test_incident_endpoint():
                 "value": 250.0,
                 "unit": "aqi",
                 "location": {
-                    "latitude": 34.0522,
-                    "longitude": -118.2437,
+                    "latitude": 27.8428,
+                    "longitude": -82.6995,
                     "uncertainty": 10,
-                    "placeName": "Los Angeles, CA"
+                    "placeName": "Clearwater, FL",
+                    "county": "Pinellas"
                 },
                 "confidence": 0.92,
                 "metadata": {
@@ -156,7 +161,10 @@ async def test_incident_endpoint():
         if response.get('warnings'):
             print(f"\nWarnings: {len(response['warnings'])}")
             for warning in response['warnings']:
-                print(f"  - [{warning.get('severity', 'unknown')}] {warning.get('message', 'No message')}")
+                if isinstance(warning, dict):
+                    print(f"  - [{warning.get('severity', 'unknown')}] {warning.get('message', 'No message')}")
+                else:
+                    print(f"  - {warning}")
         
         if response.get('errors'):
             print(f"\nErrors: {len(response['errors'])}")

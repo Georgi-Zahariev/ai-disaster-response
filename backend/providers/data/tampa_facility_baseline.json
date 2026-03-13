@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "dataset": "tampa_facility_baseline",
+    "version": "0.1.0",
+    "placeholder": true,
+    "note": "Replace placeholder records with validated local facility baseline data before production use."
+  },
+  "facilities": [
+    {
+      "facilityId": "fuel-hillsborough-placeholder-001",
+      "facilityType": "fuel",
+      "name": "Placeholder Fuel - Hillsborough",
+      "location": {
+        "latitude": 27.9900,
+        "longitude": -82.3010,
+        "county": "hillsborough",
+        "placeName": "Hillsborough County Placeholder"
+      },
+      "source": {
+        "provider": "placeholder_seed_tampa_facilities"
+      }
+    },
+    {
+      "facilityId": "grocery-hillsborough-placeholder-001",
+      "facilityType": "grocery",
+      "name": "Placeholder Grocery - Hillsborough",
+      "location": {
+        "latitude": 27.9500,
+        "longitude": -82.4570,
+        "county": "hillsborough",
+        "placeName": "Tampa Placeholder"
+      },
+      "source": {
+        "provider": "placeholder_seed_tampa_facilities"
+      }
+    },
+    {
+      "facilityId": "fuel-pinellas-placeholder-001",
+      "facilityType": "fuel",
+      "name": "Placeholder Fuel - Pinellas",
+      "location": {
+        "latitude": 27.8764,
+        "longitude": -82.7779,
+        "county": "pinellas",
+        "placeName": "Pinellas County Placeholder"
+      },
+      "source": {
+        "provider": "placeholder_seed_tampa_facilities"
+      }
+    },
+    {
+      "facilityId": "grocery-pinellas-placeholder-001",
+      "facilityType": "grocery",
+      "name": "Placeholder Grocery - Pinellas",
+      "location": {
+        "latitude": 27.7676,
+        "longitude": -82.6403,
+        "county": "pinellas",
+        "placeName": "St. Petersburg Placeholder"
+      },
+      "source": {
+        "provider": "placeholder_seed_tampa_facilities"
+      }
+    },
+    {
+      "facilityId": "fuel-pasco-placeholder-001",
+      "facilityType": "fuel",
+      "name": "Placeholder Fuel - Pasco",
+      "location": {
+        "latitude": 28.2919,
+        "longitude": -82.6901,
+        "county": "pasco",
+        "placeName": "Pasco County Placeholder"
+      },
+      "source": {
+        "provider": "placeholder_seed_tampa_facilities"
+      }
+    },
+    {
+      "facilityId": "grocery-pasco-placeholder-001",
+      "facilityType": "grocery",
+      "name": "Placeholder Grocery - Pasco",
+      "location": {
+        "latitude": 28.2442,
+        "longitude": -82.7193,
+        "county": "pasco",
+        "placeName": "New Port Richey Placeholder"
+      },
+      "source": {
+        "provider": "placeholder_seed_tampa_facilities"
+      }
+    }
+  ]
+}
