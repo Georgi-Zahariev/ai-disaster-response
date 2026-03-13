@@ -5,13 +5,15 @@
  * TODO: Integrate with actual mapping library (e.g., Leaflet, Mapbox)
  */
 
-import type { MapFeaturePayload } from '../types/incident';
+import type { MapFeaturePayload, MapView } from '../types/incident';
 
 interface MapPlaceholderProps {
-  mapFeatures: MapFeaturePayload[];
+  map?: MapView | null;
+  fallbackFeatures?: MapFeaturePayload[];
 }
 
-function MapPlaceholder({ mapFeatures = [] }: MapPlaceholderProps) {
+function MapPlaceholder({ map = null, fallbackFeatures = [] }: MapPlaceholderProps) {
+  const mapFeatures = map?.features || fallbackFeatures;
   /**
    * Format coordinates for Point geometry
    */
@@ -24,14 +26,15 @@ function MapPlaceholder({ mapFeatures = [] }: MapPlaceholderProps) {
 
   return (
     <div className="panel map-placeholder">
-      <h2>Geographic View</h2>
+      <h2>Map Data Preview</h2>
+      <p className="panel-subtitle">Current map features from backend output for corridors, alerts, and impact points.</p>
       <div className="map-container">
         {mapFeatures.length === 0 ? (
           <div className="map-empty-state">
             <div className="map-icon">🗺️</div>
-            <p>Map visualization placeholder</p>
+            <p>No map features yet</p>
             <p className="empty-state-hint">
-              Events and disruptions will be displayed on an interactive map
+              Submit an incident to load route and alert feature points
             </p>
           </div>
         ) : (

@@ -430,23 +430,27 @@ export interface DashboardSummary {
  * Used in: Response.warnings
  */
 export interface Warning {
-  code: string;
-  message: string;
-  severity: 'low' | 'medium' | 'high';
+  code?: string;
+  message?: string;
+  severity?: 'low' | 'medium' | 'high';
 }
+
+export type WarningLike = string | Warning;
 
 /**
  * Error message
  * Used in: Response.errors
  */
 export interface ErrorMessage {
-  code: string;
-  message: string;
+  code?: string;
+  message?: string;
   statusCode?: number;
   details?: Record<string, any>;
   timestamp?: string;
   trace?: TraceContext;
 }
+
+export type ErrorLike = string | ErrorMessage;
 
 // ============================================================================
 // Processing Metadata
@@ -462,9 +466,122 @@ export interface ProcessingMetadata {
   eventsCreated: number;
   disruptionsAssessed: number;
   alertsGenerated: number;
+  casesCreated?: number;
+  evidenceRecords?: number;
+  fusionSummary?: Record<string, any>;
+  facilityBaselineCount?: number;
   pipeline: string;
   version: string;
   modelVersions?: Record<string, string>;
+}
+
+export interface MVPSummary {
+  scope: {
+    region: string;
+    counties: string[];
+  };
+  signals: {
+    processed: number;
+    observations: number;
+    routeTrafficSignals: number;
+    weatherHazardSignals: number;
+  };
+  cases: {
+    total: number;
+    severity: Record<string, number>;
+  };
+  alerts: {
+    active: number;
+    priorities: Record<string, number>;
+  };
+  facilities: {
+    baselineCount: number;
+  };
+  planningContext: {
+    requested: boolean;
+    recordCount: number;
+    summary: Record<string, any>;
+    isLiveEvidence: false;
+  };
+  counties: Record<string, number>;
+  timeWindow: {
+    start: string | null;
+    end: string | null;
+  };
+}
+
+export interface FusedCase {
+  caseId: string;
+  event: FusedEvent;
+  assessment: {
+    assessmentId?: string | null;
+    disruptionSeverity?: string | null;
+    confidence?: number | null;
+    recommendations: string[];
+  };
+  routeTraffic: {
+    routeIds: string[];
+    conceptCounts: Record<string, number>;
+  };
+  weatherHazard: {
+    conceptCounts: Record<string, number>;
+    stateCounts: Record<string, number>;
+  };
+  facilities: {
+    relatedFacilityIds: string[];
+    relatedFuelFacilityIds: string[];
+    relatedGroceryFacilityIds: string[];
+  };
+  planningContext: {
+    requested: boolean;
+    isLiveEvidence: false;
+    matches: Array<Record<string, any>>;
+  };
+  provenance: {
+    sourceSignalIds: string[];
+    evidenceRefs: Array<Record<string, any>>;
+  };
+}
+
+export interface EvidenceRecord {
+  eventId: string;
+  observationId: string;
+  observationType: string;
+  description: string;
+  severity?: string;
+  confidence?: number;
+  location?: LocationReference;
+  timeReference?: TimeReference;
+  sourceSignalIds: string[];
+  provenance: {
+    sourceRecordId?: string;
+    evidenceRef?: Record<string, any>;
+    provider?: string;
+  };
+  isLiveEvidence: true;
+}
+
+export interface MapView {
+  type: 'mapFeatureCollection';
+  featureCount: number;
+  features: MapFeaturePayload[];
+}
+
+export interface DashboardView {
+  type: 'dashboardSummary';
+  data: DashboardSummary;
+}
+
+export interface PlanningContextView {
+  requested: boolean;
+  isLiveEvidence: false;
+  recordCount: number;
+  summary: Record<string, any>;
+  matchesByCase: Array<{
+    eventId: string;
+    eventType: string;
+    matches: Array<Record<string, any>>;
+  }>;
 }
 
 // ============================================================================
@@ -484,6 +601,7 @@ export interface IncidentAnalysisRequest {
     enableFusion?: boolean;
     enableDisruptionAssessment?: boolean;
     enableAlertGeneration?: boolean;
+    enablePlanningContext?: boolean;
     minConfidenceThreshold?: number;
     geographicBounds?: LocationReference;
     timeWindow?: TimeWindow;
@@ -502,16 +620,27 @@ export interface IncidentAnalysisRequest {
  */
 export interface IncidentAnalysisResponse {
   trace: TraceContext;
-  status: 'success' | 'partial_success' | 'error';
+  status: 'success' | 'partial_success' | 'partial' | 'error';
   processedAt: string;
   processingDurationMs: number;
-  events: FusedEvent[];
-  disruptions: DisruptionAssessment[];
+
+  // Preferred Tampa MVP response fields.
+  summary?: MVPSummary;
+  cases?: FusedCase[];
   alerts: AlertRecommendation[];
-  mapFeatures: MapFeaturePayload[];
+  evidence?: EvidenceRecord[];
+  map?: MapView;
+  dashboard?: DashboardView;
+  planningContext?: PlanningContextView;
+
+  // Legacy compatibility fallbacks.
+  events?: FusedEvent[];
+  disruptions?: DisruptionAssessment[];
+  mapFeatures?: MapFeaturePayload[];
   dashboardSummary?: DashboardSummary;
-  warnings?: Warning[];
-  errors?: ErrorMessage[];
+
+  warnings?: WarningLike[];
+  errors?: ErrorLike[];
   metadata?: ProcessingMetadata;
 }
 
@@ -526,6 +655,8 @@ export interface IncidentAnalysisResponse {
 export interface SimpleIncidentInput {
   description: string;
   location?: string;
+  county?: 'hillsborough' | 'pinellas' | 'pasco';
+  enablePlanningContext?: boolean;
 }
 
 /**
@@ -535,6 +666,14 @@ export function createIncidentRequest(
   input: SimpleIncidentInput,
   requestId?: string
 ): IncidentAnalysisRequest {
+  const county = input.county || 'hillsborough';
+  const countyToSeed: Record<string, { latitude: number; longitude: number; placeName: string }> = {
+    hillsborough: { latitude: 27.9506, longitude: -82.4572, placeName: 'Tampa' },
+    pinellas: { latitude: 27.7676, longitude: -82.6403, placeName: 'St. Petersburg' },
+    pasco: { latitude: 28.2442, longitude: -82.7193, placeName: 'New Port Richey' },
+  };
+  const seed = countyToSeed[county] || countyToSeed.hillsborough;
+
   return {
     trace: {
       requestId: requestId || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -543,15 +682,16 @@ export function createIncidentRequest(
     textSignals: [
       {
         signalId: `text-${Date.now()}`,
-        sourceType: 'human_report',
-        collectedAt: new Date().toISOString(),
-        rawText: input.description,
-        language: 'en',
-        ...(input.location && {
-          location: {
-            placeName: input.location,
-          },
-        }),
+        source: 'dashboard_user_report',
+        content: input.description,
+        createdAt: new Date().toISOString(),
+        receivedAt: new Date().toISOString(),
+        location: {
+          latitude: seed.latitude,
+          longitude: seed.longitude,
+          county,
+          placeName: input.location || seed.placeName,
+        },
         confidence: 0.9,
       },
     ],
@@ -559,6 +699,7 @@ export function createIncidentRequest(
       enableFusion: true,
       enableDisruptionAssessment: true,
       enableAlertGeneration: true,
+      enablePlanningContext: Boolean(input.enablePlanningContext),
       minConfidenceThreshold: 0.5,
     },
   };

@@ -242,6 +242,13 @@ body {
   padding-bottom: var(--spacing-md);
 }
 
+.panel-subtitle {
+  margin-top: calc(var(--spacing-md) * -0.5);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
 /* ==========================
    Incident Form
    ========================== */
@@ -272,7 +279,8 @@ body {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: var(--spacing-md);
   border: 1px solid var(--color-border);
@@ -283,7 +291,8 @@ body {
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -292,6 +301,21 @@ body {
 .form-group textarea {
   resize: vertical;
   min-height: 100px;
+}
+
+.checkbox-group {
+  margin-top: calc(var(--spacing-md) * -0.5);
+}
+
+.checkbox-label {
+  display: inline-flex !important;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
 }
 
 .form-actions {
@@ -602,6 +626,12 @@ body {
   color: var(--color-text);
 }
 
+.case-id {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.35rem;
+}
+
 .event-description {
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-md);
@@ -620,6 +650,30 @@ body {
 .event-sectors {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+.case-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.case-chip {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #334155;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+}
+
+.event-sectors.planning-note {
+  border-left: 3px solid #0369a1;
+  padding-left: var(--spacing-sm);
 }
 
 /* ==========================
@@ -776,6 +830,139 @@ body {
 .map-icon {
   font-size: 3rem;
   margin-bottom: var(--spacing-md);
+}
+
+/* ==========================
+   Evidence Panel
+   ========================== */
+
+.evidence-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.evidence-item {
+  border: 1px solid var(--color-border);
+  border-left: 4px solid #0f766e;
+  background: #f8fffe;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.evidence-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.evidence-type {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.evidence-confidence {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.evidence-description {
+  color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
+}
+
+.evidence-id {
+  font-size: 0.74rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.evidence-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+/* ==========================
+   Planning Panel
+   ========================== */
+
+.planning-panel {
+  border-top: 4px solid #0369a1;
+}
+
+.planning-panel-muted {
+  opacity: 0.95;
+}
+
+.planning-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0c4a6e;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.planning-summary {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.planning-matches {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.planning-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  background: #f8fafc;
+}
+
+.planning-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.planning-item ul {
+  margin-left: 1.25rem;
+}
+
+.planning-item li {
+  margin-bottom: 0.25rem;
+}
+
+/* ==========================
+   Dashboard Summary Panel
+   ========================== */
+
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 900px) {
+  .dashboard-summary-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ==========================

@@ -9,26 +9,26 @@ function LoadingState() {
     <div className="loading-dashboard-state">
       <div className="loading-state-card">
         <div className="loading-spinner"></div>
-        <h3>Analyzing Incident...</h3>
+        <h3>Analyzing Tampa Bay Incident...</h3>
         <p className="loading-description">
-          Processing multimodal signals and generating insights
+          Building a live route-access operating picture
         </p>
         <div className="loading-steps">
           <div className="loading-step">
             <div className="step-indicator active"></div>
-            <span className="step-text">Collecting signals</span>
+            <span className="step-text">Collecting in-scope signals</span>
           </div>
           <div className="loading-step">
             <div className="step-indicator active"></div>
-            <span className="step-text">Fusing data sources</span>
+            <span className="step-text">Fusing route and hazard evidence</span>
           </div>
           <div className="loading-step">
             <div className="step-indicator active pulse"></div>
-            <span className="step-text">Detecting events</span>
+            <span className="step-text">Scoring disruption impacts</span>
           </div>
           <div className="loading-step">
             <div className="step-indicator"></div>
-            <span className="step-text">Generating alerts</span>
+            <span className="step-text">Preparing alerts and summary</span>
           </div>
         </div>
       </div>

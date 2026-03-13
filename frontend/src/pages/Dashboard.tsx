@@ -16,8 +16,9 @@ import IncidentForm from '../components/IncidentForm';
 import SummaryCards from '../components/SummaryCards';
 import AlertsPanel from '../components/AlertsPanel';
 import FusedEventsPanel from '../components/FusedEventsPanel';
-import SourcesPanel from '../components/SourcesPanel';
-import ActivityLogPanel from '../components/ActivityLogPanel';
+import EvidencePanel from '../components/EvidencePanel';
+import PlanningContextPanel from '../components/PlanningContextPanel';
+import DashboardSummaryPanel from '../components/DashboardSummaryPanel';
 import MapPlaceholder from '../components/MapPlaceholder';
 import EmptyState from '../components/EmptyState';
 import LoadingState from '../components/LoadingState';
@@ -42,6 +43,16 @@ function Dashboard() {
       
       // Call backend API
       const response = await analyzeIncident(request);
+
+      if (response.status === 'error') {
+        const firstError = Array.isArray(response.errors) ? response.errors[0] : undefined;
+        const message = typeof firstError === 'string'
+          ? firstError
+          : firstError?.message || 'Incident analysis returned an error status';
+        setError(message);
+        setAnalysisResponse(null);
+        return;
+      }
       
       // Update state with successful response
       setAnalysisResponse(response);
@@ -66,8 +77,8 @@ function Dashboard() {
     <div className="dashboard">
       {/* Header */}
       <header className="dashboard-header">
-        <h1>AI Disaster Response Dashboard</h1>
-        <p className="subtitle">Multimodal Incident Analysis & Situational Awareness</p>
+        <h1>Tampa Bay Route Access Decision Support</h1>
+        <p className="subtitle">Hillsborough · Pinellas · Pasco | Live Monitoring + Optional Planning Context</p>
       </header>
 
       {/* Main Content */}
@@ -95,7 +106,10 @@ function Dashboard() {
             onSubmit={handleIncidentSubmit} 
             isProcessing={isProcessing}
           />
-          <MapPlaceholder mapFeatures={analysisResponse?.mapFeatures || []} />
+          <MapPlaceholder
+            map={analysisResponse?.map || null}
+            fallbackFeatures={analysisResponse?.mapFeatures || []}
+          />
         </div>
 
         {/* Right Column: Results and Panels */}
@@ -107,13 +121,22 @@ function Dashboard() {
           
           {analysisResponse && (
             <>
-              <SummaryCards summary={analysisResponse.dashboardSummary || null} />
+              <SummaryCards
+                summary={analysisResponse.summary || null}
+                legacySummary={analysisResponse.dashboardSummary || null}
+              />
+              <FusedEventsPanel
+                cases={analysisResponse.cases || []}
+                events={analysisResponse.events || []}
+              />
               <AlertsPanel alerts={analysisResponse.alerts || []} />
-              <FusedEventsPanel events={analysisResponse.events || []} />
               <div className="dashboard-row">
-                <SourcesPanel response={analysisResponse} />
-                <ActivityLogPanel response={analysisResponse} />
+                <EvidencePanel evidence={analysisResponse.evidence || []} />
+                <PlanningContextPanel planningContext={analysisResponse.planningContext || null} />
               </div>
+              <DashboardSummaryPanel
+                dashboardSummary={analysisResponse.dashboard?.data || analysisResponse.dashboardSummary || null}
+              />
             </>
           )}
         </div>

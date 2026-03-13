@@ -15,7 +15,9 @@ const API_BASE_URL = '/api';
  * Endpoint: POST /api/incidents/analyze
  * 
  * @param request - Incident analysis request with signals and options
- * @returns Incident analysis response with events, disruptions, alerts, etc.
+ * @returns Incident analysis response using preferred Tampa MVP fields:
+ * summary, cases, alerts, evidence, map, dashboard, planningContext
+ * with legacy fallbacks still available.
  * @throws APIError with status code and details
  */
 export async function analyzeIncident(
@@ -73,49 +75,6 @@ export async function analyzeIncident(
       { originalError: error }
     );
   }
-}
-
-/**
- * Fetch list of events
- * 
- * Endpoint: GET /api/incidents/events
- * 
- * TODO: Implement when backend endpoint is available
- */
-export async function getEvents(params?: {
-  severity?: string;
-  sector?: string;
-  limit?: number;
-}): Promise<any> {
-  const queryParams = new URLSearchParams();
-  if (params?.severity) queryParams.set('severity', params.severity);
-  if (params?.sector) queryParams.set('sector', params.sector);
-  if (params?.limit) queryParams.set('limit', params.limit.toString());
-
-  const response = await fetch(`${API_BASE_URL}/incidents/events?${queryParams}`);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch events: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Fetch specific event by ID
- * 
- * Endpoint: GET /api/incidents/events/{eventId}
- * 
- * TODO: Implement when backend endpoint is available
- */
-export async function getEventById(eventId: string): Promise<any> {
-  const response = await fetch(`${API_BASE_URL}/incidents/events/${eventId}`);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch event: ${response.status}`);
-  }
-
-  return response.json();
 }
 
 /**

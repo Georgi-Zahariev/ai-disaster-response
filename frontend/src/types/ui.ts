@@ -43,6 +43,8 @@ import type { IncidentAnalysisResponse } from './incident';
 export interface IncidentInputData {
   description: string;
   location?: string;
+  county?: 'hillsborough' | 'pinellas' | 'pasco';
+  enablePlanningContext?: boolean;
 }
 
 /**
