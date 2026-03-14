@@ -118,7 +118,7 @@ async def test_controller_flow_planning_metadata_and_recommendations() -> None:
     """Planning context should be non-live but still influence scoring and alerts metadata."""
     response = await process_incident_request(_base_request())
 
-    assert response["status"] in {"success", "partial"}
+    assert response["status"] in {"success", "partial", "partial_success"}
 
     # New MVP response sections should be present.
     assert isinstance(response.get("summary"), dict)

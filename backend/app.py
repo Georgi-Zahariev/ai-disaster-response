@@ -7,7 +7,7 @@ Main backend server for disaster response system.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api.routes import incidents_router, alerts_router, dashboard_router
+from backend.api.routes import incidents_router, alerts_router, dashboard_router, debug_router, facilities_router
 from backend.api.middleware.tracing import TracingMiddleware
 from backend.api.middleware.error_handler import error_handler_middleware
 from backend.logging import setup_logging, get_logger
@@ -42,6 +42,8 @@ app.middleware("http")(error_handler_middleware)
 app.include_router(incidents_router)
 app.include_router(alerts_router)
 app.include_router(dashboard_router)
+app.include_router(debug_router)
+app.include_router(facilities_router)
 
 
 @app.get("/")

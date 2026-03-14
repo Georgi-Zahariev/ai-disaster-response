@@ -17,6 +17,8 @@ from .vision_feed_provider import VisionFeedProvider
 from .quantitative_feed_provider import QuantitativeFeedProvider
 from .facility_baseline_provider import FacilityBaselineProvider
 from .planning_context_provider import PlanningContextProvider
+from .nws_weather_provider import NWSWeatherProvider
+from .osm_facility_provider import OSMFacilityProvider
 
 __all__ = [
     "WeatherProvider",
@@ -25,4 +27,6 @@ __all__ = [
     "QuantitativeFeedProvider",
     "FacilityBaselineProvider",
     "PlanningContextProvider",
+    "NWSWeatherProvider",
+    "OSMFacilityProvider",
 ]

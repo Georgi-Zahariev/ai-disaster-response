@@ -20,6 +20,15 @@ ALLOWED_COUNTIES = {"hillsborough", "pinellas", "pasco"}
 # west, south, east, north
 TAMPA_BAY_BBOX: Tuple[float, float, float, float] = (-82.9, 27.5, -82.0, 28.5)
 
+# Coarse county bounding boxes used for deterministic county inference when a
+# source does not provide explicit county labels.
+# west, south, east, north
+COUNTY_BBOXES: Dict[str, Tuple[float, float, float, float]] = {
+    "hillsborough": (-82.85, 27.55, -82.05, 28.35),
+    "pinellas": (-82.85, 27.55, -82.55, 28.25),
+    "pasco": (-82.85, 28.05, -82.05, 28.55),
+}
+
 
 def _normalize_county(value: Optional[str]) -> str:
     """Normalize county-like input for matching."""
@@ -28,6 +37,47 @@ def _normalize_county(value: Optional[str]) -> str:
 
     lowered = value.strip().lower()
     return lowered.replace(" county", "")
+
+
+def is_point_in_tampa_bay(latitude: float, longitude: float) -> bool:
+    """Return True when coordinates are within the Tampa Bay bounding box."""
+    west, south, east, north = TAMPA_BAY_BBOX
+    return west <= float(longitude) <= east and south <= float(latitude) <= north
+
+
+def infer_county_from_coordinates(latitude: Optional[float], longitude: Optional[float]) -> Optional[str]:
+    """Infer county from coarse county bounding boxes."""
+    if latitude is None or longitude is None:
+        return None
+    lat = float(latitude)
+    lon = float(longitude)
+    for county, (west, south, east, north) in COUNTY_BBOXES.items():
+        if west <= lon <= east and south <= lat <= north:
+            return county
+    return None
+
+
+def county_from_hint_or_coordinates(
+    county_hint: Optional[str],
+    latitude: Optional[float],
+    longitude: Optional[float],
+) -> Optional[str]:
+    """Resolve county from text hint first, then fallback to coordinate inference."""
+    normalized = _normalize_county(county_hint)
+    if normalized in ALLOWED_COUNTIES:
+        return normalized
+
+    # Match county names embedded in area descriptions such as
+    # "Hillsborough; Pinellas; Pasco".
+    if normalized:
+        for county in ALLOWED_COUNTIES:
+            if county in normalized:
+                return county
+
+    inferred = infer_county_from_coordinates(latitude, longitude)
+    if inferred in ALLOWED_COUNTIES:
+        return inferred
+    return None
 
 
 def _extract_county(signal: Dict[str, Any]) -> str:

@@ -187,12 +187,18 @@ class WeatherProvider:
         metadata = raw.get("metadata") if isinstance(raw.get("metadata"), dict) else {}
         description = str(raw.get("description") or metadata.get("description") or "Weather hazard anomaly detected").strip()
 
+        incoming_hazard = metadata.get("weatherHazard") if isinstance(metadata.get("weatherHazard"), dict) else {}
         hazard_meta = {
+            **incoming_hazard,
             "concept": concept,
             "state": state,
             "sourceRecordId": source_record_id,
             "evidenceRef": {
-                "sourceUrl": evidence.get("sourceUrl") or evidence.get("source_url"),
+                "sourceUrl": (
+                    evidence.get("sourceUrl")
+                    or evidence.get("source_url")
+                    or (incoming_hazard.get("evidenceRef") or {}).get("sourceUrl")
+                ),
                 "sourceRecordId": source_record_id,
             },
         }

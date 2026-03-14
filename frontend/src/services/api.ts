@@ -5,7 +5,11 @@
  * See vite.config.ts for proxy configuration.
  */
 
-import type { IncidentAnalysisRequest, IncidentAnalysisResponse } from '../types/incident';
+import type {
+  FacilitiesResponse,
+  IncidentAnalysisRequest,
+  IncidentAnalysisResponse,
+} from '../types/incident';
 
 const API_BASE_URL = '/api';
 
@@ -75,6 +79,26 @@ export async function analyzeIncident(
       { originalError: error }
     );
   }
+}
+
+/**
+ * Fetch app-facing facility records for map marker rendering.
+ */
+export async function fetchFacilities(
+  limit: number
+): Promise<FacilitiesResponse> {
+  const safeSize = Math.max(1, Math.min(limit, 5000));
+  const response = await fetch(`${API_BASE_URL}/facilities?limit=${safeSize}`);
+
+  if (!response.ok) {
+    throw new APIError(
+      `Facility request failed: ${response.status} ${response.statusText}`,
+      response.status
+    );
+  }
+
+  const data = await response.json();
+  return data as FacilitiesResponse;
 }
 
 /**

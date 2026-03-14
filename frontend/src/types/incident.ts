@@ -561,6 +561,34 @@ export interface EvidenceRecord {
   isLiveEvidence: true;
 }
 
+export interface FacilityRecord {
+  facility_id: string;
+  source: string;
+  external_id?: string | null;
+  name?: string;
+  category: string;
+  subtype?: string | null;
+  latitude: number;
+  longitude: number;
+  county?: string | null;
+  brand?: string | null;
+  operator?: string | null;
+  source_url?: string | null;
+}
+
+export interface FacilitiesResponse {
+  totalAvailable: number;
+  returnedCount: number;
+  records: FacilityRecord[];
+  sourceNames?: string[];
+  filters?: {
+    county?: string | null;
+    category?: string | null;
+    limit?: number | null;
+  };
+  warnings?: string[];
+}
+
 export interface MapView {
   type: 'mapFeatureCollection';
   featureCount: number;

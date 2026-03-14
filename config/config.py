@@ -101,6 +101,14 @@ class Config:
     
     WEATHER_API_KEY: Optional[str] = os.getenv("WEATHER_API_KEY")
     WEATHER_API_URL: str = os.getenv("WEATHER_API_URL", "https://api.weather.gov")
+    USE_REAL_WEATHER_PROVIDER: bool = os.getenv("USE_REAL_WEATHER_PROVIDER", "true").lower() == "true"
+    NWS_USER_AGENT: str = os.getenv("NWS_USER_AGENT", "ai-disaster-response/1.0 (ops@example.com)")
+    NWS_TIMEOUT_SECONDS: float = float(os.getenv("NWS_TIMEOUT_SECONDS", "8.0"))
+
+    USE_REAL_FACILITY_PROVIDER: bool = os.getenv("USE_REAL_FACILITY_PROVIDER", "true").lower() == "true"
+    OSM_OVERPASS_URL: str = os.getenv("OSM_OVERPASS_URL", "https://overpass-api.de/api/interpreter")
+    OSM_TIMEOUT_SECONDS: float = float(os.getenv("OSM_TIMEOUT_SECONDS", "12.0"))
+    REAL_PROVIDER_FALLBACK_TO_SEED: bool = os.getenv("REAL_PROVIDER_FALLBACK_TO_SEED", "true").lower() == "true"
     
     MAPS_API_KEY: Optional[str] = os.getenv("MAPS_API_KEY")
     MAPS_API_URL: str = os.getenv("MAPS_API_URL", "https://maps.googleapis.com/maps/api")
@@ -205,6 +213,8 @@ class Config:
         print(f"  ENABLE_TEXT_PROVIDER: {cls.ENABLE_TEXT_PROVIDER}")
         print(f"  ENABLE_VISION_PROVIDER: {cls.ENABLE_VISION_PROVIDER}")
         print(f"  ENABLE_QUANT_PROVIDER: {cls.ENABLE_QUANT_PROVIDER}")
+        print(f"  USE_REAL_WEATHER_PROVIDER: {cls.USE_REAL_WEATHER_PROVIDER}")
+        print(f"  USE_REAL_FACILITY_PROVIDER: {cls.USE_REAL_FACILITY_PROVIDER}")
         
         print("\n🎚️  Feature Flags - Pipeline Stages:")
         print(f"  ENABLE_EXTRACTION: {cls.ENABLE_EXTRACTION}")

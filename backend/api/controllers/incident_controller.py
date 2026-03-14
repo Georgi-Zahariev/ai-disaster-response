@@ -15,10 +15,11 @@ IMPORTANT: Keep this controller THIN.
 - Error handling and logging
 """
 
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timezone
 from fastapi import HTTPException
 from utils.logger import setup_logger
+from config.config import Config
 from backend.services.orchestrator.incident_orchestrator import IncidentOrchestrator
 from backend.utils.tampa_bay_scope import split_signals_by_scope, get_signal_scope_hint
 from backend.providers import (
@@ -26,6 +27,8 @@ from backend.providers import (
     QuantitativeFeedProvider,
     WeatherProvider,
     PlanningContextProvider,
+    NWSWeatherProvider,
+    OSMFacilityProvider,
 )
 
 logger = setup_logger(__name__)
@@ -37,6 +40,8 @@ _facility_baseline_provider = None
 _quantitative_provider = None
 _weather_provider = None
 _planning_context_provider = None
+_nws_weather_provider = None
+_osm_facility_provider = None
 
 
 def get_orchestrator() -> IncidentOrchestrator:
@@ -85,6 +90,29 @@ def get_planning_context_provider() -> PlanningContextProvider:
     if _planning_context_provider is None:
         _planning_context_provider = PlanningContextProvider()
     return _planning_context_provider
+
+
+def get_nws_weather_provider() -> NWSWeatherProvider:
+    """Get or create real NWS weather provider instance."""
+    global _nws_weather_provider
+    if _nws_weather_provider is None:
+        _nws_weather_provider = NWSWeatherProvider(
+            base_url=Config.WEATHER_API_URL,
+            user_agent=Config.NWS_USER_AGENT,
+            timeout_seconds=Config.NWS_TIMEOUT_SECONDS,
+        )
+    return _nws_weather_provider
+
+
+def get_osm_facility_provider() -> OSMFacilityProvider:
+    """Get or create real OSM facility provider instance."""
+    global _osm_facility_provider
+    if _osm_facility_provider is None:
+        _osm_facility_provider = OSMFacilityProvider(
+            overpass_url=Config.OSM_OVERPASS_URL,
+            timeout_seconds=Config.OSM_TIMEOUT_SECONDS,
+        )
+    return _osm_facility_provider
 
 
 async def process_incident_request(request_body: Dict[str, Any]) -> Dict[str, Any]:
@@ -301,8 +329,7 @@ def _attach_facility_baseline_context(request: Dict[str, Any]) -> Tuple[Dict[str
         baseline_records, normalize_warnings = provider.normalize_records(provided_baseline)
         warnings.extend(normalize_warnings)
     else:
-        provider = get_facility_baseline_provider()
-        baseline_records, provider_warnings = provider.load_facilities()
+        baseline_records, provider_warnings = _load_facility_baseline_records()
         warnings.extend(provider_warnings)
 
     context["facilityBaseline"] = baseline_records
@@ -355,9 +382,29 @@ def _normalize_route_traffic_signals(request: Dict[str, Any]) -> Tuple[Dict[str,
             route_candidates.append(signal)
 
     normalized_route, route_warnings = route_provider.normalize_route_traffic_signals(route_candidates)
+
+    live_weather_signals: List[Dict[str, Any]] = []
+    live_weather_warnings: List[str] = []
+    if Config.USE_REAL_WEATHER_PROVIDER:
+        live_weather_signals, live_weather_warnings = _load_nws_weather_signals()
+
+    # Prefer explicitly provided weather signals + live NWS ingestion.
+    weather_candidates = weather_candidates + live_weather_signals
     normalized_weather, weather_warnings = weather_provider.normalize_weather_hazard_signals(weather_candidates)
+
+    if Config.USE_REAL_WEATHER_PROVIDER and not live_weather_signals and Config.REAL_PROVIDER_FALLBACK_TO_SEED:
+        seed_weather, seed_warnings = _load_seed_weather_signals()
+        weather_candidates = weather_candidates + seed_weather
+        normalized_weather, weather_warnings = weather_provider.normalize_weather_hazard_signals(weather_candidates)
+        live_weather_warnings.extend(seed_warnings)
+        if seed_weather:
+            live_weather_warnings.append(
+                "Using seed weather fallback because live NWS weather signals were unavailable."
+            )
+
     warnings.extend(route_warnings)
     warnings.extend(weather_warnings)
+    warnings.extend(live_weather_warnings)
 
     normalized_signals = normalized_route + normalized_weather
     enriched_request["quantSignals"] = normalized_signals
@@ -381,6 +428,165 @@ def _normalize_route_traffic_signals(request: Dict[str, Any]) -> Tuple[Dict[str,
         )
 
     return enriched_request, warnings
+
+
+def _load_facility_baseline_records() -> Tuple[List[Dict[str, Any]], List[str]]:
+    """Load facilities from OSM when enabled, with seed fallback."""
+    warnings: List[str] = []
+    records: List[Dict[str, Any]] = []
+
+    if Config.USE_REAL_FACILITY_PROVIDER:
+        osm_provider = get_osm_facility_provider()
+        records, osm_warnings = osm_provider.load_facilities()
+        warnings.extend(osm_warnings)
+        if records:
+            return records, warnings
+
+        if not Config.REAL_PROVIDER_FALLBACK_TO_SEED:
+            return [], warnings
+
+        warnings.append("Using seed facility fallback because live OSM facilities were unavailable.")
+
+    seed_provider = get_facility_baseline_provider()
+    seed_records, seed_warnings = seed_provider.load_facilities()
+    warnings.extend(seed_warnings)
+    return seed_records, warnings
+
+
+def _load_nws_weather_signals() -> Tuple[List[Dict[str, Any]], List[str]]:
+    """Load real-weather quant signals from NWS provider."""
+    provider = get_nws_weather_provider()
+    return provider.fetch_active_alerts()
+
+
+def _load_seed_weather_signals() -> Tuple[List[Dict[str, Any]], List[str]]:
+    """Load seed weather signals for deterministic fallback."""
+    provider = get_weather_provider()
+    raw = provider._load_seed_records()  # Internal helper retained for deterministic seed fallback.
+    return provider.normalize_weather_hazard_signals(raw)
+
+
+def _project_facility_record(record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Project internal facility baseline record to stable API shape."""
+    if not isinstance(record, dict):
+        return None
+
+    location = record.get("location") if isinstance(record.get("location"), dict) else {}
+    source = record.get("source") if isinstance(record.get("source"), dict) else {}
+    metadata = record.get("metadata") if isinstance(record.get("metadata"), dict) else {}
+
+    latitude = location.get("latitude")
+    longitude = location.get("longitude")
+    if not isinstance(latitude, (int, float)) or not isinstance(longitude, (int, float)):
+        return None
+
+    category = metadata.get("category") or record.get("facilityType")
+    subtype = metadata.get("subtype")
+
+    return {
+        "facility_id": record.get("facilityId"),
+        "source": source.get("provider") or metadata.get("source") or "unknown",
+        "external_id": metadata.get("external_id") or source.get("sourceRecordId"),
+        "name": record.get("name") or "Facility",
+        "category": str(category) if category is not None else "unknown",
+        "subtype": str(subtype) if subtype is not None else None,
+        "latitude": float(latitude),
+        "longitude": float(longitude),
+        "county": location.get("county"),
+        "brand": metadata.get("brand"),
+        "operator": metadata.get("operator"),
+        "source_url": source.get("sourceUrl"),
+    }
+
+
+def get_facility_records_snapshot(
+    county: Optional[str] = None,
+    category: Optional[str] = None,
+    limit: Optional[int] = None,
+    sample_size: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Application-facing facility snapshot for map rendering."""
+    records_raw, warnings = _load_facility_baseline_records()
+    projected: List[Dict[str, Any]] = []
+
+    for item in records_raw:
+        projected_item = _project_facility_record(item)
+        if projected_item:
+            projected.append(projected_item)
+
+    county_filter = county.strip().lower() if isinstance(county, str) and county.strip() else None
+    category_filter = category.strip().lower() if isinstance(category, str) and category.strip() else None
+
+    filtered = projected
+    if county_filter:
+        filtered = [r for r in filtered if isinstance(r.get("county"), str) and r.get("county", "").strip().lower() == county_filter]
+    if category_filter:
+        filtered = [r for r in filtered if isinstance(r.get("category"), str) and r.get("category", "").strip().lower() == category_filter]
+
+    resolved_limit = limit if isinstance(limit, int) and limit > 0 else None
+    if resolved_limit is None and isinstance(sample_size, int) and sample_size > 0:
+        resolved_limit = sample_size
+
+    records_out = filtered[:resolved_limit] if resolved_limit is not None else filtered
+
+    return {
+        "totalAvailable": len(filtered),
+        "returnedCount": len(records_out),
+        "records": records_out,
+        "sourceNames": sorted({str(r.get("source", "unknown")) for r in records_out}),
+        "filters": {
+            "county": county_filter,
+            "category": category_filter,
+            "limit": resolved_limit,
+        },
+        "warnings": warnings,
+    }
+
+
+def get_weather_debug_snapshot(sample_size: int = 3) -> Dict[str, Any]:
+    """Debug payload for weather source ingestion verification."""
+    source = "nws" if Config.USE_REAL_WEATHER_PROVIDER else "seed"
+    if Config.USE_REAL_WEATHER_PROVIDER:
+        records, warnings = _load_nws_weather_signals()
+        fallback_used = False
+        if not records and Config.REAL_PROVIDER_FALLBACK_TO_SEED:
+            records, fallback_warnings = _load_seed_weather_signals()
+            warnings.extend(fallback_warnings)
+            fallback_used = True
+    else:
+        records, warnings = _load_seed_weather_signals()
+        fallback_used = False
+
+    return {
+        "source": source,
+        "sourceNames": sorted({str(item.get("source", "unknown")) for item in records if isinstance(item, dict)}),
+        "fallbackUsed": fallback_used,
+        "count": len(records),
+        "sample": records[: max(0, sample_size)],
+        "warnings": warnings,
+        "tampaFilterApplied": True,
+    }
+
+
+def get_facility_debug_snapshot(sample_size: int = 3) -> Dict[str, Any]:
+    """Debug payload for facility source ingestion verification."""
+    source = "osm" if Config.USE_REAL_FACILITY_PROVIDER else "seed"
+    records, warnings = _load_facility_baseline_records()
+    source_names = sorted(
+        {
+            str((item.get("source") or {}).get("provider", "unknown"))
+            for item in records
+            if isinstance(item, dict)
+        }
+    )
+    return {
+        "source": source,
+        "count": len(records),
+        "sourceNames": source_names,
+        "sample": records[: max(0, sample_size)],
+        "warnings": warnings,
+        "tampaFilterApplied": True,
+    }
 
 
 def _attach_planning_context(request: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:

@@ -42,9 +42,9 @@ function IncidentForm({ onSubmit, isProcessing = false }: IncidentFormProps) {
 
   return (
     <div className="panel incident-form-panel">
-      <h2>Incident Input</h2>
+      <h2>Report Utility</h2>
       <p className="helper-text">
-        Submit Tampa Bay route-access incidents with optional planning-context enrichment.
+        Add a new Tampa Bay disruption signal for analysis without leaving the monitoring view.
       </p>
       
       <form onSubmit={handleSubmit}>

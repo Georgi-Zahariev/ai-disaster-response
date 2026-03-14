@@ -20,22 +20,22 @@ import EvidencePanel from '../components/EvidencePanel';
 import PlanningContextPanel from '../components/PlanningContextPanel';
 import DashboardSummaryPanel from '../components/DashboardSummaryPanel';
 import MapPlaceholder from '../components/MapPlaceholder';
-import EmptyState from '../components/EmptyState';
-import LoadingState from '../components/LoadingState';
-import { analyzeIncident, APIError } from '../services/api';
+import { analyzeIncident, APIError, fetchFacilities } from '../services/api';
 import { createIncidentRequest } from '../types/incident';
 import type { IncidentInputData } from '../types/ui';
-import type { IncidentAnalysisResponse } from '../types/incident';
+import type { FacilitiesResponse, IncidentAnalysisResponse } from '../types/incident';
 
 function Dashboard() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysisResponse, setAnalysisResponse] = useState<IncidentAnalysisResponse | null>(null);
+  const [facilitiesData, setFacilitiesData] = useState<FacilitiesResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleIncidentSubmit = async (data: IncidentInputData) => {
     setIsProcessing(true);
     setError(null);
     setAnalysisResponse(null); // Clear previous results before new request
+    setFacilitiesData(null);
     
     try {
       // Convert form data to API request format
@@ -56,6 +56,33 @@ function Dashboard() {
       
       // Update state with successful response
       setAnalysisResponse(response);
+
+      // Fetch coordinate-bearing facility baseline for map markers.
+      // Analyze response includes counts/IDs, but not full facility objects.
+      const expectedFacilities = response.summary?.facilities?.baselineCount
+        || response.metadata?.facilityBaselineCount
+        || response.metadata?.fusionSummary?.facilityBaselineCount
+        || 0;
+
+      if (expectedFacilities > 0) {
+        try {
+          const facilityPayload = await fetchFacilities(expectedFacilities);
+          setFacilitiesData(facilityPayload);
+        } catch (facilityErr) {
+          setFacilitiesData({
+            totalAvailable: 0,
+            returnedCount: 0,
+            records: [],
+            warnings: [
+              facilityErr instanceof Error
+                ? `Facilities fetch failed: ${facilityErr.message}`
+                : 'Facilities fetch failed',
+            ],
+          });
+        }
+      } else {
+        setFacilitiesData({ totalAvailable: 0, returnedCount: 0, records: [], warnings: [] });
+      }
     } catch (err) {
       // Handle errors
       if (err instanceof APIError) {
@@ -75,17 +102,14 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Header */}
       <header className="dashboard-header">
         <h1>Tampa Bay Route Access Decision Support</h1>
-        <p className="subtitle">Hillsborough · Pinellas · Pasco | Live Monitoring + Optional Planning Context</p>
+        <p className="subtitle">Hillsborough · Pinellas · Pasco | Regional Monitoring with Live Evidence and Optional Planning Context</p>
       </header>
 
-      {/* Main Content */}
-      <div className="dashboard-content">
-        {/* Error Banner */}
+      <div className="operations-layout">
         {error && (
-          <div className="error-banner">
+          <div className="error-banner operations-error-banner">
             <div className="error-content">
               <span className="error-icon">⚠️</span>
               <span className="error-message">{error}</span>
@@ -100,46 +124,68 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Left Column: Input and Map */}
-        <div className="dashboard-column dashboard-left">
-          <IncidentForm 
-            onSubmit={handleIncidentSubmit} 
-            isProcessing={isProcessing}
+        <aside className="operations-rail operations-left-rail">
+          <div className="report-utility-panel">
+            <details className="report-utility" open={false}>
+              <summary>Submit Incident Report</summary>
+              <p className="report-utility-helper">
+                Utility input for adding a new disruption report. Regional monitoring remains active regardless of submissions.
+              </p>
+              <IncidentForm
+                onSubmit={handleIncidentSubmit}
+                isProcessing={isProcessing}
+              />
+            </details>
+          </div>
+
+          <EvidencePanel evidence={analysisResponse?.evidence || []} />
+        </aside>
+
+        <main className="operations-main-stage">
+          <SummaryCards
+            summary={analysisResponse?.summary || null}
+            legacySummary={analysisResponse?.dashboardSummary || null}
           />
+
           <MapPlaceholder
             map={analysisResponse?.map || null}
             fallbackFeatures={analysisResponse?.mapFeatures || []}
+            summary={analysisResponse?.summary || null}
+            facilitiesData={facilitiesData}
+            planningContext={analysisResponse?.planningContext || null}
+            isProcessing={isProcessing}
+            hasError={Boolean(error)}
           />
-        </div>
 
-        {/* Right Column: Results and Panels */}
-        <div className="dashboard-column dashboard-right">
-          {/* Show appropriate state based on analysis status */}
-          {!analysisResponse && !isProcessing && !error && <EmptyState />}
-          
-          {isProcessing && <LoadingState />}
-          
-          {analysisResponse && (
-            <>
-              <SummaryCards
-                summary={analysisResponse.summary || null}
-                legacySummary={analysisResponse.dashboardSummary || null}
-              />
-              <FusedEventsPanel
-                cases={analysisResponse.cases || []}
-                events={analysisResponse.events || []}
-              />
-              <AlertsPanel alerts={analysisResponse.alerts || []} />
-              <div className="dashboard-row">
-                <EvidencePanel evidence={analysisResponse.evidence || []} />
-                <PlanningContextPanel planningContext={analysisResponse.planningContext || null} />
-              </div>
-              <DashboardSummaryPanel
-                dashboardSummary={analysisResponse.dashboard?.data || analysisResponse.dashboardSummary || null}
-              />
-            </>
+          {!analysisResponse && !isProcessing && !error && (
+            <div className="panel operations-state-panel">
+              <h3>Regional Monitoring Active</h3>
+              <p>
+                No active disruption case is currently selected. The map remains focused on Tampa Bay and will update as new incidents or alerts are ingested.
+              </p>
+            </div>
           )}
-        </div>
+
+          {isProcessing && (
+            <div className="panel operations-state-panel loading">
+              <h3>Updating Regional View</h3>
+              <p>Analyzing incoming reports and refreshing case, alert, and map context.</p>
+            </div>
+          )}
+
+          <DashboardSummaryPanel
+            dashboardSummary={analysisResponse?.dashboard?.data || analysisResponse?.dashboardSummary || null}
+          />
+        </main>
+
+        <aside className="operations-rail operations-right-rail">
+          <AlertsPanel alerts={analysisResponse?.alerts || []} />
+          <FusedEventsPanel
+            cases={analysisResponse?.cases || []}
+            events={analysisResponse?.events || []}
+          />
+          <PlanningContextPanel planningContext={analysisResponse?.planningContext || null} />
+        </aside>
       </div>
     </div>
   );
