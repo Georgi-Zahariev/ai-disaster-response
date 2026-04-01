@@ -1,14 +1,9 @@
-"""
-Provider modules for multimodal disaster-response signals.
+"""Provider modules for incident, route, weather, facility, and planning context data.
 
-This package contains mock providers for:
-- Text feeds (social media, emergency services, news)
-- Vision feeds (satellite, cameras, drones)
-- Quantitative feeds (sensors, metrics)
-- Weather data (existing provider)
-
-Each provider returns normalized signals matching TypeScript schemas.
-In production, these mocks will be replaced with real API integrations.
+Current provider model is hybrid:
+- Deterministic/mock providers for testable extraction inputs
+- Seed/static providers for baseline/planning context
+- Live API adapters for weather and facilities
 """
 
 from .weather_provider import WeatherProvider

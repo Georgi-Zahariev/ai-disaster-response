@@ -59,6 +59,11 @@ class Config:
     ENABLE_SCORING: bool = os.getenv("ENABLE_SCORING", "true").lower() == "true"
     ENABLE_ALERTS: bool = os.getenv("ENABLE_ALERTS", "true").lower() == "true"
     ENABLE_VISUALIZATION: bool = os.getenv("ENABLE_VISUALIZATION", "true").lower() == "true"
+
+    # Phase 1 extraction rollout flags
+    ENABLE_REAL_TEXT_EXTRACTION: bool = os.getenv("ENABLE_REAL_TEXT_EXTRACTION", "false").lower() == "true"
+    ENABLE_REAL_VISION_EXTRACTION: bool = os.getenv("ENABLE_REAL_VISION_EXTRACTION", "false").lower() == "true"
+    ENABLE_REAL_QUANT_EXTRACTION: bool = os.getenv("ENABLE_REAL_QUANT_EXTRACTION", "false").lower() == "true"
     
     # Experimental features
     ENABLE_CACHING: bool = os.getenv("ENABLE_CACHING", "false").lower() == "true"
@@ -222,6 +227,9 @@ class Config:
         print(f"  ENABLE_SCORING: {cls.ENABLE_SCORING}")
         print(f"  ENABLE_ALERTS: {cls.ENABLE_ALERTS}")
         print(f"  ENABLE_VISUALIZATION: {cls.ENABLE_VISUALIZATION}")
+        print(f"  ENABLE_REAL_TEXT_EXTRACTION: {cls.ENABLE_REAL_TEXT_EXTRACTION}")
+        print(f"  ENABLE_REAL_VISION_EXTRACTION: {cls.ENABLE_REAL_VISION_EXTRACTION}")
+        print(f"  ENABLE_REAL_QUANT_EXTRACTION: {cls.ENABLE_REAL_QUANT_EXTRACTION}")
         
         print("\n🧪 Experimental Features:")
         print(f"  ENABLE_CACHING: {cls.ENABLE_CACHING}")

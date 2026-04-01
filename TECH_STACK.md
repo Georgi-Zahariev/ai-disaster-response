@@ -2,8 +2,8 @@
 
 This document defines the approved technologies for the AI Disaster Response project.
 
-**Last Updated:** March 9, 2026  
-**Status:** Milestone 1 - Skeleton Phase
+**Last Updated:** March 31, 2026  
+**Status:** Active MVP Iteration
 
 ---
 
@@ -243,9 +243,9 @@ def generate(prompt: str, provider: str = "openai"):
 
 ---
 
-### Vector Storage (Future - TBD)
+### Vector Storage (Future - Optional)
 
-**Status:** Not yet implemented - evaluate when needed
+**Status:** Optional enhancement - evaluate when retrieval use-cases require it
 
 **Options Under Consideration:**
 - **Pinecone** - Managed vector database
@@ -269,11 +269,33 @@ def generate(prompt: str, provider: str = "openai"):
 
 ## Frontend Technologies
 
-### Framework: TBD (React or Vue 3)
+### Frontend Framework: React + TypeScript + Vite
 
-**Status:** Not yet selected - evaluate during frontend implementation
+**Status:** Implemented and active
 
-**Option 1: React + TypeScript + Vite**
+**Current stack:**
+- React 18
+- TypeScript
+- Vite
+- Leaflet/React-Leaflet for map integration support
+
+**Why this stack:**
+- Strong TypeScript ergonomics
+- Fast local development cycle
+- Component model aligned with dashboard workflows
+
+**Historical alternatives considered:**
+- Vue 3 + TypeScript + Vite
+
+**Reference implementation path:** `frontend/`
+
+### Frontend HTTP Client
+
+**Status:** Native `fetch` is used in the current implementation.
+
+**Note:** Axios remains an optional future choice only if interceptors/retry policy requirements justify the dependency.
+
+### React + TypeScript + Vite (Rationale)
 
 **Why:**
 - Large ecosystem
@@ -289,50 +311,9 @@ def generate(prompt: str, provider: str = "openai"):
 - State management (Context or Zustand)
 - Forms and validation
 
-**Option 2: Vue 3 + TypeScript + Vite**
-
-**Why:**
-- Simpler learning curve
-- Excellent TypeScript support
-- Composition API similar to React hooks
-- Good documentation
-
-**Recommendation:** Choose based on team preference
+**Scope:** Primary frontend runtime and build workflow
 
 ---
-
-### Axios (Frontend HTTP Client)
-
-**Why:** Simple, reliable HTTP client with interceptors
-
-**Where:** `frontend/src/services/`
-
-**Use For:**
-- API calls to backend
-- Request/response transformation
-- Authentication token management
-- Error handling
-
-**Do NOT Use For:**
-- Backend HTTP requests (use httpx)
-- Direct use in components (wrap in services)
-
-**Example:**
-```typescript
-// frontend/src/services/api.ts
-import axios from 'axios';
-
-export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-```
 
 ---
 

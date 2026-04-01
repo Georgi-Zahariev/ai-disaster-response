@@ -13,6 +13,11 @@ from datetime import datetime, timezone, timedelta
 import uuid
 import math
 
+from backend.logging import get_logger
+
+
+logger = get_logger(__name__)
+
 
 class DisruptionScoringService:
     """
@@ -111,7 +116,7 @@ class DisruptionScoringService:
         if not events:
             return []
         
-        print(f"[Scoring] Starting disruption scoring for {len(events)} events")
+        logger.info("[Scoring] Starting disruption scoring for %d events", len(events))
         
         assessments = []
         
@@ -121,10 +126,14 @@ class DisruptionScoringService:
                 if assessment:
                     assessments.append(assessment)
             except Exception as e:
-                print(f"[Scoring] Warning: Failed to score event {event.get('eventId')}: {str(e)}")
+                logger.warning(
+                    "[Scoring] Failed to score event %s: %s",
+                    event.get("eventId"),
+                    str(e),
+                )
                 continue
         
-        print(f"[Scoring] → Created {len(assessments)} disruption assessments")
+        logger.info("[Scoring] Created %d disruption assessments", len(assessments))
         
         # Sort by severity and confidence
         assessments.sort(

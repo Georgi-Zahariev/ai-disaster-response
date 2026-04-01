@@ -139,18 +139,18 @@ This will:
 
 ## Current Implementation
 
-### Mock Mode (Current)
+### Hybrid Mode (Current)
 
-The orchestrator currently uses **mock implementations** for all phases:
-- ✅ Complete pipeline flow
+The orchestrator currently runs with a hybrid execution model:
+- ✅ Complete 5-phase pipeline flow
 - ✅ Trace context management
 - ✅ Error handling and partial success
-- ✅ Structured logging
-- ⚠️  Mock data generation (not real analysis)
+- ✅ Real fusion/scoring/alert/visualization services
+- ⚠️  Extraction phase still uses deterministic/mock extraction helpers
 
-### TODOs for Production
+### Remaining Extraction Integration Work
 
-Replace mock implementations with real services:
+Wire extraction helpers to fully implemented extraction agents:
 
 ```python
 # Phase 1: Signal Extraction
@@ -160,19 +160,19 @@ self.vision_agent = VisionAnalysisAgent()  # TODO: Replace mock
 
 # Phase 2: Fusion
 from backend.services.fusion import SignalFusionService
-self.fusion_service = SignalFusionService()  # TODO: Replace mock
+self.fusion_service = SignalFusionService()  # Active implementation
 
 # Phase 3: Scoring
 from backend.services.scoring import DisruptionScoringService
-self.scoring_service = DisruptionScoringService()  # TODO: Replace mock
+self.scoring_service = DisruptionScoringService()  # Active implementation
 
 # Phase 4: Alerts
 from backend.services.alerts import AlertGenerationService
-self.alert_service = AlertGenerationService()  # TODO: Replace mock
+self.alert_service = AlertGenerationService()  # Active implementation
 
 # Phase 5: Visualization
 from backend.mappers import VisualizationMapper
-self.visualization_mapper = VisualizationMapper()  # TODO: Replace mock
+self.visualization_mapper = VisualizationMapper()  # Active implementation
 ```
 
 ## Design Principles

@@ -85,36 +85,26 @@ This project uses AI and modern software architecture to:
 
 ## Tech Stack
 
-### Proposed Technologies
+### Current Technologies
 
 **Frontend:**
-- React or Vue.js for web interface
-- TypeScript for type safety
-- Tailwind CSS or Material-UI for styling
-- Mapbox/Leaflet for geospatial visualization
+- React 18 + TypeScript + Vite
+- CSS stylesheets (custom)
+- Leaflet/React-Leaflet for map integration support
 
 **Backend:**
-- Python with FastAPI or Flask
-- PostgreSQL for primary database
-- Redis for caching and session management
-- RESTful API design
+- Python + FastAPI
+- REST API endpoints under `/api/*`
+- Provider-based ingestion (seed-backed + live adapters)
 
 **AI/ML:**
-- OpenAI GPT-4 or Anthropic Claude for LLM
-- scikit-learn for ML models
-- LangChain for LLM orchestration (optional)
-- Custom agents for domain-specific reasoning
+- OpenAI and Anthropic SDK integrations via `services/llm_service.py`
+- Domain agents and analyzers for multimodal incident interpretation
 
-**Infrastructure:**
-- Docker for containerization
-- GitHub Actions for CI/CD
-- Cloud deployment (AWS, GCP, or Azure)
-
-**Development:**
-- GitHub Copilot for AI-assisted coding
-- ChatGPT for development support
-- pytest for testing
-- Black/Prettier for code formatting
+**Development and Quality:**
+- pytest, pytest-asyncio, pytest-cov
+- black, flake8, mypy
+- GitHub Copilot-assisted workflow
 
 ---
 
@@ -176,7 +166,7 @@ ai-disaster-response/
    # Edit .env with your configuration
    ```
 
-4. **Initialize database** (when implemented)
+4. **Initialize database** (if needed for your run mode)
    ```bash
    python scripts/init_db.py
    ```
@@ -253,26 +243,12 @@ Before starting development:
 - Keep functions small and focused
 - Add file headers and docstrings
 
-### 3. Start with Skeleton Code
+### 3. Follow Existing Implemented Paths
 
-```python
-# Example: Creating a new feature
-def analyze_disaster(event_data):
-    """
-    Analyze disaster event and generate recommendations.
-    
-    Args:
-        event_data: Dictionary with event details
-        
-    Returns:
-        dict: Analysis results and recommendations
-    """
-    # TODO: Implement analysis logic
-    # - Validate input data
-    # - Call LLM service
-    # - Parse and structure response
-    raise NotImplementedError("Analysis not yet implemented")
-```
+- Reuse route patterns in `backend/api/routes/`.
+- Reuse provider normalization patterns in `backend/providers/`.
+- Keep frontend data flow centered on `frontend/src/pages/Dashboard.tsx` and `frontend/src/services/api.ts`.
+- Keep LLM access behind `services/llm_service.py`.
 
 ### 4. Use AI Tools Effectively
 
@@ -352,46 +328,33 @@ Before submitting a PR:
 
 ## Project Status
 
-### 🚧 Current Stage: Architecture & Skeleton
+### 🚧 Current Stage: Active MVP Iteration
 
-**What's been done:**
-- ✅ Project architecture defined
-- ✅ Repository structure planned
-- ✅ Development guidelines created
-- ✅ AI assistant rules documented
+**Implemented and in use:**
+- ✅ FastAPI backend with active incident/facility/dashboard routes
+- ✅ React + TypeScript + Vite dashboard
+- ✅ API-connected submit/analyze flow
+- ✅ Seed-backed and live adapter providers
+- ✅ Automated test suite and validation scripts
 
-**Current milestone: Skeleton Implementation**
-- Build minimal end-to-end flow
-- Implement core services (especially llm_service)
-- Create basic frontend UI
-- Set up database schema
-- One working AI agent with simplified logic
-
-**Next steps:**
-- Complete skeleton implementation
-- Add core disaster event CRUD operations
-- Implement basic AI analysis feature
-- Set up testing framework
-- Begin documentation of APIs
+**Current focus:**
+- Improve data quality, normalization, and evidence mapping
+- Continue UI/UX refinement for operations workflows
+- Expand integration and regression coverage
 
 ### Roadmap
 
-**Phase 1: Skeleton (Current)** - March 2026
-- Basic architecture in place
-- Minimal working features
-- Development environment setup
+**Phase 1: MVP Delivery (Current)** - 2026
+- Incident analysis pipeline and operations dashboard
+- Tampa Bay route-access situational awareness focus
 
-**Phase 2: Core Features** - Q2 2026
-- Full disaster event management
-- AI analysis and recommendations
-- Resource tracking
-- Alert system
+**Phase 2: Hardening**
+- Stronger test automation and reliability
+- Enhanced observability and operational guardrails
 
-**Phase 3: Production Ready** - Q3 2026
-- Security hardening
-- Performance optimization
-- Comprehensive testing
-- Deployment automation
+**Phase 3: Scale-out**
+- Broader region coverage and provider expansion
+- Deployment/operations maturity improvements
 
 ---
 
@@ -432,4 +395,4 @@ For questions or support, open an issue or reach out to the team.
 
 ---
 
-*Last Updated: March 9, 2026*
+*Last Updated: March 31, 2026*

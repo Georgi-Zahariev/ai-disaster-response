@@ -8,7 +8,7 @@ Thank you for contributing to this project! This guide outlines development stan
 - **Single responsibility**: Each file should have one clear purpose
 - **Prefer small files and functions**: Break down complex logic into smaller, manageable pieces
 - **Avoid overengineering**: Use simple, practical solutions over unnecessary abstractions
-- **Skeleton logic first**: Implement placeholder or skeleton logic before full implementation to validate structure
+- **Iterate on working paths**: Extend implemented flows in small, safe increments with tests and docs
 
 ## Configuration and Secrets
 
@@ -178,7 +178,7 @@ Before submitting a PR, verify:
 
 1. **Review existing code**: Familiarize yourself with the project structure
 2. **Set up your environment**: Install dependencies and configure environment variables
-3. **Start with skeleton code**: Outline your changes before full implementation
+3. **Start from existing implementation**: Outline the change against current runtime behavior and tests
 4. **Test thoroughly**: Verify your changes work as expected
 5. **Follow the checklist**: Review the code review checklist before submitting
 

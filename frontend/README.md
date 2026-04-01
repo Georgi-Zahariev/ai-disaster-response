@@ -1,55 +1,54 @@
-# Frontend Folder
+# Frontend
 
 ## Purpose
-User interface application (web or mobile)
+React + TypeScript + Vite dashboard for route-access and incident-response monitoring.
 
 ## Status
-🚧 **Not yet implemented** - Framework selection pending
+Implemented and wired to backend API endpoints.
 
-## What Belongs Here
+## Current Stack
 
-**Application Structure:**
-- `src/` - Source code
-- `public/` - Static assets
-- `tests/` - Frontend tests
-- Config files (vite.config, tsconfig, etc.)
+- React 18
+- TypeScript
+- Vite
+- CSS modules/stylesheets in `src/styles`
+
+## Current Data Mode
+
+- Primary flow: real backend API calls via `src/services/api.ts`.
+- Optional/dev-only: mock fixture data can still be used manually for UI-only demos.
 
 ## Responsibilities
 
-- Display disaster events and data
-- Provide user interaction
-- Call backend API
-- Handle UI state
-- Show AI-generated recommendations
-- Render maps and visualizations
+- Collect incident submissions from operators.
+- Render fused cases/events, alerts, evidence, map context, and planning context.
+- Display facility baseline overlays fetched from backend.
+- Show loading and error states for API calls.
 
-## Framework Options
+## Structure
 
-Choose one:
-- React + TypeScript + Vite
-- Vue 3 + TypeScript + Vite  
-- Next.js (React SSR)
-- Nuxt (Vue SSR)
-
-## Structure (Once Implemented)
-
-```
+```text
 frontend/
 ├── src/
-│   ├── components/      # UI components
-│   ├── pages/          # Page components
-│   ├── services/       # API client
-│   ├── types/          # TypeScript types
-│   └── assets/         # Images, fonts
-├── public/             # Static files
-└── tests/              # Tests
+│   ├── components/  # Dashboard and panel components
+│   ├── data/        # Optional mock fixture data
+│   ├── pages/       # Page-level containers
+│   ├── services/    # API client functions
+│   ├── styles/      # Styling
+│   └── types/       # Frontend and API types
+├── public/
+└── package.json
 ```
 
-## What Does NOT Belong Here
-- Backend logic (use `/backend`)
-- Direct database access (use backend API)
-- Direct LLM API calls (use backend API)
-- Business logic (use backend services)
+## Run
 
-## Pattern
-Components → API Services → Backend API
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Boundaries
+
+- Keep backend/domain decisions in backend services.
+- Keep frontend focused on presentation, user interaction, and API orchestration.

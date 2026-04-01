@@ -1,77 +1,728 @@
 {
-  "meta": {
-    "dataset": "tampa_planning_context",
-    "version": "0.1.0",
-    "placeholder": true,
-    "note": "Static Tampa planning context for pre-disaster enrichment. Replace with validated local planning inputs in production."
-  },
   "planningContext": [
     {
-      "planningId": "plan-hillsborough-bottleneck-001",
+      "planningId": "PLAN-0001",
       "concept": "known_bottleneck",
       "county": "hillsborough",
-      "corridorRef": "I-275-NB",
-      "areaRef": "Downtown Tampa interchange",
-      "summary": "Historic hurricane evacuations cause prolonged lane saturation and closure spillover.",
+      "summary": "US-301 at Riverview concentrates cross-county traffic and can isolate nearby essential retail.",
       "source": {
-        "provider": "tampa_planning_seed",
-        "sourceRecordId": "tbep-plan-001"
+        "provider": "ops_review"
       },
+      "corridorRef": "US-301:riverview",
       "validity": {
-        "season": "hurricane",
+        "season": "king_tide_window",
+        "startMonth": 9,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0002",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "Tampa depends heavily on I-275; queue spillback can block store and station driveways.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "I-275:tampa"
+    },
+    {
+      "planningId": "PLAN-0003",
+      "concept": "seasonal_risk",
+      "county": "hillsborough",
+      "summary": "Plant City shows seasonal risk on I-4 during king tide window, especially in heavy rain windows.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "I-4:plant-city",
+      "validity": {
+        "season": "king_tide_window",
+        "startMonth": 9,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0004",
+      "concept": "seasonal_risk",
+      "county": "hillsborough",
+      "summary": "In king tide window, low-lying segments near Carrollwood often degrade access on N-DMB.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "N-DMB:carrollwood",
+      "validity": {
+        "season": "hurricane_season",
         "startMonth": 6,
         "endMonth": 11
       }
     },
     {
-      "planningId": "plan-pinellas-pattern-002",
-      "concept": "historical_pattern",
-      "county": "pinellas",
-      "corridorRef": "US-19-SB",
-      "areaRef": "Clearwater coastal approach",
-      "summary": "Flood watch conditions historically correlate with restricted access and detour overload.",
+      "planningId": "PLAN-0005",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "Ruskin depends heavily on US-41; queue spillback can block store and station driveways.",
       "source": {
-        "provider": "tampa_planning_seed",
-        "sourceRecordId": "tbep-plan-002"
+        "provider": "ops_review"
+      },
+      "corridorRef": "US-41:ruskin",
+      "areaRef": "new-tampa"
+    },
+    {
+      "planningId": "PLAN-0006",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "I-4 near Plant City is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "areaRef": "coastal-south"
+    },
+    {
+      "planningId": "PLAN-0007",
+      "concept": "seasonal_risk",
+      "county": "hillsborough",
+      "summary": "Ybor City shows seasonal risk on I-4 during summer rain, especially in heavy rain windows.",
+      "source": {
+        "provider": "ops_review"
       },
       "validity": {
-        "season": "rainy",
+        "season": "summer_rain",
         "startMonth": 6,
-        "endMonth": 10
+        "endMonth": 9
       }
     },
     {
-      "planningId": "plan-pasco-seasonal-003",
+      "planningId": "PLAN-0008",
+      "concept": "seasonal_risk",
+      "county": "hillsborough",
+      "summary": "I-75 near Apollo Beach becomes less reliable in hurricane season when weather and demand peak.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "I-75:apollo-beach",
+      "validity": {
+        "season": "hurricane_season",
+        "startMonth": 6,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0009",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "I-75 through Riverview has limited alternate paths when floodwater or crashes disrupt access.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "I-75:riverview"
+    },
+    {
+      "planningId": "PLAN-0010",
+      "concept": "seasonal_risk",
+      "county": "hillsborough",
+      "summary": "In hurricane season, low-lying segments near Seffner often degrade access on US-301.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "US-301:seffner",
+      "validity": {
+        "season": "king_tide_window",
+        "startMonth": 9,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0011",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "SR-589 near Town 'N' Country is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "SR-589:town-n-country"
+    },
+    {
+      "planningId": "PLAN-0012",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "Riverview depends heavily on US-301; queue spillback can block store and station driveways.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "US-301:riverview",
+      "areaRef": "plant-city-corridor",
+      "validity": {
+        "season": "hurricane_season",
+        "startMonth": 6,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0013",
+      "concept": "seasonal_risk",
+      "county": "hillsborough",
+      "summary": "I-75 near Apollo Beach becomes less reliable in summer rain when weather and demand peak.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "I-75:apollo-beach",
+      "validity": {
+        "season": "king_tide_window",
+        "startMonth": 9,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0014",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "US-92 near South Tampa is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "US-92:south-tampa"
+    },
+    {
+      "planningId": "PLAN-0015",
+      "concept": "seasonal_risk",
+      "county": "hillsborough",
+      "summary": "Ybor City shows seasonal risk on I-4 during hurricane season, especially in heavy rain windows.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "I-4:ybor-city",
+      "validity": {
+        "season": "summer_rain",
+        "startMonth": 6,
+        "endMonth": 9
+      }
+    },
+    {
+      "planningId": "PLAN-0016",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "N-DMB at Carrollwood concentrates cross-county traffic and can isolate nearby essential retail.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "validity": {
+        "season": "summer_rain",
+        "startMonth": 6,
+        "endMonth": 9
+      }
+    },
+    {
+      "planningId": "PLAN-0017",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "I-75 through Riverview has limited alternate paths when floodwater or crashes disrupt access.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "I-75:riverview"
+    },
+    {
+      "planningId": "PLAN-0018",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "US-301 near Seffner is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "US-301:seffner",
+      "areaRef": "coastal-south"
+    },
+    {
+      "planningId": "PLAN-0019",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "I-4 at Plant City concentrates cross-county traffic and can isolate nearby essential retail.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "I-4:plant-city"
+    },
+    {
+      "planningId": "PLAN-0020",
+      "concept": "seasonal_risk",
+      "county": "hillsborough",
+      "summary": "Apollo Beach shows seasonal risk on I-75 during king tide window, especially in heavy rain windows.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "I-75:apollo-beach",
+      "validity": {
+        "season": "hurricane_season",
+        "startMonth": 6,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0021",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "I-4 at Plant City concentrates cross-county traffic and can isolate nearby essential retail.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "I-4:plant-city",
+      "areaRef": "west-county"
+    },
+    {
+      "planningId": "PLAN-0022",
+      "concept": "known_bottleneck",
+      "county": "hillsborough",
+      "summary": "I-75 through Riverview has limited alternate paths when floodwater or crashes disrupt access.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "I-75:riverview",
+      "areaRef": "downtown-core"
+    },
+    {
+      "planningId": "PLAN-0023",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "Pinellas Park depends heavily on ULMERTON; queue spillback can block store and station driveways.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "ULMERTON:pinellas-park"
+    },
+    {
+      "planningId": "PLAN-0024",
+      "concept": "historical_pattern",
+      "county": "pinellas",
+      "summary": "Past tropical events repeatedly slowed I-275 near St. Petersburg during fuel runs and evacuations.",
+      "source": {
+        "provider": "county_em"
+      },
+      "areaRef": "barrier-islands"
+    },
+    {
+      "planningId": "PLAN-0025",
+      "concept": "seasonal_risk",
+      "county": "pinellas",
+      "summary": "Pinellas Park shows seasonal risk on I-275 during hurricane season, especially in heavy rain windows.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "I-275:pinellas-park",
+      "areaRef": "st-pete-urban-core",
+      "validity": {
+        "season": "king_tide_window",
+        "startMonth": 9,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0026",
+      "concept": "historical_pattern",
+      "county": "pinellas",
+      "summary": "Response traffic has repeatedly pushed queues onto ALT-19 around Tarpon Springs.",
+      "source": {
+        "provider": "county_em"
+      },
+      "areaRef": "clearwater-gateway"
+    },
+    {
+      "planningId": "PLAN-0027",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "Tarpon Springs depends heavily on ALT-19; queue spillback can block store and station driveways.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "ALT-19:tarpon-springs"
+    },
+    {
+      "planningId": "PLAN-0028",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "GULF-BLVD near Indian Rocks Beach is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "GULF-BLVD:indian-rocks-beach",
+      "areaRef": "clearwater-gateway"
+    },
+    {
+      "planningId": "PLAN-0029",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "GULF-BLVD at St. Pete Beach concentrates cross-county traffic and can isolate nearby essential retail.",
+      "source": {
+        "provider": "county_em"
+      }
+    },
+    {
+      "planningId": "PLAN-0030",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "Pinellas Park depends heavily on I-275; queue spillback can block store and station driveways.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "I-275:pinellas-park"
+    },
+    {
+      "planningId": "PLAN-0031",
+      "concept": "historical_pattern",
+      "county": "pinellas",
+      "summary": "Response traffic has repeatedly pushed queues onto ULMERTON around Pinellas Park.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "ULMERTON:pinellas-park",
+      "areaRef": "clearwater-gateway"
+    },
+    {
+      "planningId": "PLAN-0032",
+      "concept": "seasonal_risk",
+      "county": "pinellas",
+      "summary": "Tarpon Springs shows seasonal risk on US-19 during king tide window, especially in heavy rain windows.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "US-19:tarpon-springs",
+      "areaRef": "north-pinellas",
+      "validity": {
+        "season": "king_tide_window",
+        "startMonth": 9,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0033",
+      "concept": "historical_pattern",
+      "county": "pinellas",
+      "summary": "Response traffic has repeatedly pushed queues onto I-275 around Pinellas Park.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "I-275:pinellas-park"
+    },
+    {
+      "planningId": "PLAN-0034",
+      "concept": "seasonal_risk",
+      "county": "pinellas",
+      "summary": "Clearwater faces higher king tide window disruption risk, with GULF-BAY exposed to water or wind.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "validity": {
+        "season": "summer_rain",
+        "startMonth": 6,
+        "endMonth": 9
+      }
+    },
+    {
+      "planningId": "PLAN-0035",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "US-19 at Tarpon Springs concentrates cross-county traffic and can isolate nearby essential retail.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "US-19:tarpon-springs",
+      "areaRef": "north-pinellas"
+    },
+    {
+      "planningId": "PLAN-0036",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "Clearwater depends heavily on US-19; queue spillback can block store and station driveways.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "US-19:clearwater",
+      "areaRef": "clearwater-gateway"
+    },
+    {
+      "planningId": "PLAN-0037",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "US-19 at Tarpon Springs concentrates cross-county traffic and can isolate nearby essential retail.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "US-19:tarpon-springs",
+      "validity": {
+        "season": "king_tide_window",
+        "startMonth": 9,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0038",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "I-275 at Pinellas Park concentrates cross-county traffic and can isolate nearby essential retail.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "I-275:pinellas-park",
+      "areaRef": "clearwater-gateway"
+    },
+    {
+      "planningId": "PLAN-0039",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "Clearwater depends heavily on GULF-BAY; queue spillback can block store and station driveways.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "GULF-BAY:clearwater",
+      "areaRef": "st-pete-urban-core"
+    },
+    {
+      "planningId": "PLAN-0040",
+      "concept": "historical_pattern",
+      "county": "pinellas",
+      "summary": "Earlier flood and wind events produced recurring delays on I-275 in St. Petersburg.",
+      "source": {
+        "provider": "county_em"
+      },
+      "areaRef": "north-pinellas"
+    },
+    {
+      "planningId": "PLAN-0041",
+      "concept": "known_bottleneck",
+      "county": "pinellas",
+      "summary": "US-19 at Clearwater concentrates cross-county traffic and can isolate nearby essential retail.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "US-19:clearwater",
+      "areaRef": "clearwater-gateway",
+      "validity": {
+        "season": "summer_rain",
+        "startMonth": 6,
+        "endMonth": 9
+      }
+    },
+    {
+      "planningId": "PLAN-0042",
+      "concept": "historical_pattern",
+      "county": "pinellas",
+      "summary": "Response traffic has repeatedly pushed queues onto US-19 around Palm Harbor.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "US-19:palm-harbor"
+    },
+    {
+      "planningId": "PLAN-0043",
+      "concept": "historical_pattern",
+      "county": "pasco",
+      "summary": "Response traffic has repeatedly pushed queues onto US-19 around Port Richey.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "US-19:port-richey",
+      "areaRef": "east-pasco"
+    },
+    {
+      "planningId": "PLAN-0044",
+      "concept": "known_bottleneck",
+      "county": "pasco",
+      "summary": "SR-54 near Wesley Chapel is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "SR-54:wesley-chapel"
+    },
+    {
+      "planningId": "PLAN-0045",
+      "concept": "known_bottleneck",
+      "county": "pasco",
+      "summary": "US-19 near Port Richey is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "US-19:port-richey",
+      "areaRef": "east-pasco"
+    },
+    {
+      "planningId": "PLAN-0046",
       "concept": "seasonal_risk",
       "county": "pasco",
-      "corridorRef": "SR-54",
-      "areaRef": "New Port Richey corridor",
-      "summary": "High-wind and heavy-rain season increases travel-time unreliability and access degradation.",
+      "summary": "In summer rain, low-lying segments near Holiday often degrade access on US-19.",
       "source": {
-        "provider": "tampa_planning_seed",
-        "sourceRecordId": "tbep-plan-003"
+        "provider": "planning_memo"
       },
+      "corridorRef": "US-19:holiday",
+      "areaRef": "central-pasco",
       "validity": {
-        "season": "hurricane",
+        "season": "hurricane_season",
         "startMonth": 6,
         "endMonth": 11
       }
     },
     {
-      "planningId": "plan-pinellas-facility-004",
-      "concept": "historical_pattern",
-      "county": "pinellas",
-      "areaRef": "St. Petersburg coastal distribution zone",
-      "summary": "Storm surge periods repeatedly reduce practical grocery and fuel access in coastal distribution areas.",
+      "planningId": "PLAN-0047",
+      "concept": "seasonal_risk",
+      "county": "pasco",
+      "summary": "In summer rain, low-lying segments near Wesley Chapel often degrade access on SR-54.",
       "source": {
-        "provider": "tampa_planning_seed",
-        "sourceRecordId": "tbep-plan-004"
+        "provider": "planning_memo"
       },
+      "corridorRef": "SR-54:wesley-chapel",
+      "areaRef": "trinity-npr",
       "validity": {
-        "season": "hurricane",
+        "season": "king_tide_window",
+        "startMonth": 9,
+        "endMonth": 11
+      }
+    },
+    {
+      "planningId": "PLAN-0048",
+      "concept": "known_bottleneck",
+      "county": "pasco",
+      "summary": "Dade City depends heavily on US-301; queue spillback can block store and station driveways.",
+      "source": {
+        "provider": "planning_memo"
+      }
+    },
+    {
+      "planningId": "PLAN-0049",
+      "concept": "historical_pattern",
+      "county": "pasco",
+      "summary": "Trinity has a history of demand surges that make LITTLE unreliable before landfall.",
+      "source": {
+        "provider": "ops_review"
+      }
+    },
+    {
+      "planningId": "PLAN-0050",
+      "concept": "historical_pattern",
+      "county": "pasco",
+      "summary": "Response traffic has repeatedly pushed queues onto US-301 around Dade City.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "US-301:dade-city",
+      "areaRef": "wiregrass-corridor"
+    },
+    {
+      "planningId": "PLAN-0051",
+      "concept": "historical_pattern",
+      "county": "pasco",
+      "summary": "Past tropical events repeatedly slowed SR-54 near Wesley Chapel during fuel runs and evacuations.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "SR-54:wesley-chapel",
+      "areaRef": "wiregrass-corridor"
+    },
+    {
+      "planningId": "PLAN-0052",
+      "concept": "known_bottleneck",
+      "county": "pasco",
+      "summary": "US-19 through Port Richey has limited alternate paths when floodwater or crashes disrupt access.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "US-19:port-richey"
+    },
+    {
+      "planningId": "PLAN-0053",
+      "concept": "known_bottleneck",
+      "county": "pasco",
+      "summary": "LITTLE near Trinity is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "LITTLE:trinity",
+      "areaRef": "west-pasco-coast"
+    },
+    {
+      "planningId": "PLAN-0054",
+      "concept": "seasonal_risk",
+      "county": "pasco",
+      "summary": "Wesley Chapel faces higher king tide window disruption risk, with SR-54 exposed to water or wind.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "SR-54:wesley-chapel",
+      "areaRef": "east-pasco",
+      "validity": {
+        "season": "summer_rain",
+        "startMonth": 6,
+        "endMonth": 9
+      }
+    },
+    {
+      "planningId": "PLAN-0055",
+      "concept": "historical_pattern",
+      "county": "pasco",
+      "summary": "Earlier flood and wind events produced recurring delays on LITTLE in Trinity.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "LITTLE:trinity",
+      "areaRef": "east-pasco"
+    },
+    {
+      "planningId": "PLAN-0056",
+      "concept": "historical_pattern",
+      "county": "pasco",
+      "summary": "Response traffic has repeatedly pushed queues onto US-19 around New Port Richey.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "US-19:new-port-richey"
+    },
+    {
+      "planningId": "PLAN-0057",
+      "concept": "known_bottleneck",
+      "county": "pasco",
+      "summary": "US-301 near Dade City is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "county_em"
+      },
+      "corridorRef": "US-301:dade-city"
+    },
+    {
+      "planningId": "PLAN-0058",
+      "concept": "known_bottleneck",
+      "county": "pasco",
+      "summary": "US-301 through Dade City has limited alternate paths when floodwater or crashes disrupt access.",
+      "source": {
+        "provider": "planning_memo"
+      },
+      "corridorRef": "US-301:dade-city"
+    },
+    {
+      "planningId": "PLAN-0059",
+      "concept": "known_bottleneck",
+      "county": "pasco",
+      "summary": "SR-54 near Wesley Chapel is a recurring choke point for reaching nearby fuel and grocery sites.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "SR-54:wesley-chapel"
+    },
+    {
+      "planningId": "PLAN-0060",
+      "concept": "seasonal_risk",
+      "county": "pasco",
+      "summary": "US-19 near Port Richey becomes less reliable in king tide window when weather and demand peak.",
+      "source": {
+        "provider": "ops_review"
+      },
+      "corridorRef": "US-19:port-richey",
+      "areaRef": "trinity-npr",
+      "validity": {
+        "season": "hurricane_season",
         "startMonth": 6,
         "endMonth": 11
       }
     }
-  ]
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "generatedAt": "2026-03-31T12:00:00Z",
+    "generationNote": "Compact Tampa Bay planning context seed dataset for disaster route-access analysis.",
+    "recordCount": 60
+  }
 }

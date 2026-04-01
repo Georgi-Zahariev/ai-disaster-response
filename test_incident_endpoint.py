@@ -181,7 +181,7 @@ async def test_incident_endpoint():
             print(f"Title: {event.get('title')}")
             print(f"Type: {event.get('eventType')}")
             print(f"Severity: {event.get('severity')}")
-            print(f"Confidence: {event.get('confidenceScore', 0):.2f}")
+            print(f"Confidence: {event.get('confidence', 0):.2f}")
         
         if response['disruptions']:
             print("\n" + "-" * 80)
@@ -190,7 +190,7 @@ async def test_incident_endpoint():
             disruption = response['disruptions'][0]
             print(f"Assessment ID: {disruption.get('assessmentId')}")
             print(f"Event ID: {disruption.get('eventId')}")
-            print(f"Severity: {disruption.get('severity')}")
+            print(f"Severity: {disruption.get('disruptionSeverity')}")
             
             impacts = disruption.get('sectorImpacts', [])
             if impacts:

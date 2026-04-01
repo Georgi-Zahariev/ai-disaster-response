@@ -10,8 +10,12 @@ Used By: IncidentOrchestrator (Phase 5), API routes for visualization endpoints
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 
+from backend.logging import get_logger
 from backend.services.mappers.map_feature_mapper import MapFeatureMapper
 from backend.services.mappers.dashboard_mapper import DashboardMapper
+
+
+logger = get_logger(__name__)
 
 
 class VisualizationMapper:
@@ -145,8 +149,7 @@ class VisualizationMapper:
                     features.append(feature)
             except Exception as e:
                 # Log error but continue processing other events
-                # TODO: Add proper logging with utils.logger
-                print(f"Warning: Failed to map event {event.get('eventId')}: {str(e)}")
+                logger.warning("Failed to map event %s: %s", event.get("eventId"), str(e))
         
         return features
     
@@ -195,7 +198,11 @@ class VisualizationMapper:
                         features.append(feature)
             except Exception as e:
                 # Log error but continue
-                print(f"Warning: Failed to map assessment {assessment.get('assessmentId')}: {str(e)}")
+                logger.warning(
+                    "Failed to map assessment %s: %s",
+                    assessment.get("assessmentId"),
+                    str(e),
+                )
         
         return features
     
@@ -234,7 +241,7 @@ class VisualizationMapper:
                         features.append(feature)
             except Exception as e:
                 # Log error but continue
-                print(f"Warning: Failed to map alert {alert.get('alertId')}: {str(e)}")
+                logger.warning("Failed to map alert %s: %s", alert.get("alertId"), str(e))
         
         return features
     

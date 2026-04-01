@@ -42,3 +42,8 @@ Creates actionable recommendations based on disruption assessments.
 - Storage/persistence
 - Query/search
 - Notification dispatch
+
+## Runtime Data Modes
+
+- Services are designed to operate with both deterministic seed/mock upstream inputs and live provider inputs.
+- Current incident pipeline commonly runs in hybrid mode: deterministic extraction + real fusion/scoring/alert/visualization services.

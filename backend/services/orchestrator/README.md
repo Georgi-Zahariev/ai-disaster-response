@@ -56,3 +56,9 @@ Input Signals → Extraction → Fusion → Assessment → Alerts → Output
 - Timeout protection
 - Circuit breakers for external services
 - Caching for repeated queries
+
+## Current Data Reality
+
+- Extraction phase currently uses deterministic/mock extraction helpers.
+- Fusion, scoring, alerting, and visualization phases are active implemented services.
+- Overall pipeline mode is hybrid, balancing deterministic regression behavior with production service logic.

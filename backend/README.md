@@ -44,4 +44,4 @@ python backend/main.py
 uvicorn backend.main:app --reload
 ```
 
-Docs: http://localhost:8000/docs
+Docs: http://localhost:8000/api/docs

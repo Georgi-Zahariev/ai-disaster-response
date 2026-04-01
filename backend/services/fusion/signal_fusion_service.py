@@ -14,6 +14,11 @@ from datetime import datetime, timezone
 import math
 import uuid
 
+from backend.logging import get_logger
+
+
+logger = get_logger(__name__)
+
 
 class SignalFusionService:
     """
@@ -72,19 +77,19 @@ class SignalFusionService:
         if not observations:
             return []
         
-        print(f"[Fusion] Starting fusion for {len(observations)} observations")
+        logger.info("[Fusion] Starting fusion for %d observations", len(observations))
         
         # Step 1: Spatial-temporal-semantic clustering
         clusters = self._cluster_observations(observations)
-        print(f"[Fusion] → Created {len(clusters)} initial clusters")
+        logger.info("[Fusion] Created %d initial clusters", len(clusters))
         
         # Step 2: Refine clusters using semantic correlation
         refined_clusters = self._refine_clusters(clusters)
-        print(f"[Fusion] → Refined to {len(refined_clusters)} clusters")
+        logger.info("[Fusion] Refined to %d clusters", len(refined_clusters))
         
         # Step 3: Create events from clusters
         events = self._create_events_from_clusters(refined_clusters)
-        print(f"[Fusion] → Created {len(events)} events")
+        logger.info("[Fusion] Created %d events", len(events))
 
         # Step 3b: Enrich fused events with route/facility context.
         context = options.get("context", {}) if isinstance(options, dict) else {}
@@ -92,11 +97,11 @@ class SignalFusionService:
         
         # Step 4: Validate cross-modal consistency and boost confidence
         validated_events = self._validate_cross_modal(events)
-        print(f"[Fusion] → Validated {len(validated_events)} events")
+        logger.info("[Fusion] Validated %d events", len(validated_events))
         
         # Step 5: Filter by confidence threshold
         filtered_events = self._filter_by_confidence(validated_events, options)
-        print(f"[Fusion] → {len(filtered_events)} events passed confidence filter")
+        logger.info("[Fusion] %d events passed confidence filter", len(filtered_events))
         
         return filtered_events
     
@@ -1059,6 +1064,6 @@ class SignalFusionService:
         ]
         
         if len(filtered) < len(events):
-            print(f"[Fusion] Filtered out {len(events) - len(filtered)} low-confidence events")
+            logger.info("[Fusion] Filtered out %d low-confidence events", len(events) - len(filtered))
         
         return filtered

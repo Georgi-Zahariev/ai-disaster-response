@@ -2,7 +2,7 @@
 
 ## Project Purpose
 
-AI Disaster Response is a system that leverages artificial intelligence to assist in disaster response coordination. The system analyzes disaster events, provides real-time recommendations, coordinates response efforts, and helps optimize resource allocation during emergency situations.
+AI Disaster Response is an AI-assisted situational awareness system focused on route access and disruption operations. The current implementation emphasizes a Tampa Bay operational scope with incident analysis, evidence synthesis, alerts, and map-oriented context.
 
 **Key capabilities:**
 - Real-time disaster event monitoring and analysis
@@ -45,8 +45,8 @@ User Input → Frontend → Backend API → Service Layer → Agents/Models
 ## Main Modules and Responsibilities
 
 ### Frontend
-**Responsibility**: User interface and experience  
-**Technologies**: Web framework (React, Vue, etc.) or mobile framework  
+**Responsibility**: User interface and operational dashboard experience  
+**Technologies**: React + TypeScript + Vite  
 **Key functions**:
 - Display disaster events and alerts
 - Show AI-generated recommendations
@@ -245,41 +245,28 @@ ai-disaster-response/
 
 ## Development Milestones
 
-### Milestone 1: Working Skeleton ⭐ (Current)
+### Milestone 1: MVP Operational Flow ✅
 
-**Goal**: Build minimal end-to-end functionality
+**Delivered baseline:**
 
-- Basic frontend with one or two screens
-- Backend API with core endpoints
-- Service layer skeleton with TODO comments
-- One working AI agent (simplified logic)
-- Database schema defined
-- Configuration system in place
-- LLM service abstraction implemented
+- API-connected frontend dashboard
+- Active incident analysis and rendering pipeline
+- Provider normalization layer for route/weather/facility/planning context signals
+- Mix of deterministic providers and live adapters
+- LLM service abstraction and supporting agent logic
 
-**Not required yet**:
-- Advanced UI/UX
-- Complete error handling
-- Production-grade performance
-- Comprehensive testing
-- Full feature set
+### Milestone 2: Hardening
 
-### Milestone 2: Core Features
+- Reliability and regression coverage expansion
+- Better observability and operational diagnostics
+- Performance and resilience improvements
 
-- Complete disaster event CRUD
-- Working AI analysis and recommendations
-- Basic resource management
-- Alert system
-- Enhanced error handling
+### Milestone 3: Scale-out
 
-### Milestone 3: Production Ready
-
-- Security hardening
-- Performance optimization
-- Comprehensive testing
-- Documentation
-- Deployment automation
-- Monitoring and logging
+- Regional/provider scope expansion
+- Deployment maturity improvements
+- Security and compliance hardening
+- Advanced monitoring and incident runbooks
 
 ---
 
@@ -338,9 +325,9 @@ ai-disaster-response/
 **Decision**: All config from environment variables  
 **Rationale**: Security, flexibility across environments, 12-factor app principles
 
-### Skeleton-First Development
-**Decision**: Build working skeleton before full implementation  
-**Rationale**: Validate architecture early, iterative refinement, faster feedback
+### Iterative Delivery
+**Decision**: Deliver and harden working vertical slices incrementally  
+**Rationale**: Keep production paths usable while improving quality through frequent small releases
 
 ---
 
@@ -356,10 +343,10 @@ ai-disaster-response/
    - Explore the folder structure
    - Look at existing code examples
 
-3. **Start with skeleton**:
-   - Begin with minimal implementations
-   - Use TODO comments for future work
-   - Focus on getting end-to-end flow working
+3. **Start from implemented paths**:
+   - Extend existing working modules before introducing new abstractions
+   - Keep changes testable and observable
+   - Preserve end-to-end behavior while iterating
 
 4. **Follow the patterns**:
    - Match existing code style
@@ -379,5 +366,5 @@ If anything in this architecture is unclear or you need to make architectural de
 
 ---
 
-**Last Updated**: March 9, 2026  
-**Status**: Milestone 1 (Working Skeleton)
+**Last Updated**: March 31, 2026  
+**Status**: Active MVP Iteration

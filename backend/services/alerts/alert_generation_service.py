@@ -12,6 +12,11 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 import uuid
 
+from backend.logging import get_logger
+
+
+logger = get_logger(__name__)
+
 
 class AlertGenerationService:
     """
@@ -147,7 +152,11 @@ class AlertGenerationService:
         if not events:
             return []
         
-        print(f"[Alerts] Starting alert generation for {len(events)} events, {len(assessments)} assessments")
+        logger.info(
+            "[Alerts] Starting alert generation for %d events, %d assessments",
+            len(events),
+            len(assessments),
+        )
         
         alerts = []
         
@@ -165,10 +174,14 @@ class AlertGenerationService:
                 if alert:
                     alerts.append(alert)
             except Exception as e:
-                print(f"[Alerts] Warning: Failed to generate alert for event {event.get('eventId')}: {str(e)}")
+                logger.warning(
+                    "[Alerts] Failed to generate alert for event %s: %s",
+                    event.get("eventId"),
+                    str(e),
+                )
                 continue
         
-        print(f"[Alerts] → Generated {len(alerts)} initial alerts")
+        logger.info("[Alerts] Generated %d initial alerts", len(alerts))
         
         # TODO: Deduplicate and merge related alerts
         # - Identify overlapping geographic areas
@@ -178,7 +191,7 @@ class AlertGenerationService:
         # Sort by priority (urgent first)
         alerts.sort(key=lambda a: self._priority_to_rank(a.get("priority", "normal")))
         
-        print(f"[Alerts] → Finalized {len(alerts)} alerts")
+        logger.info("[Alerts] Finalized %d alerts", len(alerts))
         
         return alerts
     

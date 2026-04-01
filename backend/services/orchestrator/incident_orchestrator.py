@@ -13,7 +13,12 @@ from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timezone
 import time
 import uuid
-import traceback
+
+from config.config import Config
+from backend.logging import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class IncidentOrchestrator:
@@ -30,19 +35,18 @@ class IncidentOrchestrator:
     
     def __init__(self):
         """Initialize orchestrator with all required dependencies."""
-        # TODO: Replace with real implementations
-        # from backend.agents import TextExtractionAgent, VisionAnalysisAgent
-        # from backend.agents import QuantitativeAnalysisAgent
+        # TODO: Remove deterministic fallback paths once real extraction is fully validated.
         
         # Import real services that are now implemented
         from backend.services.fusion import SignalFusionService
         from backend.services.scoring import DisruptionScoringService
         from backend.services.alerts import AlertGenerationService
         from backend.services.mappers import VisualizationMapper
+        from backend.agents import TextAnalyzer, VisionAnalyzer, QuantitativeAnalyzer
         
-        self.text_agent = None  # TextExtractionAgent()
-        self.vision_agent = None  # VisionAnalysisAgent()
-        self.quant_agent = None  # QuantitativeAnalysisAgent()
+        self.text_agent = TextAnalyzer() if Config.ENABLE_REAL_TEXT_EXTRACTION else None
+        self.vision_agent = VisionAnalyzer() if Config.ENABLE_REAL_VISION_EXTRACTION else None
+        self.quant_agent = QuantitativeAnalyzer() if Config.ENABLE_REAL_QUANT_EXTRACTION else None
         self.fusion_service = SignalFusionService()  # ✅ Active deterministic fusion
         self.scoring_service = DisruptionScoringService()  # ✅ Real implementation
         self.alert_service = AlertGenerationService()  # ✅ Real implementation
@@ -74,38 +78,47 @@ class IncidentOrchestrator:
         
         # Step 0: Ensure trace context exists
         trace = self._ensure_trace_context(request.get("trace"))
+        trace_extra = {
+            "extra": {
+                "trace_context": {
+                    "requestId": trace.get("requestId"),
+                    "traceId": trace.get("traceId"),
+                    "spanId": trace.get("spanId"),
+                }
+            }
+        }
         
         try:
-            print(f"[Orchestrator] Starting incident processing: {trace['requestId']}")
+            logger.info("Starting incident processing", **trace_extra)
             
             # PHASE 1: SIGNAL EXTRACTION
-            print("[Orchestrator] Phase 1: Extracting observations from signals...")
-            observations, extraction_warnings = await self._extract_observations(request)
+            logger.info("Phase 1: extracting observations from signals", **trace_extra)
+            observations, extraction_warnings, extraction_stats = await self._extract_observations(request)
             warnings.extend(extraction_warnings)
-            print(f"[Orchestrator] → Extracted {len(observations)} observations")
+            logger.info(f"Phase 1 complete: extracted {len(observations)} observations", **trace_extra)
             
             # PHASE 2: OBSERVATION FUSION
-            print("[Orchestrator] Phase 2: Fusing observations into events...")
+            logger.info("Phase 2: fusing observations into events", **trace_extra)
             events, fusion_warnings = await self._fuse_observations(observations, request)
             warnings.extend(fusion_warnings)
-            print(f"[Orchestrator] → Created {len(events)} fused events")
+            logger.info(f"Phase 2 complete: created {len(events)} fused events", **trace_extra)
             
             # PHASE 3: DISRUPTION SCORING
-            print("[Orchestrator] Phase 3: Scoring disruptions...")
+            logger.info("Phase 3: scoring disruptions", **trace_extra)
             disruptions, scoring_warnings = await self._score_disruptions(events, request)
             warnings.extend(scoring_warnings)
-            print(f"[Orchestrator] → Generated {len(disruptions)} disruption assessments")
+            logger.info(f"Phase 3 complete: generated {len(disruptions)} disruption assessments", **trace_extra)
             
             # PHASE 4: ALERT GENERATION
-            print("[Orchestrator] Phase 4: Generating alerts...")
+            logger.info("Phase 4: generating alerts", **trace_extra)
             alerts, alert_warnings = await self._generate_alerts(events, disruptions, request)
             warnings.extend(alert_warnings)
-            print(f"[Orchestrator] → Created {len(alerts)} alert recommendations")
+            logger.info(f"Phase 4 complete: created {len(alerts)} alert recommendations", **trace_extra)
             
             # PHASE 5: VISUALIZATION PREPARATION
-            print("[Orchestrator] Phase 5: Preparing visualizations...")
+            logger.info("Phase 5: preparing visualizations", **trace_extra)
             map_features, dashboard = await self._prepare_visualizations(events, disruptions, alerts)
-            print(f"[Orchestrator] → Generated {len(map_features)} map features")
+            logger.info(f"Phase 5 complete: generated {len(map_features)} map features", **trace_extra)
             
             # BUILD FINAL RESPONSE
             processing_duration_ms = int((time.time() - start_time) * 1000)
@@ -140,6 +153,7 @@ class IncidentOrchestrator:
                     "signalsProcessed": self._count_signals(request),
                     "facilityBaselineCount": self._count_facilities(request),
                     "observationsExtracted": len(observations),
+                    "extractionRollout": extraction_stats,
                     "eventsCreated": len(events),
                     "disruptionsAssessed": len(disruptions),
                     "alertsGenerated": len(alerts),
@@ -151,12 +165,11 @@ class IncidentOrchestrator:
                 }
             }
             
-            print(f"[Orchestrator] ✓ Processing complete in {processing_duration_ms}ms")
+            logger.info(f"Processing complete in {processing_duration_ms}ms", **trace_extra)
             return response
             
         except Exception as e:
-            print(f"[Orchestrator] ✗ Processing failed: {str(e)}")
-            traceback.print_exc()
+            logger.exception(f"Processing failed: {str(e)}", **trace_extra)
             return self._handle_processing_error(e, trace, start_time)
     
     def _ensure_trace_context(self, trace: Optional[Dict[str, Any]]) -> Dict[str, Any]:
@@ -183,51 +196,99 @@ class IncidentOrchestrator:
     async def _extract_observations(
         self,
         request: Dict[str, Any]
-    ) -> Tuple[List[Dict[str, Any]], List[str]]:
+    ) -> Tuple[List[Dict[str, Any]], List[str], Dict[str, Any]]:
         """Phase 1: Extract structured observations from raw signals."""
         observations = []
         warnings = []
+        extraction_stats: Dict[str, Any] = {
+            "text": {"realAttempted": 0, "realSucceeded": 0, "fallbackUsed": 0},
+            "vision": {"realAttempted": 0, "realSucceeded": 0, "fallbackUsed": 0},
+            "quant": {"realAttempted": 0, "realSucceeded": 0, "fallbackUsed": 0},
+        }
         
         # Extract from text signals
         text_signals = request.get("textSignals", [])
         for i, signal in enumerate(text_signals):
             try:
-                # TODO: Replace with real agent call
-                # obs = await self.text_agent.extract(signal)
-                obs = self._mock_text_extraction(signal, i)
+                if self.text_agent is not None:
+                    extraction_stats["text"]["realAttempted"] += 1
+                    normalized_signal = self._normalize_text_signal_for_agent(signal)
+                    obs = await self.text_agent.analyze(normalized_signal)
+                    if not obs:
+                        warnings.append(
+                            f"Text analyzer returned no observations for text signal {i}; using deterministic fallback"
+                        )
+                        extraction_stats["text"]["fallbackUsed"] += 1
+                        obs = self._mock_text_extraction(normalized_signal, i)
+                    else:
+                        extraction_stats["text"]["realSucceeded"] += 1
+                else:
+                    obs = self._mock_text_extraction(signal, i)
                 observations.extend(obs)
             except Exception as e:
-                warning = f"Failed to extract from text signal{i}: {str(e)}"
+                warning = f"Failed to extract from text signal {i}: {str(e)}"
                 warnings.append(warning)
-                print(f"[Orchestrator] Warning: {warning}")
+                logger.warning(warning)
+                # Preserve existing behavior on extraction failures.
+                fallback_signal = self._normalize_text_signal_for_agent(signal)
+                extraction_stats["text"]["fallbackUsed"] += 1
+                observations.extend(self._mock_text_extraction(fallback_signal, i))
         
         # Extract from vision signals
         vision_signals = request.get("visionSignals", [])
         for i, signal in enumerate(vision_signals):
             try:
-                # TODO: Replace with real agent call
-                # obs = await self.vision_agent.analyze(signal)
-                obs = self._mock_vision_analysis(signal, i)
+                if self.vision_agent is not None:
+                    extraction_stats["vision"]["realAttempted"] += 1
+                    normalized_signal = self._normalize_vision_signal_for_agent(signal)
+                    obs = await self.vision_agent.analyze(normalized_signal)
+                    if not obs:
+                        warnings.append(
+                            f"Vision analyzer returned no observations for vision signal {i}; using deterministic fallback"
+                        )
+                        extraction_stats["vision"]["fallbackUsed"] += 1
+                        obs = self._mock_vision_analysis(normalized_signal, i)
+                    else:
+                        extraction_stats["vision"]["realSucceeded"] += 1
+                else:
+                    obs = self._mock_vision_analysis(signal, i)
                 observations.extend(obs)
             except Exception as e:
                 warning = f"Failed to analyze vision signal {i}: {str(e)}"
                 warnings.append(warning)
-                print(f"[Orchestrator] Warning: {warning}")
+                logger.warning(warning)
+                fallback_signal = self._normalize_vision_signal_for_agent(signal)
+                extraction_stats["vision"]["fallbackUsed"] += 1
+                observations.extend(self._mock_vision_analysis(fallback_signal, i))
         
         # Extract from quantitative signals
         quant_signals = request.get("quantSignals", [])
         for i, signal in enumerate(quant_signals):
             try:
-                # TODO: Replace with real agent call
-                # obs = await self.quant_agent.analyze(signal)
-                obs = self._mock_quantitative_analysis(signal, i)
+                if self.quant_agent is not None:
+                    extraction_stats["quant"]["realAttempted"] += 1
+                    normalized_signal = self._normalize_quant_signal_for_agent(signal)
+                    obs = await self.quant_agent.analyze(normalized_signal)
+                    if not obs:
+                        warnings.append(
+                            f"Quant analyzer returned no observations for quant signal {i}; using deterministic fallback"
+                        )
+                        extraction_stats["quant"]["fallbackUsed"] += 1
+                        obs = self._mock_quantitative_analysis(normalized_signal, i)
+                    else:
+                        extraction_stats["quant"]["realSucceeded"] += 1
+                else:
+                    obs = self._mock_quantitative_analysis(signal, i)
                 observations.extend(obs)
             except Exception as e:
                 warning = f"Failed to analyze quantitative signal {i}: {str(e)}"
                 warnings.append(warning)
-                print(f"[Orchestrator] Warning: {warning}")
+                logger.warning(warning)
+                fallback_signal = self._normalize_quant_signal_for_agent(signal)
+                extraction_stats["quant"]["fallbackUsed"] += 1
+                observations.extend(self._mock_quantitative_analysis(fallback_signal, i))
         
-        return observations, warnings
+        return observations, warnings, extraction_stats
     
     async def _fuse_observations(
         self,
@@ -253,7 +314,7 @@ class IncidentOrchestrator:
         except Exception as e:
             error_msg = f"Fusion failed: {str(e)}"
             warnings.append(error_msg)
-            print(f"[Orchestrator] Warning: {error_msg}")
+            logger.warning(error_msg)
             return [], warnings
     
     async def _score_disruptions(
@@ -280,8 +341,7 @@ class IncidentOrchestrator:
         except Exception as e:
             error_msg = f"Disruption scoring failed: {str(e)}"
             warnings.append(error_msg)
-            print(f"[Orchestrator] Warning: {error_msg}")
-            print(f"[Orchestrator] Traceback: {traceback.format_exc()}")
+            logger.exception(error_msg)
             return [], warnings
     
     async def _generate_alerts(
@@ -304,8 +364,7 @@ class IncidentOrchestrator:
         except Exception as e:
             error_msg = f"Alert generation failed: {str(e)}"
             warnings.append(error_msg)
-            print(f"[Orchestrator] Warning: {error_msg}")
-            print(f"[Orchestrator] Traceback: {traceback.format_exc()}")
+            logger.exception(error_msg)
             return [], warnings
     
     async def _prepare_visualizations(
@@ -346,14 +405,66 @@ class IncidentOrchestrator:
             return map_features, dashboard
             
         except Exception as e:
-            print(f"[Orchestrator] Warning: Visualization preparation failed: {str(e)}")
-            print(f"[Orchestrator] Traceback: {traceback.format_exc()}")
+            logger.exception(f"Visualization preparation failed: {str(e)}")
             # Return empty results on failure
             return [], {}
     
     # ================================================================
     # MOCK IMPLEMENTATIONS
     # ================================================================
+
+    def _normalize_text_signal_for_agent(self, signal: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize inbound text signals for analyzer compatibility."""
+        content = signal.get("content")
+        if not isinstance(content, str) or not content.strip():
+            content = signal.get("rawText")
+
+        source = signal.get("source")
+        if not isinstance(source, str) or not source.strip():
+            source = signal.get("sourceType") or "unknown"
+
+        created_at = signal.get("createdAt") or signal.get("collectedAt") or self._utc_now()
+        received_at = signal.get("receivedAt") or signal.get("collectedAt") or created_at
+
+        normalized = dict(signal)
+        normalized["content"] = content if isinstance(content, str) else ""
+        normalized["source"] = source
+        normalized["createdAt"] = created_at
+        normalized["receivedAt"] = received_at
+
+        return normalized
+
+    def _normalize_vision_signal_for_agent(self, signal: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize inbound vision signals for analyzer compatibility."""
+        image_url = signal.get("imageUrl")
+        if not isinstance(image_url, str) or not image_url.strip():
+            image_url = signal.get("mediaUrl")
+
+        created_at = signal.get("createdAt") or signal.get("collectedAt") or self._utc_now()
+        received_at = signal.get("receivedAt") or signal.get("collectedAt") or created_at
+
+        normalized = dict(signal)
+        normalized["imageUrl"] = image_url if isinstance(image_url, str) else ""
+        normalized["createdAt"] = created_at
+        normalized["receivedAt"] = received_at
+
+        return normalized
+
+    def _normalize_quant_signal_for_agent(self, signal: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize inbound quantitative signals for analyzer compatibility."""
+        measurement_type = signal.get("measurementType")
+        if not isinstance(measurement_type, str) or not measurement_type.strip():
+            measurement_type = signal.get("measurement_type") or signal.get("sensorType") or "unknown"
+
+        created_at = signal.get("createdAt") or signal.get("collectedAt") or self._utc_now()
+        received_at = signal.get("receivedAt") or signal.get("collectedAt") or created_at
+
+        normalized = dict(signal)
+        normalized["measurementType"] = measurement_type
+        normalized["createdAt"] = created_at
+        normalized["receivedAt"] = received_at
+
+        return normalized
     
     def _mock_text_extraction(
         self,

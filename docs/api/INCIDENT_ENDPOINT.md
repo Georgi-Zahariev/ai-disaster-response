@@ -359,16 +359,20 @@ curl -X POST http://localhost:8000/api/incidents/analyze \
 
 ## Current Limitations
 
-### Phase 1 & 2 (Signal Extraction & Fusion)
-Currently using **mock implementations** that generate placeholder data:
-- Text/vision/quant analyzers are stubbed
-- Observation extraction returns synthetic observations
-- Event fusion uses simple logic (one event per request)
+### Extraction Phase
+Phase 1 extraction currently relies on deterministic/mock extraction helpers:
+- Text/vision/quant extraction paths are still adapter stubs in orchestrator
+- Extraction outputs are deterministic for testability
 
-### Real Implementations Available
+### Implemented Runtime Phases
+- ✅ **Phase 2: Signal Fusion** - Active deterministic implementation
 - ✅ **Phase 3: Disruption Scoring** - Fully implemented
 - ✅ **Phase 4: Alert Generation** - Fully implemented
 - ✅ **Phase 5: Visualization** - Fully implemented
+
+### Provider Data Source Modes
+- Seed/static providers are used for deterministic baseline and planning context.
+- Live adapters are available for NWS weather alerts and OSM facilities.
 
 ## Future Enhancements
 

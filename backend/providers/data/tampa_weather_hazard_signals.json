@@ -1,125 +1,1610 @@
 {
-  "meta": {
-    "dataset": "tampa_weather_hazard_signals",
-    "version": "0.1.0",
-    "placeholder": true,
-    "note": "Adapter-ready Tampa Bay weather and hazard seed records. Replace with live feed integrations in production."
-  },
   "signals": [
     {
-      "sourceRecordId": "nws-hillsborough-001",
-      "provider": "nws_adapter_seed",
-      "hazardConcept": "flood",
+      "signalId": "WHS-0001",
+      "hazardConcept": "heavy_rain",
       "hazardState": "warning",
-      "description": "Flash flood warning for low-lying roadway segments in Tampa",
-      "severity": "high",
-      "measurementType": "flood_risk_index",
-      "value": 0.92,
-      "units": "index",
-      "baselineValue": 0.2,
-      "deviationScore": 0.88,
+      "severity": "critical",
+      "measurementType": "rainfall_rate",
+      "value": 1.64,
+      "units": "in_hr",
+      "baselineValue": 0.15,
+      "deviationScore": 4.26,
       "location": {
-        "latitude": 27.9506,
-        "longitude": -82.4572,
+        "latitude": 28.027209,
+        "longitude": -82.100737,
         "county": "hillsborough",
-        "placeName": "Tampa"
+        "placeName": "Plant City"
       },
-      "evidence": {
-        "sourceUrl": "https://example.local/nws/hillsborough/001"
-      },
-      "createdAt": "2026-03-12T13:40:00Z"
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0001",
+      "createdAt": "2025-09-19T20:44:34Z"
     },
     {
-      "sourceRecordId": "noaa-pinellas-002",
-      "provider": "noaa_adapter_seed",
+      "signalId": "WHS-0002",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "rainfall_24h",
+      "value": 9.3,
+      "units": "in",
+      "baselineValue": 1.1,
+      "deviationScore": 4.56,
+      "location": {
+        "latitude": 27.719846,
+        "longitude": -82.340171,
+        "county": "hillsborough",
+        "placeName": "Sun City Center"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0002",
+      "createdAt": "2025-09-16T00:45:10Z"
+    },
+    {
+      "signalId": "WHS-0003",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "rainfall_24h",
+      "value": 8.1,
+      "units": "in",
+      "baselineValue": 1.0,
+      "deviationScore": 3.94,
+      "location": {
+        "latitude": 27.996704,
+        "longitude": -82.5831,
+        "county": "hillsborough",
+        "placeName": "Town 'N' Country"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0003",
+      "createdAt": "2025-09-19T20:23:49Z"
+    },
+    {
+      "signalId": "WHS-0004",
       "hazardConcept": "storm_surge",
       "hazardState": "watch",
-      "description": "Storm surge watch for coastal Pinellas zones",
       "severity": "high",
       "measurementType": "storm_surge_height",
-      "value": 3.8,
+      "value": 2.6,
       "units": "ft",
-      "baselineValue": 0.6,
-      "deviationScore": 0.84,
+      "baselineValue": 0.3,
+      "deviationScore": 2.88,
       "location": {
-        "latitude": 27.7710,
-        "longitude": -82.6380,
+        "latitude": 28.053929,
+        "longitude": -82.392082,
+        "county": "hillsborough",
+        "placeName": "Temple Terrace"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0004",
+      "createdAt": "2025-09-21T07:06:38Z"
+    },
+    {
+      "signalId": "WHS-0005",
+      "hazardConcept": "flood",
+      "hazardState": "warning",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 2.6,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 4.8,
+      "location": {
+        "latitude": 27.988231,
+        "longitude": -82.581655,
+        "county": "hillsborough",
+        "placeName": "Town 'N' Country"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0005",
+      "createdAt": "2025-09-15T07:09:15Z"
+    },
+    {
+      "signalId": "WHS-0006",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "water_level",
+      "value": 9.4,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 4.06,
+      "location": {
+        "latitude": 28.147739,
+        "longitude": -82.443031,
+        "county": "hillsborough",
+        "placeName": "Lutz"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0006",
+      "createdAt": "2025-09-18T18:50:40Z"
+    },
+    {
+      "signalId": "WHS-0007",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "water_level",
+      "value": 6.8,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 2.61,
+      "location": {
+        "latitude": 27.721745,
+        "longitude": -82.439268,
+        "county": "hillsborough",
+        "placeName": "Ruskin"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0007",
+      "createdAt": "2025-09-15T19:33:57Z"
+    },
+    {
+      "signalId": "WHS-0008",
+      "hazardConcept": "flood",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "water_level",
+      "value": 8.4,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 3.5,
+      "location": {
+        "latitude": 27.847003,
+        "longitude": -82.332777,
+        "county": "hillsborough",
+        "placeName": "Riverview"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0008",
+      "createdAt": "2025-09-17T23:02:41Z"
+    },
+    {
+      "signalId": "WHS-0009",
+      "hazardConcept": "flood",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "rainfall_24h",
+      "value": 5.1,
+      "units": "in",
+      "baselineValue": 1.1,
+      "deviationScore": 2.22,
+      "location": {
+        "latitude": 27.937005,
+        "longitude": -82.454806,
+        "county": "hillsborough",
+        "placeName": "Downtown Tampa"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0009",
+      "createdAt": "2025-09-17T06:17:20Z"
+    },
+    {
+      "signalId": "WHS-0010",
+      "hazardConcept": "hurricane",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "forecast_wind",
+      "value": 77.5,
+      "units": "mph",
+      "baselineValue": 25,
+      "deviationScore": 2.62,
+      "location": {
+        "latitude": 27.713923,
+        "longitude": -82.342304,
+        "county": "hillsborough",
+        "placeName": "Sun City Center"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0010",
+      "createdAt": "2025-09-17T14:33:50Z"
+    },
+    {
+      "signalId": "WHS-0011",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "warning",
+      "severity": "moderate",
+      "measurementType": "rainfall_24h",
+      "value": 4.9,
+      "units": "in",
+      "baselineValue": 1.0,
+      "deviationScore": 2.17,
+      "location": {
+        "latitude": 27.940894,
+        "longitude": -82.27392,
+        "county": "hillsborough",
+        "placeName": "Brandon"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0011",
+      "createdAt": "2025-09-16T09:11:30Z"
+    },
+    {
+      "signalId": "WHS-0012",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "rainfall_24h",
+      "value": 6.4,
+      "units": "in",
+      "baselineValue": 1.0,
+      "deviationScore": 3.0,
+      "location": {
+        "latitude": 27.941709,
+        "longitude": -82.235936,
+        "county": "hillsborough",
+        "placeName": "Valrico"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0012",
+      "createdAt": "2025-09-19T05:20:25Z"
+    },
+    {
+      "signalId": "WHS-0013",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 3.2,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 6.0,
+      "location": {
+        "latitude": 27.988595,
+        "longitude": -82.26305,
+        "county": "hillsborough",
+        "placeName": "Seffner"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0013",
+      "createdAt": "2025-09-16T00:41:08Z"
+    },
+    {
+      "signalId": "WHS-0014",
+      "hazardConcept": "hurricane",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "forecast_wind",
+      "value": 73.7,
+      "units": "mph",
+      "baselineValue": 25,
+      "deviationScore": 2.44,
+      "location": {
+        "latitude": 28.020014,
+        "longitude": -82.397085,
+        "county": "hillsborough",
+        "placeName": "Temple Terrace"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0014",
+      "createdAt": "2025-09-20T01:49:15Z"
+    },
+    {
+      "signalId": "WHS-0015",
+      "hazardConcept": "hurricane",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "storm_track_distance",
+      "value": 93.9,
+      "units": "mi",
+      "baselineValue": 180,
+      "deviationScore": 2.46,
+      "location": {
+        "latitude": 27.911122,
+        "longitude": -82.506533,
+        "county": "hillsborough",
+        "placeName": "South Tampa"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0015",
+      "createdAt": "2025-09-21T17:37:48Z"
+    },
+    {
+      "signalId": "WHS-0016",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "rainfall_6h",
+      "value": 5.4,
+      "units": "in",
+      "baselineValue": 0.8,
+      "deviationScore": 4.18,
+      "location": {
+        "latitude": 28.136712,
+        "longitude": -82.468917,
+        "county": "hillsborough",
+        "placeName": "Lutz"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0016",
+      "createdAt": "2025-09-20T21:09:09Z"
+    },
+    {
+      "signalId": "WHS-0017",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "rainfall_6h",
+      "value": 4.3,
+      "units": "in",
+      "baselineValue": 0.8,
+      "deviationScore": 3.18,
+      "location": {
+        "latitude": 27.932753,
+        "longitude": -82.505782,
+        "county": "hillsborough",
+        "placeName": "South Tampa"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0017",
+      "createdAt": "2025-09-20T09:16:52Z"
+    },
+    {
+      "signalId": "WHS-0018",
+      "hazardConcept": "flood",
+      "hazardState": "warning",
+      "severity": "moderate",
+      "measurementType": "water_level",
+      "value": 5.9,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 2.11,
+      "location": {
+        "latitude": 27.940416,
+        "longitude": -82.274065,
+        "county": "hillsborough",
+        "placeName": "Brandon"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0018",
+      "createdAt": "2025-09-18T12:04:52Z"
+    },
+    {
+      "signalId": "WHS-0019",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "rainfall_6h",
+      "value": 5.0,
+      "units": "in",
+      "baselineValue": 0.8,
+      "deviationScore": 3.82,
+      "location": {
+        "latitude": 27.986526,
+        "longitude": -82.264698,
+        "county": "hillsborough",
+        "placeName": "Seffner"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0019",
+      "createdAt": "2025-09-18T06:01:41Z"
+    },
+    {
+      "signalId": "WHS-0020",
+      "hazardConcept": "high_wind",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "sustained_wind",
+      "value": 67.8,
+      "units": "mph",
+      "baselineValue": 14,
+      "deviationScore": 2.99,
+      "location": {
+        "latitude": 28.049182,
+        "longitude": -82.490929,
+        "county": "hillsborough",
+        "placeName": "Carrollwood"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0020",
+      "createdAt": "2025-09-18T00:05:55Z"
+    },
+    {
+      "signalId": "WHS-0021",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "water_level",
+      "value": 6.9,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 2.67,
+      "location": {
+        "latitude": 27.959389,
+        "longitude": -82.443857,
+        "county": "hillsborough",
+        "placeName": "Ybor City"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0021",
+      "createdAt": "2025-09-17T13:07:53Z"
+    },
+    {
+      "signalId": "WHS-0022",
+      "hazardConcept": "high_wind",
+      "hazardState": "watch",
+      "severity": "moderate",
+      "measurementType": "sustained_wind",
+      "value": 45.0,
+      "units": "mph",
+      "baselineValue": 14,
+      "deviationScore": 1.72,
+      "location": {
+        "latitude": 28.061942,
+        "longitude": -82.49679,
+        "county": "hillsborough",
+        "placeName": "Carrollwood"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0022",
+      "createdAt": "2025-09-17T12:16:35Z"
+    },
+    {
+      "signalId": "WHS-0023",
+      "hazardConcept": "high_wind",
+      "hazardState": "observed",
+      "severity": "moderate",
+      "measurementType": "wind_gust",
+      "value": 54.4,
+      "units": "mph",
+      "baselineValue": 22,
+      "deviationScore": 1.8,
+      "location": {
+        "latitude": 28.048791,
+        "longitude": -82.497326,
+        "county": "hillsborough",
+        "placeName": "Carrollwood"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0023",
+      "createdAt": "2025-09-21T22:49:16Z"
+    },
+    {
+      "signalId": "WHS-0024",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "rainfall_rate",
+      "value": 0.98,
+      "units": "in_hr",
+      "baselineValue": 0.15,
+      "deviationScore": 2.37,
+      "location": {
+        "latitude": 28.16472,
+        "longitude": -82.346228,
+        "county": "hillsborough",
+        "placeName": "New Tampa"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0024",
+      "createdAt": "2025-09-15T17:16:05Z"
+    },
+    {
+      "signalId": "WHS-0025",
+      "hazardConcept": "storm_surge",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "storm_surge_height",
+      "value": 6.6,
+      "units": "ft",
+      "baselineValue": 0.3,
+      "deviationScore": 7.87,
+      "location": {
+        "latitude": 28.026657,
+        "longitude": -82.126992,
+        "county": "hillsborough",
+        "placeName": "Plant City"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0025",
+      "createdAt": "2025-09-19T18:22:56Z"
+    },
+    {
+      "signalId": "WHS-0026",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "water_level",
+      "value": 8.1,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 3.33,
+      "location": {
+        "latitude": 28.060513,
+        "longitude": -82.619793,
+        "county": "hillsborough",
+        "placeName": "Westchase"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0026",
+      "createdAt": "2025-09-19T21:20:19Z"
+    },
+    {
+      "signalId": "WHS-0027",
+      "hazardConcept": "flood",
+      "hazardState": "warning",
+      "severity": "critical",
+      "measurementType": "rainfall_24h",
+      "value": 11.6,
+      "units": "in",
+      "baselineValue": 1.1,
+      "deviationScore": 5.83,
+      "location": {
+        "latitude": 28.063188,
+        "longitude": -82.599707,
+        "county": "hillsborough",
+        "placeName": "Westchase"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0027",
+      "createdAt": "2025-09-16T03:07:46Z"
+    },
+    {
+      "signalId": "WHS-0028",
+      "hazardConcept": "hurricane",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "forecast_wind",
+      "value": 94.8,
+      "units": "mph",
+      "baselineValue": 25,
+      "deviationScore": 3.49,
+      "location": {
+        "latitude": 27.989294,
+        "longitude": -82.267708,
+        "county": "hillsborough",
+        "placeName": "Seffner"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0028",
+      "createdAt": "2025-09-17T13:42:22Z"
+    },
+    {
+      "signalId": "WHS-0029",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "tide_anomaly",
+      "value": 1.4,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 2.4,
+      "location": {
+        "latitude": 28.048434,
+        "longitude": -82.39579,
+        "county": "hillsborough",
+        "placeName": "Temple Terrace"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0029",
+      "createdAt": "2025-09-15T14:06:00Z"
+    },
+    {
+      "signalId": "WHS-0030",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "watch",
+      "severity": "critical",
+      "measurementType": "rainfall_rate",
+      "value": 1.63,
+      "units": "in_hr",
+      "baselineValue": 0.15,
+      "deviationScore": 4.23,
+      "location": {
+        "latitude": 27.964551,
+        "longitude": -82.258423,
+        "county": "hillsborough",
+        "placeName": "Seffner"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "HWX0030",
+      "createdAt": "2025-09-17T10:55:46Z"
+    },
+    {
+      "signalId": "WHS-0031",
+      "hazardConcept": "storm_surge",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "tide_anomaly",
+      "value": 2.6,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 3.0,
+      "location": {
+        "latitude": 28.033886,
+        "longitude": -82.120225,
+        "county": "hillsborough",
+        "placeName": "Plant City"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "HWX0031",
+      "createdAt": "2025-09-19T12:18:26Z"
+    },
+    {
+      "signalId": "WHS-0032",
+      "hazardConcept": "hurricane",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "storm_track_distance",
+      "value": 94.5,
+      "units": "mi",
+      "baselineValue": 180,
+      "deviationScore": 2.44,
+      "location": {
+        "latitude": 27.755171,
+        "longitude": -82.402576,
+        "county": "hillsborough",
+        "placeName": "Apollo Beach"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "HWX0032",
+      "createdAt": "2025-09-16T02:33:49Z"
+    },
+    {
+      "signalId": "WHS-0033",
+      "hazardConcept": "high_wind",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "wind_gust",
+      "value": 66.2,
+      "units": "mph",
+      "baselineValue": 22,
+      "deviationScore": 2.46,
+      "location": {
+        "latitude": 27.759576,
+        "longitude": -82.652118,
         "county": "pinellas",
         "placeName": "St. Petersburg"
       },
-      "evidence": {
-        "sourceRecordId": "surge-zone-pinellas-7"
-      },
-      "createdAt": "2026-03-12T13:47:00Z"
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0033",
+      "createdAt": "2025-09-19T04:04:23Z"
     },
     {
-      "sourceRecordId": "noaa-pasco-003",
-      "provider": "noaa_adapter_seed",
-      "hazardConcept": "high_wind",
-      "hazardState": "observed",
-      "description": "Sustained high winds observed across Pasco corridor",
-      "severity": "moderate",
-      "measurementType": "wind_speed",
-      "value": 58,
-      "units": "mph",
-      "baselineValue": 14,
-      "deviationScore": 0.79,
-      "location": {
-        "latitude": 28.2442,
-        "longitude": -82.7193,
-        "county": "pasco",
-        "placeName": "New Port Richey"
-      },
-      "evidence": {
-        "sourceUrl": "https://example.local/noaa/pasco/wind"
-      },
-      "createdAt": "2026-03-12T13:55:00Z"
-    },
-    {
-      "sourceRecordId": "nws-hillsborough-004",
-      "provider": "nws_adapter_seed",
+      "signalId": "WHS-0034",
       "hazardConcept": "heavy_rain",
       "hazardState": "observed",
-      "description": "Heavy rain bands over Hillsborough causing drainage overload",
-      "severity": "moderate",
+      "severity": "high",
       "measurementType": "rainfall_rate",
-      "value": 2.4,
-      "units": "in_per_hour",
-      "baselineValue": 0.3,
-      "deviationScore": 0.73,
+      "value": 1.5,
+      "units": "in_hr",
+      "baselineValue": 0.15,
+      "deviationScore": 3.86,
       "location": {
-        "latitude": 27.9980,
-        "longitude": -82.4980,
-        "county": "hillsborough",
-        "placeName": "North Tampa"
+        "latitude": 27.753833,
+        "longitude": -82.704024,
+        "county": "pinellas",
+        "placeName": "Gulfport"
       },
-      "evidence": {
-        "sourceRecordId": "radar-cell-hb-44"
-      },
-      "createdAt": "2026-03-12T14:01:00Z"
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0034",
+      "createdAt": "2025-09-16T06:03:34Z"
     },
     {
-      "sourceRecordId": "nhc-regional-005",
-      "provider": "nhc_adapter_seed",
-      "hazardConcept": "hurricane",
-      "hazardState": "watch",
-      "description": "Hurricane watch issued for Tampa Bay coastal counties",
+      "signalId": "WHS-0035",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
       "severity": "high",
-      "measurementType": "hurricane_condition_index",
-      "value": 0.81,
-      "units": "index",
-      "baselineValue": 0.1,
-      "deviationScore": 0.9,
+      "measurementType": "water_level",
+      "value": 8.2,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 3.39,
       "location": {
-        "latitude": 27.9000,
-        "longitude": -82.6000,
+        "latitude": 27.99484,
+        "longitude": -82.680443,
         "county": "pinellas",
-        "placeName": "Tampa Bay Coastal"
+        "placeName": "Safety Harbor"
       },
-      "evidence": {
-        "sourceUrl": "https://example.local/nhc/tampabay/watch"
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0035",
+      "createdAt": "2025-09-21T10:31:18Z"
+    },
+    {
+      "signalId": "WHS-0036",
+      "hazardConcept": "high_wind",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "wind_gust",
+      "value": 90.2,
+      "units": "mph",
+      "baselineValue": 22,
+      "deviationScore": 3.79,
+      "location": {
+        "latitude": 27.838023,
+        "longitude": -82.784972,
+        "county": "pinellas",
+        "placeName": "Seminole"
       },
-      "createdAt": "2026-03-12T14:04:00Z"
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0036",
+      "createdAt": "2025-09-17T15:16:37Z"
+    },
+    {
+      "signalId": "WHS-0037",
+      "hazardConcept": "storm_surge",
+      "hazardState": "warning",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 4.3,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 5.12,
+      "location": {
+        "latitude": 27.89942,
+        "longitude": -82.797852,
+        "county": "pinellas",
+        "placeName": "Largo"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0037",
+      "createdAt": "2025-09-18T00:10:22Z"
+    },
+    {
+      "signalId": "WHS-0038",
+      "hazardConcept": "storm_surge",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 7.1,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 8.62,
+      "location": {
+        "latitude": 27.958849,
+        "longitude": -82.797272,
+        "county": "pinellas",
+        "placeName": "Clearwater"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0038",
+      "createdAt": "2025-09-18T15:51:42Z"
+    },
+    {
+      "signalId": "WHS-0039",
+      "hazardConcept": "storm_surge",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "storm_surge_height",
+      "value": 7.1,
+      "units": "ft",
+      "baselineValue": 0.3,
+      "deviationScore": 8.5,
+      "location": {
+        "latitude": 28.08504,
+        "longitude": -82.769425,
+        "county": "pinellas",
+        "placeName": "Palm Harbor"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0039",
+      "createdAt": "2025-09-21T00:08:47Z"
+    },
+    {
+      "signalId": "WHS-0040",
+      "hazardConcept": "flood",
+      "hazardState": "watch",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 3.5,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 6.6,
+      "location": {
+        "latitude": 28.146088,
+        "longitude": -82.75417,
+        "county": "pinellas",
+        "placeName": "Tarpon Springs"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0040",
+      "createdAt": "2025-09-18T20:10:45Z"
+    },
+    {
+      "signalId": "WHS-0041",
+      "hazardConcept": "storm_surge",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 8.2,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 10.0,
+      "location": {
+        "latitude": 27.744632,
+        "longitude": -82.698278,
+        "county": "pinellas",
+        "placeName": "Gulfport"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0041",
+      "createdAt": "2025-09-15T19:40:13Z"
+    },
+    {
+      "signalId": "WHS-0042",
+      "hazardConcept": "storm_surge",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 5.3,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 6.37,
+      "location": {
+        "latitude": 28.065215,
+        "longitude": -82.776007,
+        "county": "pinellas",
+        "placeName": "Palm Harbor"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0042",
+      "createdAt": "2025-09-20T01:00:12Z"
+    },
+    {
+      "signalId": "WHS-0043",
+      "hazardConcept": "flood",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "tide_anomaly",
+      "value": 1.4,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 2.4,
+      "location": {
+        "latitude": 27.883008,
+        "longitude": -82.845276,
+        "county": "pinellas",
+        "placeName": "Indian Rocks Beach"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0043",
+      "createdAt": "2025-09-21T04:55:41Z"
+    },
+    {
+      "signalId": "WHS-0044",
+      "hazardConcept": "hurricane",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "storm_track_distance",
+      "value": 99.9,
+      "units": "mi",
+      "baselineValue": 180,
+      "deviationScore": 2.29,
+      "location": {
+        "latitude": 27.843819,
+        "longitude": -82.70256,
+        "county": "pinellas",
+        "placeName": "Pinellas Park"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0044",
+      "createdAt": "2025-09-15T19:15:26Z"
+    },
+    {
+      "signalId": "WHS-0045",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "moderate",
+      "measurementType": "water_level",
+      "value": 5.6,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 1.94,
+      "location": {
+        "latitude": 27.754839,
+        "longitude": -82.693699,
+        "county": "pinellas",
+        "placeName": "Gulfport"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0045",
+      "createdAt": "2025-09-20T12:03:14Z"
+    },
+    {
+      "signalId": "WHS-0046",
+      "hazardConcept": "high_wind",
+      "hazardState": "observed",
+      "severity": "moderate",
+      "measurementType": "wind_gust",
+      "value": 42.2,
+      "units": "mph",
+      "baselineValue": 22,
+      "deviationScore": 1.12,
+      "location": {
+        "latitude": 27.76776,
+        "longitude": -82.632633,
+        "county": "pinellas",
+        "placeName": "Downtown St. Petersburg"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0046",
+      "createdAt": "2025-09-15T03:18:21Z"
+    },
+    {
+      "signalId": "WHS-0047",
+      "hazardConcept": "storm_surge",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "tide_anomaly",
+      "value": 3.1,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 3.62,
+      "location": {
+        "latitude": 27.799044,
+        "longitude": -82.790876,
+        "county": "pinellas",
+        "placeName": "Madeira Beach"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0047",
+      "createdAt": "2025-09-16T10:23:11Z"
+    },
+    {
+      "signalId": "WHS-0048",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "observed",
+      "severity": "moderate",
+      "measurementType": "rainfall_24h",
+      "value": 4.0,
+      "units": "in",
+      "baselineValue": 1.0,
+      "deviationScore": 1.67,
+      "location": {
+        "latitude": 27.76298,
+        "longitude": -82.642279,
+        "county": "pinellas",
+        "placeName": "St. Petersburg"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0048",
+      "createdAt": "2025-09-15T22:26:53Z"
+    },
+    {
+      "signalId": "WHS-0049",
+      "hazardConcept": "flood",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "water_level",
+      "value": 6.4,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 2.39,
+      "location": {
+        "latitude": 27.785952,
+        "longitude": -82.788738,
+        "county": "pinellas",
+        "placeName": "Madeira Beach"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0049",
+      "createdAt": "2025-09-21T23:09:50Z"
+    },
+    {
+      "signalId": "WHS-0050",
+      "hazardConcept": "high_wind",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "wind_gust",
+      "value": 86.5,
+      "units": "mph",
+      "baselineValue": 22,
+      "deviationScore": 3.58,
+      "location": {
+        "latitude": 27.901895,
+        "longitude": -82.787053,
+        "county": "pinellas",
+        "placeName": "Largo"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0050",
+      "createdAt": "2025-09-20T17:24:41Z"
+    },
+    {
+      "signalId": "WHS-0051",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "water_level",
+      "value": 7.6,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 3.06,
+      "location": {
+        "latitude": 27.833811,
+        "longitude": -82.68661,
+        "county": "pinellas",
+        "placeName": "Pinellas Park"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0051",
+      "createdAt": "2025-09-20T02:09:00Z"
+    },
+    {
+      "signalId": "WHS-0052",
+      "hazardConcept": "storm_surge",
+      "hazardState": "warning",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 7.4,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 9.0,
+      "location": {
+        "latitude": 28.143755,
+        "longitude": -82.750632,
+        "county": "pinellas",
+        "placeName": "Tarpon Springs"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0052",
+      "createdAt": "2025-09-21T02:13:48Z"
+    },
+    {
+      "signalId": "WHS-0053",
+      "hazardConcept": "high_wind",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "wind_gust",
+      "value": 92.2,
+      "units": "mph",
+      "baselineValue": 22,
+      "deviationScore": 3.9,
+      "location": {
+        "latitude": 27.764122,
+        "longitude": -82.630879,
+        "county": "pinellas",
+        "placeName": "Downtown St. Petersburg"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0053",
+      "createdAt": "2025-09-18T10:13:40Z"
+    },
+    {
+      "signalId": "WHS-0054",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "rainfall_rate",
+      "value": 1.47,
+      "units": "in_hr",
+      "baselineValue": 0.15,
+      "deviationScore": 3.77,
+      "location": {
+        "latitude": 28.000164,
+        "longitude": -82.686613,
+        "county": "pinellas",
+        "placeName": "Safety Harbor"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0054",
+      "createdAt": "2025-09-17T22:39:27Z"
+    },
+    {
+      "signalId": "WHS-0055",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 3.5,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 6.6,
+      "location": {
+        "latitude": 27.829738,
+        "longitude": -82.712375,
+        "county": "pinellas",
+        "placeName": "Kenneth City"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0055",
+      "createdAt": "2025-09-16T19:51:20Z"
+    },
+    {
+      "signalId": "WHS-0056",
+      "hazardConcept": "storm_surge",
+      "hazardState": "watch",
+      "severity": "critical",
+      "measurementType": "storm_surge_height",
+      "value": 8.2,
+      "units": "ft",
+      "baselineValue": 0.3,
+      "deviationScore": 9.87,
+      "location": {
+        "latitude": 27.735069,
+        "longitude": -82.702237,
+        "county": "pinellas",
+        "placeName": "Gulfport"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0056",
+      "createdAt": "2025-09-19T13:35:52Z"
+    },
+    {
+      "signalId": "WHS-0057",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "rainfall_rate",
+      "value": 1.58,
+      "units": "in_hr",
+      "baselineValue": 0.15,
+      "deviationScore": 4.09,
+      "location": {
+        "latitude": 27.993911,
+        "longitude": -82.687265,
+        "county": "pinellas",
+        "placeName": "Safety Harbor"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0057",
+      "createdAt": "2025-09-18T09:30:18Z"
+    },
+    {
+      "signalId": "WHS-0058",
+      "hazardConcept": "storm_surge",
+      "hazardState": "observed",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 5.0,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 6.0,
+      "location": {
+        "latitude": 28.157224,
+        "longitude": -82.756247,
+        "county": "pinellas",
+        "placeName": "Tarpon Springs"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0058",
+      "createdAt": "2025-09-16T03:50:19Z"
+    },
+    {
+      "signalId": "WHS-0059",
+      "hazardConcept": "flood",
+      "hazardState": "watch",
+      "severity": "critical",
+      "measurementType": "rainfall_24h",
+      "value": 9.0,
+      "units": "in",
+      "baselineValue": 1.1,
+      "deviationScore": 4.39,
+      "location": {
+        "latitude": 27.882795,
+        "longitude": -82.844401,
+        "county": "pinellas",
+        "placeName": "Indian Rocks Beach"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0059",
+      "createdAt": "2025-09-18T04:01:08Z"
+    },
+    {
+      "signalId": "WHS-0060",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "rainfall_6h",
+      "value": 4.5,
+      "units": "in",
+      "baselineValue": 0.8,
+      "deviationScore": 3.36,
+      "location": {
+        "latitude": 27.90032,
+        "longitude": -82.83971,
+        "county": "pinellas",
+        "placeName": "Indian Rocks Beach"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0060",
+      "createdAt": "2025-09-16T15:38:43Z"
+    },
+    {
+      "signalId": "WHS-0061",
+      "hazardConcept": "hurricane",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "pressure_drop",
+      "value": 21.7,
+      "units": "mb",
+      "baselineValue": 2,
+      "deviationScore": 3.94,
+      "location": {
+        "latitude": 28.217959,
+        "longitude": -82.196974,
+        "county": "pasco",
+        "placeName": "Zephyrhills"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0061",
+      "createdAt": "2025-09-19T08:21:31Z"
+    },
+    {
+      "signalId": "WHS-0062",
+      "hazardConcept": "storm_surge",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "storm_surge_height",
+      "value": 2.6,
+      "units": "ft",
+      "baselineValue": 0.3,
+      "deviationScore": 2.88,
+      "location": {
+        "latitude": 28.185877,
+        "longitude": -82.741066,
+        "county": "pasco",
+        "placeName": "Holiday"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0062",
+      "createdAt": "2025-09-15T11:44:48Z"
+    },
+    {
+      "signalId": "WHS-0063",
+      "hazardConcept": "flood",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "rainfall_24h",
+      "value": 6.6,
+      "units": "in",
+      "baselineValue": 1.1,
+      "deviationScore": 3.06,
+      "location": {
+        "latitude": 28.225633,
+        "longitude": -82.319454,
+        "county": "pasco",
+        "placeName": "Wesley Chapel"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0063",
+      "createdAt": "2025-09-18T03:46:44Z"
+    },
+    {
+      "signalId": "WHS-0064",
+      "hazardConcept": "hurricane",
+      "hazardState": "warning",
+      "severity": "critical",
+      "measurementType": "pressure_drop",
+      "value": 23.9,
+      "units": "mb",
+      "baselineValue": 2,
+      "deviationScore": 4.38,
+      "location": {
+        "latitude": 28.345943,
+        "longitude": -82.697524,
+        "county": "pasco",
+        "placeName": "Hudson"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0064",
+      "createdAt": "2025-09-20T14:34:47Z"
+    },
+    {
+      "signalId": "WHS-0065",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "moderate",
+      "measurementType": "water_level",
+      "value": 4.8,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 1.5,
+      "location": {
+        "latitude": 28.349558,
+        "longitude": -82.711233,
+        "county": "pasco",
+        "placeName": "Hudson"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0065",
+      "createdAt": "2025-09-16T00:28:41Z"
+    },
+    {
+      "signalId": "WHS-0066",
+      "hazardConcept": "high_wind",
+      "hazardState": "observed",
+      "severity": "moderate",
+      "measurementType": "wind_gust",
+      "value": 46.9,
+      "units": "mph",
+      "baselineValue": 22,
+      "deviationScore": 1.38,
+      "location": {
+        "latitude": 28.197297,
+        "longitude": -82.698801,
+        "county": "pasco",
+        "placeName": "Trinity"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0066",
+      "createdAt": "2025-09-16T02:47:26Z"
+    },
+    {
+      "signalId": "WHS-0067",
+      "hazardConcept": "storm_surge",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "storm_surge_height",
+      "value": 3.1,
+      "units": "ft",
+      "baselineValue": 0.3,
+      "deviationScore": 3.5,
+      "location": {
+        "latitude": 28.224601,
+        "longitude": -82.310209,
+        "county": "pasco",
+        "placeName": "Wesley Chapel"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0067",
+      "createdAt": "2025-09-19T19:03:06Z"
+    },
+    {
+      "signalId": "WHS-0068",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "warning",
+      "severity": "critical",
+      "measurementType": "rainfall_rate",
+      "value": 2.61,
+      "units": "in_hr",
+      "baselineValue": 0.15,
+      "deviationScore": 7.03,
+      "location": {
+        "latitude": 28.226229,
+        "longitude": -82.470688,
+        "county": "pasco",
+        "placeName": "Land O' Lakes"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0068",
+      "createdAt": "2025-09-16T19:17:31Z"
+    },
+    {
+      "signalId": "WHS-0069",
+      "hazardConcept": "flood",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "rainfall_24h",
+      "value": 6.7,
+      "units": "in",
+      "baselineValue": 1.1,
+      "deviationScore": 3.11,
+      "location": {
+        "latitude": 28.238279,
+        "longitude": -82.175309,
+        "county": "pasco",
+        "placeName": "Zephyrhills"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0069",
+      "createdAt": "2025-09-16T01:33:02Z"
+    },
+    {
+      "signalId": "WHS-0070",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "tide_anomaly",
+      "value": 1.7,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 3.0,
+      "location": {
+        "latitude": 28.361469,
+        "longitude": -82.687994,
+        "county": "pasco",
+        "placeName": "Hudson"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0070",
+      "createdAt": "2025-09-15T05:41:18Z"
+    },
+    {
+      "signalId": "WHS-0071",
+      "hazardConcept": "storm_surge",
+      "hazardState": "warning",
+      "severity": "critical",
+      "measurementType": "tide_anomaly",
+      "value": 7.9,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 9.62,
+      "location": {
+        "latitude": 28.238887,
+        "longitude": -82.316643,
+        "county": "pasco",
+        "placeName": "Wesley Chapel"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0071",
+      "createdAt": "2025-09-18T06:46:12Z"
+    },
+    {
+      "signalId": "WHS-0072",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "moderate",
+      "measurementType": "rainfall_24h",
+      "value": 3.5,
+      "units": "in",
+      "baselineValue": 1.1,
+      "deviationScore": 1.33,
+      "location": {
+        "latitude": 28.243585,
+        "longitude": -82.346728,
+        "county": "pasco",
+        "placeName": "Wesley Chapel"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0072",
+      "createdAt": "2025-09-19T08:06:35Z"
+    },
+    {
+      "signalId": "WHS-0073",
+      "hazardConcept": "hurricane",
+      "hazardState": "warning",
+      "severity": "high",
+      "measurementType": "storm_track_distance",
+      "value": 55.5,
+      "units": "mi",
+      "baselineValue": 180,
+      "deviationScore": 3.56,
+      "location": {
+        "latitude": 28.206759,
+        "longitude": -82.755595,
+        "county": "pasco",
+        "placeName": "Holiday"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0073",
+      "createdAt": "2025-09-15T16:17:04Z"
+    },
+    {
+      "signalId": "WHS-0074",
+      "hazardConcept": "hurricane",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "pressure_drop",
+      "value": 18.9,
+      "units": "mb",
+      "baselineValue": 2,
+      "deviationScore": 3.38,
+      "location": {
+        "latitude": 28.190828,
+        "longitude": -82.720293,
+        "county": "pasco",
+        "placeName": "Holiday"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0074",
+      "createdAt": "2025-09-17T03:17:34Z"
+    },
+    {
+      "signalId": "WHS-0075",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "moderate",
+      "measurementType": "tide_anomaly",
+      "value": 1.1,
+      "units": "ft",
+      "baselineValue": 0.2,
+      "deviationScore": 1.8,
+      "location": {
+        "latitude": 28.251948,
+        "longitude": -82.319995,
+        "county": "pasco",
+        "placeName": "Wesley Chapel"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0075",
+      "createdAt": "2025-09-21T20:09:44Z"
+    },
+    {
+      "signalId": "WHS-0076",
+      "hazardConcept": "flood",
+      "hazardState": "watch",
+      "severity": "high",
+      "measurementType": "rainfall_24h",
+      "value": 7.9,
+      "units": "in",
+      "baselineValue": 1.1,
+      "deviationScore": 3.78,
+      "location": {
+        "latitude": 28.201268,
+        "longitude": -82.727184,
+        "county": "pasco",
+        "placeName": "Holiday"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0076",
+      "createdAt": "2025-09-16T02:17:21Z"
+    },
+    {
+      "signalId": "WHS-0077",
+      "hazardConcept": "flood",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "water_level",
+      "value": 6.2,
+      "units": "ft",
+      "baselineValue": 2.1,
+      "deviationScore": 2.28,
+      "location": {
+        "latitude": 28.222352,
+        "longitude": -82.180142,
+        "county": "pasco",
+        "placeName": "Zephyrhills"
+      },
+      "provider": "nws_adapter",
+      "sourceRecordId": "PWX0077",
+      "createdAt": "2025-09-19T03:15:11Z"
+    },
+    {
+      "signalId": "WHS-0078",
+      "hazardConcept": "high_wind",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "wind_gust",
+      "value": 81.5,
+      "units": "mph",
+      "baselineValue": 22,
+      "deviationScore": 3.31,
+      "location": {
+        "latitude": 28.222082,
+        "longitude": -82.341992,
+        "county": "pasco",
+        "placeName": "Wesley Chapel"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0078",
+      "createdAt": "2025-09-15T21:07:34Z"
+    },
+    {
+      "signalId": "WHS-0079",
+      "hazardConcept": "heavy_rain",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "rainfall_6h",
+      "value": 3.8,
+      "units": "in",
+      "baselineValue": 0.8,
+      "deviationScore": 2.73,
+      "location": {
+        "latitude": 28.333624,
+        "longitude": -82.290759,
+        "county": "pasco",
+        "placeName": "San Antonio"
+      },
+      "provider": "county_weather",
+      "sourceRecordId": "PWX0079",
+      "createdAt": "2025-09-20T07:14:49Z"
+    },
+    {
+      "signalId": "WHS-0080",
+      "hazardConcept": "hurricane",
+      "hazardState": "observed",
+      "severity": "high",
+      "measurementType": "storm_track_distance",
+      "value": 94.0,
+      "units": "mi",
+      "baselineValue": 180,
+      "deviationScore": 2.46,
+      "location": {
+        "latitude": 28.189267,
+        "longitude": -82.570632,
+        "county": "pasco",
+        "placeName": "Odessa"
+      },
+      "provider": "noaa_feed",
+      "sourceRecordId": "PWX0080",
+      "createdAt": "2025-09-17T17:01:21Z"
     }
-  ]
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "generatedAt": "2026-03-31T12:00:00Z",
+    "generationNote": "Compact Tampa Bay weather and hazard signal seed dataset for disaster route-access analysis.",
+    "recordCount": 80
+  }
 }

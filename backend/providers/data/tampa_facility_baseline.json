@@ -1,94 +1,1317 @@
 {
-  "meta": {
-    "dataset": "tampa_facility_baseline",
-    "version": "0.1.0",
-    "placeholder": true,
-    "note": "Replace placeholder records with validated local facility baseline data before production use."
-  },
   "facilities": [
     {
-      "facilityId": "fuel-hillsborough-placeholder-001",
+      "facilityId": "FAC-0001",
       "facilityType": "fuel",
-      "name": "Placeholder Fuel - Hillsborough",
+      "name": "BP Dale Mabry",
       "location": {
-        "latitude": 27.9900,
-        "longitude": -82.3010,
+        "latitude": 28.027303,
+        "longitude": -82.399549,
         "county": "hillsborough",
-        "placeName": "Hillsborough County Placeholder"
+        "placeName": "Temple Terrace"
       },
       "source": {
-        "provider": "placeholder_seed_tampa_facilities"
+        "provider": "osm",
+        "sourceRecordId": "SRC-460663"
       }
     },
     {
-      "facilityId": "grocery-hillsborough-placeholder-001",
-      "facilityType": "grocery",
-      "name": "Placeholder Grocery - Hillsborough",
+      "facilityId": "FAC-0002",
+      "facilityType": "fuel",
+      "name": "Sunoco Ulmerton Rd",
       "location": {
-        "latitude": 27.9500,
-        "longitude": -82.4570,
+        "latitude": 27.96967,
+        "longitude": -82.436496,
         "county": "hillsborough",
-        "placeName": "Tampa Placeholder"
+        "placeName": "Ybor City"
       },
       "source": {
-        "provider": "placeholder_seed_tampa_facilities"
+        "provider": "poi"
       }
     },
     {
-      "facilityId": "fuel-pinellas-placeholder-001",
+      "facilityId": "FAC-0003",
       "facilityType": "fuel",
-      "name": "Placeholder Fuel - Pinellas",
+      "name": "Circle K Ybor City North",
       "location": {
-        "latitude": 27.8764,
-        "longitude": -82.7779,
-        "county": "pinellas",
-        "placeName": "Pinellas County Placeholder"
+        "latitude": 27.967205,
+        "longitude": -82.42797,
+        "county": "hillsborough",
+        "placeName": "Ybor City"
       },
       "source": {
-        "provider": "placeholder_seed_tampa_facilities"
+        "provider": "poi"
       }
     },
     {
-      "facilityId": "grocery-pinellas-placeholder-001",
+      "facilityId": "FAC-0004",
       "facilityType": "grocery",
-      "name": "Placeholder Grocery - Pinellas",
+      "name": "Target Grocery Apollo Beach",
       "location": {
-        "latitude": 27.7676,
-        "longitude": -82.6403,
-        "county": "pinellas",
-        "placeName": "St. Petersburg Placeholder"
+        "latitude": 27.768427,
+        "longitude": -82.418058,
+        "county": "hillsborough",
+        "placeName": "Apollo Beach"
       },
       "source": {
-        "provider": "placeholder_seed_tampa_facilities"
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-497887"
       }
     },
     {
-      "facilityId": "fuel-pasco-placeholder-001",
+      "facilityId": "FAC-0005",
+      "facilityType": "grocery",
+      "name": "Publix US 41",
+      "location": {
+        "latitude": 27.940506,
+        "longitude": -82.463526,
+        "county": "hillsborough",
+        "placeName": "Downtown Tampa"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-169403"
+      }
+    },
+    {
+      "facilityId": "FAC-0006",
+      "facilityType": "grocery",
+      "name": "Bravo Supermarket SR 60",
+      "location": {
+        "latitude": 28.024955,
+        "longitude": -82.389328,
+        "county": "hillsborough",
+        "placeName": "Temple Terrace"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0007",
+      "facilityType": "grocery",
+      "name": "Winn-Dixie Sun City Center South",
+      "location": {
+        "latitude": 27.732422,
+        "longitude": -82.355422,
+        "county": "hillsborough",
+        "placeName": "Sun City Center"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0008",
       "facilityType": "fuel",
-      "name": "Placeholder Fuel - Pasco",
+      "name": "Sunoco Plant City West",
       "location": {
-        "latitude": 28.2919,
-        "longitude": -82.6901,
-        "county": "pasco",
-        "placeName": "Pasco County Placeholder"
+        "latitude": 28.023188,
+        "longitude": -82.101785,
+        "county": "hillsborough",
+        "placeName": "Plant City"
       },
       "source": {
-        "provider": "placeholder_seed_tampa_facilities"
+        "provider": "state_poi"
       }
     },
     {
-      "facilityId": "grocery-pasco-placeholder-001",
+      "facilityId": "FAC-0009",
       "facilityType": "grocery",
-      "name": "Placeholder Grocery - Pasco",
+      "name": "Sprouts Farmers Market Tampa",
       "location": {
-        "latitude": 28.2442,
-        "longitude": -82.7193,
-        "county": "pasco",
-        "placeName": "New Port Richey Placeholder"
+        "latitude": 27.95709,
+        "longitude": -82.471076,
+        "county": "hillsborough",
+        "placeName": "Tampa"
       },
       "source": {
-        "provider": "placeholder_seed_tampa_facilities"
+        "provider": "poi",
+        "sourceRecordId": "SRC-575763",
+        "sourceUrl": "https://data.example.org/records/857168"
+      }
+    },
+    {
+      "facilityId": "FAC-0010",
+      "facilityType": "grocery",
+      "name": "Sprouts Farmers Market Westchase",
+      "location": {
+        "latitude": 28.072388,
+        "longitude": -82.605369,
+        "county": "hillsborough",
+        "placeName": "Westchase"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-269396"
+      }
+    },
+    {
+      "facilityId": "FAC-0011",
+      "facilityType": "fuel",
+      "name": "7-Eleven Fuel Bruce B Downs",
+      "location": {
+        "latitude": 28.160366,
+        "longitude": -82.349838,
+        "county": "hillsborough",
+        "placeName": "New Tampa"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-352572"
+      }
+    },
+    {
+      "facilityId": "FAC-0012",
+      "facilityType": "fuel",
+      "name": "Circle K Brandon",
+      "location": {
+        "latitude": 27.922884,
+        "longitude": -82.286404,
+        "county": "hillsborough",
+        "placeName": "Brandon"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0013",
+      "facilityType": "fuel",
+      "name": "Sunoco Apollo Beach",
+      "location": {
+        "latitude": 27.764642,
+        "longitude": -82.394192,
+        "county": "hillsborough",
+        "placeName": "Apollo Beach"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-804314"
+      }
+    },
+    {
+      "facilityId": "FAC-0014",
+      "facilityType": "grocery",
+      "name": "Winn-Dixie Gulf to Bay Blvd",
+      "location": {
+        "latitude": 27.998286,
+        "longitude": -82.277346,
+        "county": "hillsborough",
+        "placeName": "Seffner"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0015",
+      "facilityType": "fuel",
+      "name": "Wawa US 41",
+      "location": {
+        "latitude": 27.972659,
+        "longitude": -82.569818,
+        "county": "hillsborough",
+        "placeName": "Town 'N' Country"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-349565"
+      }
+    },
+    {
+      "facilityId": "FAC-0016",
+      "facilityType": "grocery",
+      "name": "Fresco y M\u00e1s Valrico South",
+      "location": {
+        "latitude": 27.930313,
+        "longitude": -82.254737,
+        "county": "hillsborough",
+        "placeName": "Valrico"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-201639"
+      }
+    },
+    {
+      "facilityId": "FAC-0017",
+      "facilityType": "grocery",
+      "name": "Publix Carrollwood",
+      "location": {
+        "latitude": 28.044749,
+        "longitude": -82.502387,
+        "county": "hillsborough",
+        "placeName": "Carrollwood"
+      },
+      "source": {
+        "provider": "state_poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0018",
+      "facilityType": "fuel",
+      "name": "7-Eleven Fuel I-275",
+      "location": {
+        "latitude": 27.857052,
+        "longitude": -82.337652,
+        "county": "hillsborough",
+        "placeName": "Riverview"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0019",
+      "facilityType": "grocery",
+      "name": "Sprouts Farmers Market US 19",
+      "location": {
+        "latitude": 27.935753,
+        "longitude": -82.272891,
+        "county": "hillsborough",
+        "placeName": "Brandon"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0020",
+      "facilityType": "fuel",
+      "name": "Sunoco Apollo Beach South",
+      "location": {
+        "latitude": 27.769731,
+        "longitude": -82.408271,
+        "county": "hillsborough",
+        "placeName": "Apollo Beach"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0021",
+      "facilityType": "grocery",
+      "name": "Sprouts Farmers Market Seffner",
+      "location": {
+        "latitude": 27.976169,
+        "longitude": -82.268523,
+        "county": "hillsborough",
+        "placeName": "Seffner"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-161324"
+      }
+    },
+    {
+      "facilityId": "FAC-0022",
+      "facilityType": "fuel",
+      "name": "Wawa Downtown Tampa",
+      "location": {
+        "latitude": 27.934794,
+        "longitude": -82.46391,
+        "county": "hillsborough",
+        "placeName": "Downtown Tampa"
+      },
+      "source": {
+        "provider": "osm",
+        "sourceUrl": "https://data.example.org/records/294851"
+      }
+    },
+    {
+      "facilityId": "FAC-0023",
+      "facilityType": "fuel",
+      "name": "Chevron Gulf Blvd",
+      "location": {
+        "latitude": 27.941221,
+        "longitude": -82.279592,
+        "county": "hillsborough",
+        "placeName": "Brandon"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0024",
+      "facilityType": "fuel",
+      "name": "BP Dale Mabry",
+      "location": {
+        "latitude": 28.138689,
+        "longitude": -82.362012,
+        "county": "hillsborough",
+        "placeName": "New Tampa"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0025",
+      "facilityType": "grocery",
+      "name": "Publix SR 54",
+      "location": {
+        "latitude": 28.050745,
+        "longitude": -82.373614,
+        "county": "hillsborough",
+        "placeName": "Temple Terrace"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0026",
+      "facilityType": "grocery",
+      "name": "Winn-Dixie I-275",
+      "location": {
+        "latitude": 28.034197,
+        "longitude": -82.098589,
+        "county": "hillsborough",
+        "placeName": "Plant City"
+      },
+      "source": {
+        "provider": "state_poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0027",
+      "facilityType": "grocery",
+      "name": "Target Grocery New Tampa",
+      "location": {
+        "latitude": 28.127582,
+        "longitude": -82.341984,
+        "county": "hillsborough",
+        "placeName": "New Tampa"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-212235"
+      }
+    },
+    {
+      "facilityId": "FAC-0028",
+      "facilityType": "fuel",
+      "name": "BP Park Blvd",
+      "location": {
+        "latitude": 28.010405,
+        "longitude": -82.108526,
+        "county": "hillsborough",
+        "placeName": "Plant City"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-987204",
+        "sourceUrl": "https://data.example.org/records/765095"
+      }
+    },
+    {
+      "facilityId": "FAC-0029",
+      "facilityType": "grocery",
+      "name": "Save A Lot Sun City Center",
+      "location": {
+        "latitude": 27.729957,
+        "longitude": -82.368213,
+        "county": "hillsborough",
+        "placeName": "Sun City Center"
+      },
+      "source": {
+        "provider": "state_poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0030",
+      "facilityType": "fuel",
+      "name": "Shell Bruce B Downs",
+      "location": {
+        "latitude": 27.936627,
+        "longitude": -82.441178,
+        "county": "hillsborough",
+        "placeName": "Tampa"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-143860"
+      }
+    },
+    {
+      "facilityId": "FAC-0031",
+      "facilityType": "grocery",
+      "name": "Winn-Dixie Ybor City East",
+      "location": {
+        "latitude": 27.975761,
+        "longitude": -82.448237,
+        "county": "hillsborough",
+        "placeName": "Ybor City"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0032",
+      "facilityType": "fuel",
+      "name": "Sunoco Gulf to Bay Blvd",
+      "location": {
+        "latitude": 27.790243,
+        "longitude": -82.396412,
+        "county": "hillsborough",
+        "placeName": "Apollo Beach"
+      },
+      "source": {
+        "provider": "state_poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0033",
+      "facilityType": "fuel",
+      "name": "Circle K US 41",
+      "location": {
+        "latitude": 27.982005,
+        "longitude": -82.566955,
+        "county": "hillsborough",
+        "placeName": "Town 'N' Country"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-956253"
+      }
+    },
+    {
+      "facilityId": "FAC-0034",
+      "facilityType": "fuel",
+      "name": "Chevron I-4",
+      "location": {
+        "latitude": 28.040487,
+        "longitude": -82.490568,
+        "county": "hillsborough",
+        "placeName": "Carrollwood"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-172792"
+      }
+    },
+    {
+      "facilityId": "FAC-0035",
+      "facilityType": "fuel",
+      "name": "Murphy USA US 19",
+      "location": {
+        "latitude": 28.050041,
+        "longitude": -82.614461,
+        "county": "hillsborough",
+        "placeName": "Westchase"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0036",
+      "facilityType": "grocery",
+      "name": "Save A Lot Ulmerton Rd",
+      "location": {
+        "latitude": 28.005199,
+        "longitude": -82.683427,
+        "county": "pinellas",
+        "placeName": "Safety Harbor"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-797229"
+      }
+    },
+    {
+      "facilityId": "FAC-0037",
+      "facilityType": "fuel",
+      "name": "Murphy USA Seminole East",
+      "location": {
+        "latitude": 27.842934,
+        "longitude": -82.796773,
+        "county": "pinellas",
+        "placeName": "Seminole"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-708158"
+      }
+    },
+    {
+      "facilityId": "FAC-0038",
+      "facilityType": "grocery",
+      "name": "Winn-Dixie I-275",
+      "location": {
+        "latitude": 27.72432,
+        "longitude": -82.74282,
+        "county": "pinellas",
+        "placeName": "St. Pete Beach"
+      },
+      "source": {
+        "provider": "osm",
+        "sourceRecordId": "SRC-796101"
+      }
+    },
+    {
+      "facilityId": "FAC-0039",
+      "facilityType": "fuel",
+      "name": "Chevron St. Pete Beach",
+      "location": {
+        "latitude": 27.713915,
+        "longitude": -82.728544,
+        "county": "pinellas",
+        "placeName": "St. Pete Beach"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-356736"
+      }
+    },
+    {
+      "facilityId": "FAC-0040",
+      "facilityType": "fuel",
+      "name": "Chevron Clearwater West",
+      "location": {
+        "latitude": 27.964652,
+        "longitude": -82.789288,
+        "county": "pinellas",
+        "placeName": "Clearwater"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-787926"
+      }
+    },
+    {
+      "facilityId": "FAC-0041",
+      "facilityType": "grocery",
+      "name": "Sprouts Farmers Market Gulf Blvd",
+      "location": {
+        "latitude": 27.917296,
+        "longitude": -82.795172,
+        "county": "pinellas",
+        "placeName": "Largo"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0042",
+      "facilityType": "fuel",
+      "name": "Murphy USA Big Bend Rd",
+      "location": {
+        "latitude": 27.737901,
+        "longitude": -82.73024,
+        "county": "pinellas",
+        "placeName": "St. Pete Beach"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0043",
+      "facilityType": "fuel",
+      "name": "RaceTrac Dunedin Central",
+      "location": {
+        "latitude": 28.02695,
+        "longitude": -82.761784,
+        "county": "pinellas",
+        "placeName": "Dunedin"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-181247"
+      }
+    },
+    {
+      "facilityId": "FAC-0044",
+      "facilityType": "grocery",
+      "name": "Sprouts Farmers Market SR 60",
+      "location": {
+        "latitude": 28.139708,
+        "longitude": -82.761848,
+        "county": "pinellas",
+        "placeName": "Tarpon Springs"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-260227"
+      }
+    },
+    {
+      "facilityId": "FAC-0045",
+      "facilityType": "grocery",
+      "name": "Bravo Supermarket I-4",
+      "location": {
+        "latitude": 27.963516,
+        "longitude": -82.804835,
+        "county": "pinellas",
+        "placeName": "Clearwater"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-907189"
+      }
+    },
+    {
+      "facilityId": "FAC-0046",
+      "facilityType": "fuel",
+      "name": "Sunoco Bruce B Downs",
+      "location": {
+        "latitude": 27.777588,
+        "longitude": -82.632863,
+        "county": "pinellas",
+        "placeName": "St. Petersburg"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0047",
+      "facilityType": "fuel",
+      "name": "Chevron Park Blvd",
+      "location": {
+        "latitude": 27.74947,
+        "longitude": -82.69683,
+        "county": "pinellas",
+        "placeName": "Gulfport"
+      },
+      "source": {
+        "provider": "state_poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0048",
+      "facilityType": "grocery",
+      "name": "ALDI Indian Rocks Beach",
+      "location": {
+        "latitude": 27.900977,
+        "longitude": -82.836766,
+        "county": "pinellas",
+        "placeName": "Indian Rocks Beach"
+      },
+      "source": {
+        "provider": "state_poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0049",
+      "facilityType": "grocery",
+      "name": "Bravo Supermarket Park Blvd",
+      "location": {
+        "latitude": 27.969897,
+        "longitude": -82.8103,
+        "county": "pinellas",
+        "placeName": "Clearwater"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-576786"
+      }
+    },
+    {
+      "facilityId": "FAC-0050",
+      "facilityType": "fuel",
+      "name": "Sunoco US 301",
+      "location": {
+        "latitude": 27.888491,
+        "longitude": -82.833666,
+        "county": "pinellas",
+        "placeName": "Indian Rocks Beach"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-665621",
+        "sourceUrl": "https://data.example.org/records/466960"
+      }
+    },
+    {
+      "facilityId": "FAC-0051",
+      "facilityType": "grocery",
+      "name": "Publix Tarpon Springs",
+      "location": {
+        "latitude": 28.150304,
+        "longitude": -82.748925,
+        "county": "pinellas",
+        "placeName": "Tarpon Springs"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0052",
+      "facilityType": "fuel",
+      "name": "Chevron Park Blvd",
+      "location": {
+        "latitude": 27.820545,
+        "longitude": -82.718309,
+        "county": "pinellas",
+        "placeName": "Kenneth City"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-736745"
+      }
+    },
+    {
+      "facilityId": "FAC-0053",
+      "facilityType": "fuel",
+      "name": "RaceTrac US 19",
+      "location": {
+        "latitude": 27.917278,
+        "longitude": -82.796715,
+        "county": "pinellas",
+        "placeName": "Largo"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0054",
+      "facilityType": "grocery",
+      "name": "Walmart Neighborhood Market Indian Rocks Beach",
+      "location": {
+        "latitude": 27.891806,
+        "longitude": -82.84028,
+        "county": "pinellas",
+        "placeName": "Indian Rocks Beach"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0055",
+      "facilityType": "grocery",
+      "name": "Publix Nebraska Ave",
+      "location": {
+        "latitude": 27.917794,
+        "longitude": -82.785454,
+        "county": "pinellas",
+        "placeName": "Largo"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-778998"
+      }
+    },
+    {
+      "facilityId": "FAC-0056",
+      "facilityType": "grocery",
+      "name": "Save A Lot Gulfport",
+      "location": {
+        "latitude": 27.757425,
+        "longitude": -82.714445,
+        "county": "pinellas",
+        "placeName": "Gulfport"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-647091"
+      }
+    },
+    {
+      "facilityId": "FAC-0057",
+      "facilityType": "grocery",
+      "name": "Bravo Supermarket Park Blvd",
+      "location": {
+        "latitude": 28.023146,
+        "longitude": -82.759551,
+        "county": "pinellas",
+        "placeName": "Dunedin"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0058",
+      "facilityType": "fuel",
+      "name": "7-Eleven Fuel Clearwater West",
+      "location": {
+        "latitude": 27.95971,
+        "longitude": -82.801478,
+        "county": "pinellas",
+        "placeName": "Clearwater"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0059",
+      "facilityType": "fuel",
+      "name": "BP Park Blvd",
+      "location": {
+        "latitude": 27.807739,
+        "longitude": -82.711761,
+        "county": "pinellas",
+        "placeName": "Kenneth City"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0060",
+      "facilityType": "fuel",
+      "name": "Chevron Tarpon Springs West",
+      "location": {
+        "latitude": 28.152262,
+        "longitude": -82.75712,
+        "county": "pinellas",
+        "placeName": "Tarpon Springs"
+      },
+      "source": {
+        "provider": "osm",
+        "sourceRecordId": "SRC-332360"
+      }
+    },
+    {
+      "facilityId": "FAC-0061",
+      "facilityType": "grocery",
+      "name": "Bravo Supermarket Tarpon Springs East",
+      "location": {
+        "latitude": 28.140674,
+        "longitude": -82.754516,
+        "county": "pinellas",
+        "placeName": "Tarpon Springs"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-575786"
+      }
+    },
+    {
+      "facilityId": "FAC-0062",
+      "facilityType": "fuel",
+      "name": "BP I-275",
+      "location": {
+        "latitude": 28.012355,
+        "longitude": -82.765104,
+        "county": "pinellas",
+        "placeName": "Dunedin"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-607719"
+      }
+    },
+    {
+      "facilityId": "FAC-0063",
+      "facilityType": "fuel",
+      "name": "RaceTrac I-275",
+      "location": {
+        "latitude": 28.018454,
+        "longitude": -82.678786,
+        "county": "pinellas",
+        "placeName": "Safety Harbor"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-660081",
+        "sourceUrl": "https://data.example.org/records/147726"
+      }
+    },
+    {
+      "facilityId": "FAC-0064",
+      "facilityType": "fuel",
+      "name": "Shell Downtown St. Petersburg",
+      "location": {
+        "latitude": 27.774594,
+        "longitude": -82.633872,
+        "county": "pinellas",
+        "placeName": "Downtown St. Petersburg"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0065",
+      "facilityType": "grocery",
+      "name": "Target Grocery South Pasadena",
+      "location": {
+        "latitude": 27.75334,
+        "longitude": -82.724566,
+        "county": "pinellas",
+        "placeName": "South Pasadena"
+      },
+      "source": {
+        "provider": "osm",
+        "sourceRecordId": "SRC-177680"
+      }
+    },
+    {
+      "facilityId": "FAC-0066",
+      "facilityType": "fuel",
+      "name": "Chevron Zephyrhills",
+      "location": {
+        "latitude": 28.250164,
+        "longitude": -82.195628,
+        "county": "pasco",
+        "placeName": "Zephyrhills"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-678805",
+        "sourceUrl": "https://data.example.org/records/102805"
+      }
+    },
+    {
+      "facilityId": "FAC-0067",
+      "facilityType": "fuel",
+      "name": "RaceTrac Ulmerton Rd",
+      "location": {
+        "latitude": 28.217118,
+        "longitude": -82.454223,
+        "county": "pasco",
+        "placeName": "Land O' Lakes"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0068",
+      "facilityType": "grocery",
+      "name": "Fresco y M\u00e1s San Antonio South",
+      "location": {
+        "latitude": 28.328203,
+        "longitude": -82.283276,
+        "county": "pasco",
+        "placeName": "San Antonio"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0069",
+      "facilityType": "fuel",
+      "name": "Shell Trinity Central",
+      "location": {
+        "latitude": 28.192359,
+        "longitude": -82.697229,
+        "county": "pasco",
+        "placeName": "Trinity"
+      },
+      "source": {
+        "provider": "state_poi",
+        "sourceRecordId": "SRC-822131"
+      }
+    },
+    {
+      "facilityId": "FAC-0070",
+      "facilityType": "grocery",
+      "name": "Bravo Supermarket US 41",
+      "location": {
+        "latitude": 28.234836,
+        "longitude": -82.457583,
+        "county": "pasco",
+        "placeName": "Land O' Lakes"
+      },
+      "source": {
+        "provider": "state_poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0071",
+      "facilityType": "grocery",
+      "name": "Fresco y M\u00e1s New Port Richey North",
+      "location": {
+        "latitude": 28.229488,
+        "longitude": -82.702671,
+        "county": "pasco",
+        "placeName": "New Port Richey"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0072",
+      "facilityType": "fuel",
+      "name": "Shell Dade City West",
+      "location": {
+        "latitude": 28.370154,
+        "longitude": -82.180921,
+        "county": "pasco",
+        "placeName": "Dade City"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0073",
+      "facilityType": "grocery",
+      "name": "Save A Lot Linebaugh Ave",
+      "location": {
+        "latitude": 28.245825,
+        "longitude": -82.315022,
+        "county": "pasco",
+        "placeName": "Wesley Chapel"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0074",
+      "facilityType": "fuel",
+      "name": "RaceTrac Dale Mabry",
+      "location": {
+        "latitude": 28.348021,
+        "longitude": -82.21073,
+        "county": "pasco",
+        "placeName": "Dade City"
+      },
+      "source": {
+        "provider": "osm"
+      }
+    },
+    {
+      "facilityId": "FAC-0075",
+      "facilityType": "fuel",
+      "name": "7-Eleven Fuel Land O' Lakes",
+      "location": {
+        "latitude": 28.202851,
+        "longitude": -82.456936,
+        "county": "pasco",
+        "placeName": "Land O' Lakes"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0076",
+      "facilityType": "grocery",
+      "name": "Publix Odessa",
+      "location": {
+        "latitude": 28.19701,
+        "longitude": -82.55815,
+        "county": "pasco",
+        "placeName": "Odessa"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-114338"
+      }
+    },
+    {
+      "facilityId": "FAC-0077",
+      "facilityType": "grocery",
+      "name": "Walmart Neighborhood Market SR 54",
+      "location": {
+        "latitude": 28.261789,
+        "longitude": -82.707209,
+        "county": "pasco",
+        "placeName": "Port Richey"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0078",
+      "facilityType": "fuel",
+      "name": "7-Eleven Fuel Dade City South",
+      "location": {
+        "latitude": 28.372095,
+        "longitude": -82.198942,
+        "county": "pasco",
+        "placeName": "Dade City"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-728492"
+      }
+    },
+    {
+      "facilityId": "FAC-0079",
+      "facilityType": "grocery",
+      "name": "The Fresh Market Kennedy Blvd",
+      "location": {
+        "latitude": 28.377805,
+        "longitude": -82.701755,
+        "county": "pasco",
+        "placeName": "Hudson"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0080",
+      "facilityType": "grocery",
+      "name": "Bravo Supermarket Trinity West",
+      "location": {
+        "latitude": 28.192749,
+        "longitude": -82.678923,
+        "county": "pasco",
+        "placeName": "Trinity"
+      },
+      "source": {
+        "provider": "poi",
+        "sourceRecordId": "SRC-899929"
+      }
+    },
+    {
+      "facilityId": "FAC-0081",
+      "facilityType": "fuel",
+      "name": "Chevron Odessa South",
+      "location": {
+        "latitude": 28.198883,
+        "longitude": -82.544294,
+        "county": "pasco",
+        "placeName": "Odessa"
+      },
+      "source": {
+        "provider": "osm",
+        "sourceRecordId": "SRC-595951"
+      }
+    },
+    {
+      "facilityId": "FAC-0082",
+      "facilityType": "fuel",
+      "name": "Shell US 41",
+      "location": {
+        "latitude": 28.214799,
+        "longitude": -82.451707,
+        "county": "pasco",
+        "placeName": "Land O' Lakes"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0083",
+      "facilityType": "fuel",
+      "name": "Murphy USA Port Richey",
+      "location": {
+        "latitude": 28.285171,
+        "longitude": -82.721649,
+        "county": "pasco",
+        "placeName": "Port Richey"
+      },
+      "source": {
+        "provider": "state_poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0084",
+      "facilityType": "fuel",
+      "name": "BP Port Richey",
+      "location": {
+        "latitude": 28.270602,
+        "longitude": -82.702609,
+        "county": "pasco",
+        "placeName": "Port Richey"
+      },
+      "source": {
+        "provider": "poi"
+      }
+    },
+    {
+      "facilityId": "FAC-0085",
+      "facilityType": "fuel",
+      "name": "7-Eleven Fuel Land O' Lakes",
+      "location": {
+        "latitude": 28.235249,
+        "longitude": -82.453035,
+        "county": "pasco",
+        "placeName": "Land O' Lakes"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0086",
+      "facilityType": "grocery",
+      "name": "Walmart Neighborhood Market Holiday North",
+      "location": {
+        "latitude": 28.196684,
+        "longitude": -82.741977,
+        "county": "pasco",
+        "placeName": "Holiday"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0087",
+      "facilityType": "grocery",
+      "name": "Save A Lot SR 60",
+      "location": {
+        "latitude": 28.237877,
+        "longitude": -82.73528,
+        "county": "pasco",
+        "placeName": "New Port Richey"
+      },
+      "source": {
+        "provider": "county_gis"
+      }
+    },
+    {
+      "facilityId": "FAC-0088",
+      "facilityType": "fuel",
+      "name": "Sunoco Hudson South",
+      "location": {
+        "latitude": 28.352819,
+        "longitude": -82.708857,
+        "county": "pasco",
+        "placeName": "Hudson"
+      },
+      "source": {
+        "provider": "county_gis",
+        "sourceRecordId": "SRC-768891"
+      }
+    },
+    {
+      "facilityId": "FAC-0089",
+      "facilityType": "fuel",
+      "name": "7-Eleven Fuel Trinity",
+      "location": {
+        "latitude": 28.186606,
+        "longitude": -82.667439,
+        "county": "pasco",
+        "placeName": "Trinity"
+      },
+      "source": {
+        "provider": "osm",
+        "sourceRecordId": "SRC-462351"
+      }
+    },
+    {
+      "facilityId": "FAC-0090",
+      "facilityType": "grocery",
+      "name": "Target Grocery Ulmerton Rd",
+      "location": {
+        "latitude": 28.185602,
+        "longitude": -82.684525,
+        "county": "pasco",
+        "placeName": "Trinity"
+      },
+      "source": {
+        "provider": "county_gis"
       }
     }
-  ]
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "generatedAt": "2026-03-31T12:00:00Z",
+    "generationNote": "Compact Tampa Bay facility seed dataset for disaster route-access analysis.",
+    "recordCount": 90
+  }
 }

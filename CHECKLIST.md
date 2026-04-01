@@ -56,8 +56,8 @@ Use this checklist when working on the project to ensure quality and consistency
 ### Code Quality
 - [ ] Use logger instead of print statements
 - [ ] Add error handling for external calls
-- [ ] Add TODO comments for incomplete logic
-- [ ] Prefer skeleton implementations over fake data
+- [ ] Add clear follow-up notes only when work is intentionally scoped
+- [ ] Prefer deterministic test fixtures and realistic seed data over throwaway placeholders
 - [ ] Reuse existing services/utilities
 - [ ] Follow existing file structure
 
