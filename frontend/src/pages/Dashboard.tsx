@@ -176,6 +176,8 @@ function Dashboard() {
           <DashboardSummaryPanel
             dashboardSummary={analysisResponse?.dashboard?.data || analysisResponse?.dashboardSummary || null}
           />
+
+          <PlanningContextPanel planningContext={analysisResponse?.planningContext || null} />
         </main>
 
         <aside className="operations-rail operations-right-rail">
@@ -184,7 +186,6 @@ function Dashboard() {
             cases={analysisResponse?.cases || []}
             events={analysisResponse?.events || []}
           />
-          <PlanningContextPanel planningContext={analysisResponse?.planningContext || null} />
         </aside>
       </div>
     </div>
