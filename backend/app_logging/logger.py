@@ -193,7 +193,7 @@ class TraceLogger:
     
     Usage:
     ```python
-    from backend.logging import TraceLogger
+    from backend.app_logging import TraceLogger
     
     trace = {"requestId": "req-123", "traceId": "trace-456"}
     logger = TraceLogger(__name__, trace)

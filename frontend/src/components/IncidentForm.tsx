@@ -6,6 +6,8 @@
 
 import { useState, FormEvent } from 'react';
 import type { IncidentInputData } from '../types/ui';
+import type { ContextGuideResponse } from '../types/incident';
+import { fetchIncidentContextGuide } from '../services/api';
 
 interface IncidentFormProps {
   onSubmit: (data: IncidentInputData) => void;
@@ -17,6 +19,9 @@ function IncidentForm({ onSubmit, isProcessing = false }: IncidentFormProps) {
   const [location, setLocation] = useState('');
   const [county, setCounty] = useState<'hillsborough' | 'pinellas' | 'pasco'>('hillsborough');
   const [enablePlanningContext, setEnablePlanningContext] = useState(false);
+  const [isGuideLoading, setIsGuideLoading] = useState(false);
+  const [guideError, setGuideError] = useState<string | null>(null);
+  const [guideResponse, setGuideResponse] = useState<ContextGuideResponse | null>(null);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -38,6 +43,42 @@ function IncidentForm({ onSubmit, isProcessing = false }: IncidentFormProps) {
     setLocation('');
     setCounty('hillsborough');
     setEnablePlanningContext(false);
+    setGuideError(null);
+    setGuideResponse(null);
+  };
+
+  const handleGenerateGuide = async () => {
+    const trimmedDescription = description.trim();
+    if (!trimmedDescription) {
+      setGuideError('Add incident description before generating AI context guidance.');
+      return;
+    }
+
+    setGuideError(null);
+    setIsGuideLoading(true);
+
+    try {
+      const response = await fetchIncidentContextGuide({
+        description: trimmedDescription,
+        location: location.trim() || undefined,
+        county,
+      });
+      setGuideResponse(response);
+
+      const suggestedCounty = response.guide?.suggestedCounty;
+      if (suggestedCounty === 'hillsborough' || suggestedCounty === 'pinellas' || suggestedCounty === 'pasco') {
+        setCounty(suggestedCounty);
+      }
+
+      if (response.guide?.enablePlanningContextRecommended === true) {
+        setEnablePlanningContext(true);
+      }
+    } catch (error) {
+      setGuideResponse(null);
+      setGuideError('Decision brief unavailable. Please verify the incident details and try again.');
+    } finally {
+      setIsGuideLoading(false);
+    }
   };
 
   return (
@@ -56,7 +97,7 @@ function IncidentForm({ onSubmit, isProcessing = false }: IncidentFormProps) {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the incident (e.g., 'Highway 101 bridge collapsed near San Francisco due to earthquake')"
+            placeholder="Describe the Tampa Bay incident (route blockage, fuel disruption, grocery access risk, flooding, etc.)"
             rows={4}
             disabled={isProcessing}
             required
@@ -103,6 +144,14 @@ function IncidentForm({ onSubmit, isProcessing = false }: IncidentFormProps) {
         </div>
 
         <div className="form-actions">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleGenerateGuide}
+            disabled={isProcessing || isGuideLoading}
+          >
+            {isGuideLoading ? 'Generating Guide...' : 'Generate AI Context Guide'}
+          </button>
           <button 
             type="submit" 
             className="btn btn-primary"
@@ -119,6 +168,51 @@ function IncidentForm({ onSubmit, isProcessing = false }: IncidentFormProps) {
             Clear
           </button>
         </div>
+
+        {guideError && (
+          <p className="helper-text" role="alert">
+            {guideError}
+          </p>
+        )}
+
+        {guideResponse && (
+          <div className="panel-subsection">
+            <h3>Incident Decision Brief</h3>
+            <p className="helper-text">
+              Deterministic incident-specific brief for route, fuel, and grocery continuity.
+            </p>
+            {guideResponse.guide?.decisionBrief?.incidentFocus && (
+              <p className="helper-text"><strong>Incident Focus:</strong> {guideResponse.guide.decisionBrief.incidentFocus}</p>
+            )}
+            {guideResponse.guide?.decisionBrief?.operationalObjective && (
+              <p className="helper-text"><strong>Operational Objective:</strong> {guideResponse.guide.decisionBrief.operationalObjective}</p>
+            )}
+            {guideResponse.guide?.extraContextPrompt && (
+              <p className="helper-text">{guideResponse.guide.extraContextPrompt}</p>
+            )}
+            {Array.isArray(guideResponse.guide?.decisionBrief?.immediateActions)
+              && guideResponse.guide.decisionBrief.immediateActions.length > 0 && (
+              <>
+                <h4>Immediate Actions</h4>
+                <ul>
+                  {guideResponse.guide.decisionBrief.immediateActions.map((item, idx) => (
+                    <li key={`brief-action-${idx}`}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {Array.isArray(guideResponse.guide?.operatorChecklist) && guideResponse.guide.operatorChecklist.length > 0 && (
+              <>
+                <h4>Verification Checklist</h4>
+                <ul>
+                  {guideResponse.guide.operatorChecklist.map((item, idx) => (
+                    <li key={`guide-item-${idx}`}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        )}
       </form>
     </div>
   );

@@ -97,6 +97,7 @@ class MapFeatureMapper:
                 'description': event.get('description', ''),
                 'severity': severity,
                 'status': event.get('status', 'active'),
+                'eventId': event.get('eventId'),
                 'color': color,
                 'icon': icon
             },
@@ -170,6 +171,7 @@ class MapFeatureMapper:
                 'description': f"Affected sectors: {', '.join(assessment.get('affectedSectors', [])[:3])}",
                 'severity': severity,
                 'status': 'assessed',
+                'eventId': assessment.get('eventId'),
                 'color': color,
                 'icon': 'alert-triangle'
             },
@@ -238,6 +240,7 @@ class MapFeatureMapper:
                 'description': alert.get('message', '')[:200],  # Truncate for map display
                 'priority': priority,
                 'status': alert.get('status', 'active'),
+                'eventId': alert.get('eventId'),
                 'color': color,
                 'icon': 'bell'
             },

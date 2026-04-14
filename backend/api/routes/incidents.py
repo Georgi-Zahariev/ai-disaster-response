@@ -13,6 +13,10 @@ Main endpoint: POST /api/incidents/analyze
 from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import Dict, Any
 from backend.api.controllers import process_incident_request
+from backend.api.controllers.incident_controller import (
+    get_data_mode_snapshot,
+    generate_incident_context_guide,
+)
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])
 
@@ -121,6 +125,28 @@ async def analyze_incident(
     
     # Delegate to controller (all business logic is in orchestrator)
     return await process_incident_request(request)
+
+
+@router.get("/readiness")
+async def get_readiness(sample_size: int = 3) -> Dict[str, Any]:
+    """Assess live-vs-staged provider health and extraction/LLM readiness."""
+    return get_data_mode_snapshot(sample_size=sample_size)
+
+
+@router.post("/context-guide")
+async def get_context_guide(request: Dict[str, Any]) -> Dict[str, Any]:
+    """Generate AI context guidance to help operators enrich incident submissions."""
+    description = request.get("description")
+    location = request.get("location")
+    county = request.get("county")
+    try:
+        return generate_incident_context_guide(
+            description=description,
+            location=location,
+            county=county,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail={"message": str(exc)}) from exc
 
 
 # ============================================================================

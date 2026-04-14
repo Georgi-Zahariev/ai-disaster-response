@@ -589,6 +589,131 @@ def get_facility_debug_snapshot(sample_size: int = 3) -> Dict[str, Any]:
     }
 
 
+def get_data_mode_snapshot(sample_size: int = 3) -> Dict[str, Any]:
+    """Return real-vs-staged data mode summary for demo readiness checks."""
+    weather = get_weather_debug_snapshot(sample_size=sample_size)
+    facilities = get_facility_debug_snapshot(sample_size=sample_size)
+
+    llm_provider = Config.DEFAULT_LLM_PROVIDER
+    llm_enabled = bool(
+        (llm_provider == "openai" and Config.OPENAI_API_KEY)
+        or (llm_provider == "anthropic" and Config.ANTHROPIC_API_KEY)
+    )
+
+    return {
+        "providers": {
+            "weather": {
+                "configuredMode": "real" if Config.USE_REAL_WEATHER_PROVIDER else "staged",
+                "effectiveSource": weather.get("source", "unknown"),
+                "fallbackUsed": bool(weather.get("fallbackUsed")),
+                "records": weather.get("count", 0),
+                "warnings": weather.get("warnings", []),
+            },
+            "facilities": {
+                "configuredMode": "real" if Config.USE_REAL_FACILITY_PROVIDER else "staged",
+                "effectiveSource": facilities.get("source", "unknown"),
+                "fallbackUsed": "seed" in [str(name).lower() for name in facilities.get("sourceNames", [])],
+                "records": facilities.get("count", 0),
+                "warnings": facilities.get("warnings", []),
+            },
+            "extraction": {
+                "textRealEnabled": Config.ENABLE_REAL_TEXT_EXTRACTION,
+                "visionRealEnabled": Config.ENABLE_REAL_VISION_EXTRACTION,
+                "quantRealEnabled": Config.ENABLE_REAL_QUANT_EXTRACTION,
+            },
+            "llm": {
+                "defaultProvider": llm_provider,
+                "enabled": llm_enabled,
+            },
+        }
+    }
+
+
+def _build_fallback_context_guide(description: str, location: Optional[str], county: Optional[str]) -> Dict[str, Any]:
+    """Deterministic context guidance when LLM is unavailable."""
+    text = description.lower()
+    suggested_county = county or "hillsborough"
+    planning = False
+    focus = ["route_clearance", "fuel_access"]
+
+    if "coast" in text or "storm" in text or "flood" in text:
+        suggested_county = county or "pinellas"
+        planning = True
+        focus.append("flood_risk")
+    if "bridge" in text or "highway" in text or "interstate" in text:
+        planning = True
+        focus.append("detour_management")
+
+    checklist = [
+        "Confirm exact blockage location and nearest major corridor.",
+        "Verify fuel and grocery access status within a 5-10 mile radius.",
+        "Identify detour feasibility and expected clearance window.",
+        "Coordinate county emergency operations updates for responder dispatch.",
+    ]
+
+    location_text = location.strip() if isinstance(location, str) else ""
+    guidance_location = location_text or "Tampa Bay"
+
+    incident_focus = "route access disruption"
+    if "flood" in text or "storm" in text or "surge" in text:
+        incident_focus = "flood-related corridor disruption"
+    elif "fuel" in text or "gas" in text:
+        incident_focus = "fuel-access disruption"
+    elif "grocery" in text or "store" in text or "market" in text:
+        incident_focus = "grocery-access disruption"
+
+    decision_brief = {
+        "incidentFocus": incident_focus,
+        "operationalObjective": (
+            "Maintain route, fuel, and grocery continuity for the selected Tampa Bay county "
+            "while confirming live evidence before escalation."
+        ),
+        "immediateActions": checklist[:3],
+        "mapFocus": {
+            "county": suggested_county,
+            "locationHint": guidance_location,
+        },
+        "evidenceChecklist": [
+            "Validate blockage status from live route/traffic observations.",
+            "Confirm nearest reachable fuel facilities.",
+            "Confirm nearest reachable grocery facilities.",
+        ],
+        "isDeterministic": True,
+    }
+
+    return {
+        "suggestedTitle": "Operational briefing starter",
+        "suggestedCounty": suggested_county,
+        "enablePlanningContextRecommended": planning,
+        "operatorChecklist": checklist,
+        "routingFocus": sorted(set(focus)),
+        "extraContextPrompt": (
+            f"Add road segment IDs, closure duration estimate, and responder constraints for {guidance_location}."
+        ),
+        "decisionBrief": decision_brief,
+    }
+
+
+def generate_incident_context_guide(
+    description: str,
+    location: Optional[str] = None,
+    county: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Generate deterministic, incident-specific context guidance for form enrichment."""
+    if not isinstance(description, str) or not description.strip():
+        raise ValueError("description is required")
+
+    mode = get_data_mode_snapshot(sample_size=1)
+    default_provider = Config.DEFAULT_LLM_PROVIDER
+    return {
+        "source": "fallback",
+        "aiEnabled": False,
+        "provider": default_provider,
+        "guide": _build_fallback_context_guide(description, location, county),
+        "dataModes": mode.get("providers", {}),
+    }
+
+
 def _attach_planning_context(request: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
     """Attach optional planning context as non-live enrichment in request['context']."""
     warnings: List[str] = []

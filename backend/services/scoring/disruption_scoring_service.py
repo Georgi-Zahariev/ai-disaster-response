@@ -13,7 +13,7 @@ from datetime import datetime, timezone, timedelta
 import uuid
 import math
 
-from backend.logging import get_logger
+from backend.app_logging import get_logger
 
 
 logger = get_logger(__name__)

@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.api.routes import incidents_router, alerts_router, dashboard_router, debug_router, facilities_router
 from backend.api.middleware.tracing import TracingMiddleware
 from backend.api.middleware.error_handler import error_handler_middleware
-from backend.logging import setup_logging, get_logger
+from backend.app_logging import setup_logging, get_logger
 
 # Setup logging
 setup_logging()

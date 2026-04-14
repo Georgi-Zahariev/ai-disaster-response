@@ -273,6 +273,7 @@ export interface MapFeatureProperties {
   severity?: string;
   priority?: string;
   status?: string;
+  eventId?: string;
   color?: string;
   icon?: string;
 }
@@ -610,6 +611,62 @@ export interface PlanningContextView {
     eventType: string;
     matches: Array<Record<string, any>>;
   }>;
+}
+
+export interface ProviderModeStatus {
+  configuredMode: 'real' | 'staged';
+  effectiveSource: string;
+  fallbackUsed: boolean;
+  records: number;
+  warnings: string[];
+}
+
+export interface ExtractionModeStatus {
+  textRealEnabled: boolean;
+  visionRealEnabled: boolean;
+  quantRealEnabled: boolean;
+}
+
+export interface LLMModeStatus {
+  defaultProvider: string;
+  enabled: boolean;
+}
+
+export interface ReadinessSnapshotResponse {
+  providers: {
+    weather: ProviderModeStatus;
+    facilities: ProviderModeStatus;
+    extraction: ExtractionModeStatus;
+    llm: LLMModeStatus;
+  };
+}
+
+export interface IncidentContextGuide {
+  suggestedTitle?: string;
+  suggestedCounty?: 'hillsborough' | 'pinellas' | 'pasco' | string;
+  enablePlanningContextRecommended?: boolean;
+  operatorChecklist?: string[];
+  routingFocus?: string[];
+  extraContextPrompt?: string;
+  decisionBrief?: {
+    incidentFocus?: string;
+    operationalObjective?: string;
+    immediateActions?: string[];
+    mapFocus?: {
+      county?: string;
+      locationHint?: string;
+    };
+    evidenceChecklist?: string[];
+    isDeterministic?: boolean;
+  };
+}
+
+export interface ContextGuideResponse {
+  source: 'llm' | 'fallback';
+  aiEnabled: boolean;
+  provider: string;
+  guide: IncidentContextGuide;
+  dataModes: ReadinessSnapshotResponse['providers'];
 }
 
 // ============================================================================

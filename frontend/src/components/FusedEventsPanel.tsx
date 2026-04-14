@@ -4,27 +4,22 @@
  * Displays detected events from multimodal signal fusion.
  */
 
-import type { FusedCase, FusedEvent } from '../types/incident';
+import type { FusedCase } from '../types/incident';
 
 interface FusedEventsPanelProps {
   cases?: FusedCase[];
-  events?: FusedEvent[];
+  selectedCaseId?: string | null;
+  onSelectCase?: (caseId: string) => void;
+  isProcessing?: boolean;
 }
 
-function FusedEventsPanel({ cases, events = [] }: FusedEventsPanelProps) {
-  const shouldUseLegacyFallback = !Array.isArray(cases);
-  const normalizedCases = shouldUseLegacyFallback ? events.map((event) => ({
-    caseId: event.eventId,
-    event,
-    assessment: {
-      recommendations: [],
-    },
-    routeTraffic: { routeIds: [], conceptCounts: {} },
-    weatherHazard: { conceptCounts: {}, stateCounts: {} },
-    facilities: { relatedFacilityIds: [], relatedFuelFacilityIds: [], relatedGroceryFacilityIds: [] },
-    planningContext: { requested: false, isLiveEvidence: false as const, matches: [] },
-    provenance: { sourceSignalIds: event.sourceSignalIds || [], evidenceRefs: [] },
-  })) : cases;
+function FusedEventsPanel({
+  cases = [],
+  selectedCaseId = null,
+  onSelectCase,
+  isProcessing = false,
+}: FusedEventsPanelProps) {
+  const normalizedCases = cases;
 
   const getSeverityClass = (severity: string) => {
     return `severity-${severity}`;
@@ -35,7 +30,7 @@ function FusedEventsPanel({ cases, events = [] }: FusedEventsPanelProps) {
     return date.toLocaleString();
   };
 
-  const getBestTimestamp = (event: FusedEvent): string => {
+  const getBestTimestamp = (event: FusedCase['event']): string => {
     return (
       event.timeReference?.timestamp
       || event.timeReference?.startTime
@@ -50,16 +45,25 @@ function FusedEventsPanel({ cases, events = [] }: FusedEventsPanelProps) {
     return text.length > max ? `${text.slice(0, max - 1)}...` : text;
   };
 
+  const toSortedWeatherEntries = (conceptCounts: Record<string, number> | undefined): Array<[string, number]> => {
+    if (!conceptCounts) {
+      return [];
+    }
+    return Object.entries(conceptCounts).sort(([a], [b]) => a.localeCompare(b));
+  };
+
   return (
     <div className="panel fused-events-panel">
       <h2>Fused Disruption Cases</h2>
-      <p className="panel-subtitle">Operational case view for corridor access, corroborating hazards, and impacted resources.</p>
+      <p className="panel-subtitle">Current disruptions, affected access corridors, and corroborating hazard evidence.</p>
+      {selectedCaseId && <p className="empty-state-hint">Focused incident: {selectedCaseId}</p>}
+      {isProcessing && <p className="empty-state-hint">Refreshing case fusion...</p>}
       
       {normalizedCases.length === 0 ? (
         <div className="empty-state">
           <p>No active disruption cases</p>
           <p className="empty-state-hint">
-            Route-access cases will appear after incident analysis
+            Cases appear after route, weather, and access signals are fused.
           </p>
         </div>
       ) : (
@@ -70,8 +74,21 @@ function FusedEventsPanel({ cases, events = [] }: FusedEventsPanelProps) {
               (sum, value) => sum + Number(value ?? 0),
               0,
             );
+            const isSelected = selectedCaseId === item.caseId;
             return (
-            <div key={event.eventId} className={`event-item ${getSeverityClass(event.severity)}`}>
+            <div
+              key={event.eventId}
+              className={`event-item ${getSeverityClass(event.severity)} ${isSelected ? 'selected-case' : ''}`}
+              onClick={() => onSelectCase?.(item.caseId)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectCase?.(item.caseId);
+                }
+              }}
+            >
               <div className="event-header">
                 <span className={`event-severity ${getSeverityClass(event.severity)}`}>
                   {event.severity.toUpperCase()}
@@ -83,10 +100,10 @@ function FusedEventsPanel({ cases, events = [] }: FusedEventsPanelProps) {
               <div className="event-description">{truncate(event.description || '')}</div>
               <div className="event-meta">
                 <div className="event-location">
-                  📍 {event.location.placeName || `${event.location.latitude}, ${event.location.longitude}`}
+                  Location: {event.location.placeName || `${event.location.latitude}, ${event.location.longitude}`}
                 </div>
                 <div className="event-time">
-                  🕒 {formatTimestamp(getBestTimestamp(event))}
+                  Updated: {formatTimestamp(getBestTimestamp(event))}
                 </div>
                 <div className="event-confidence">
                   Confidence: {(event.confidence * 100).toFixed(0)}%
@@ -111,7 +128,7 @@ function FusedEventsPanel({ cases, events = [] }: FusedEventsPanelProps) {
               {item.weatherHazard.conceptCounts && Object.keys(item.weatherHazard.conceptCounts).length > 0 && (
                 <div className="event-sectors">
                   <strong>Weather Evidence:</strong>{' '}
-                  {Object.entries(item.weatherHazard.conceptCounts)
+                  {toSortedWeatherEntries(item.weatherHazard.conceptCounts)
                     .map(([k, v]) => `${k} (${v})`)
                     .join(', ')}
                 </div>

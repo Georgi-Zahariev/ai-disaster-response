@@ -6,9 +6,11 @@
  */
 
 import type {
+  ContextGuideResponse,
   FacilitiesResponse,
   IncidentAnalysisRequest,
   IncidentAnalysisResponse,
+  ReadinessSnapshotResponse,
 } from '../types/incident';
 
 const API_BASE_URL = '/api';
@@ -99,6 +101,55 @@ export async function fetchFacilities(
 
   const data = await response.json();
   return data as FacilitiesResponse;
+}
+
+/**
+ * Fetch demo readiness snapshot for live-vs-staged data modes.
+ */
+export async function fetchReadinessSnapshot(
+  sampleSize = 2
+): Promise<ReadinessSnapshotResponse> {
+  const response = await fetch(`${API_BASE_URL}/incidents/readiness?sample_size=${sampleSize}`);
+
+  if (!response.ok) {
+    throw new APIError(
+      `Readiness request failed: ${response.status} ${response.statusText}`,
+      response.status
+    );
+  }
+
+  return await response.json() as ReadinessSnapshotResponse;
+}
+
+/**
+ * Request AI context guidance for incident form enrichment.
+ */
+export async function fetchIncidentContextGuide(payload: {
+  description: string;
+  location?: string;
+  county?: string;
+}): Promise<ContextGuideResponse> {
+  const response = await fetch(`${API_BASE_URL}/incidents/context-guide`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let message = `Context guide request failed: ${response.status} ${response.statusText}`;
+    try {
+      const details = await response.json();
+      message = details?.message || details?.detail?.message || details?.detail || message;
+    } catch {
+      // Keep default message.
+    }
+
+    throw new APIError(message, response.status);
+  }
+
+  return await response.json() as ContextGuideResponse;
 }
 
 /**

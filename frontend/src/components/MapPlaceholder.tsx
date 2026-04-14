@@ -3,6 +3,7 @@ import { CircleMarker, MapContainer, Polygon, Polyline, Popup, Rectangle, TileLa
 import type { LatLngTuple } from 'leaflet';
 import { useMap } from 'react-leaflet';
 import type {
+  EvidenceRecord,
   FacilitiesResponse,
   FacilityRecord,
   MapFeaturePayload,
@@ -15,8 +16,11 @@ interface MapPlaceholderProps {
   map?: MapView | null;
   fallbackFeatures?: MapFeaturePayload[];
   summary?: MVPSummary | null;
+  evidence?: EvidenceRecord[];
   facilitiesData?: FacilitiesResponse | null;
   planningContext?: PlanningContextView | null;
+  selectedCaseId?: string | null;
+  dataUpdatedAt?: string | null;
   isProcessing?: boolean;
   hasError?: boolean;
 }
@@ -30,12 +34,14 @@ interface PointOverlay {
   description?: string;
   source?: string;
   category?: FacilityCategory;
+  eventId?: string;
 }
 
 interface AlertGeometryOverlay {
   id: string;
   title: string;
   description?: string;
+  eventId?: string;
   geometryType: 'Point' | 'LineString' | 'Polygon' | 'MultiPolygon';
   point?: LatLngTuple;
   line?: LatLngTuple[];
@@ -80,6 +86,19 @@ function isWithinTampaBounds(point: LatLngTuple): boolean {
   return lat >= southWest[0] && lat <= northEast[0] && lng >= southWest[1] && lng <= northEast[1];
 }
 
+function formatRecency(timestamp?: string | null): string {
+  if (!timestamp) {
+    return 'n/a';
+  }
+  const deltaMs = Date.now() - new Date(timestamp).getTime();
+  const minutes = Math.max(0, Math.floor(deltaMs / 60000));
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
 function inferFacilityCategory(feature: MapFeaturePayload): FacilityCategory {
   const label = normalizeLabel([
     feature.properties?.title,
@@ -114,16 +133,6 @@ function isFacilityFeature(feature: MapFeaturePayload): boolean {
     combined.includes('grocery') ||
     combined.includes('supermarket')
   );
-}
-
-function isLiveEvidenceFeature(feature: MapFeaturePayload): boolean {
-  if (feature.geometry.type !== 'Point') {
-    return false;
-  }
-  if (feature.featureType === 'alert') {
-    return false;
-  }
-  return !isFacilityFeature(feature);
 }
 
 function getFeatureDescription(feature: MapFeaturePayload): string {
@@ -229,41 +238,76 @@ function extractFacilityOverlaysFromMapFeatures(features: MapFeaturePayload[]): 
   };
 }
 
-function extractLiveEvidenceOverlays(features: MapFeaturePayload[]): PointOverlay[] {
+function extractLiveEvidenceOverlays(
+  evidence: EvidenceRecord[],
+): PointOverlay[] {
   const overlays: PointOverlay[] = [];
-  features.filter(isLiveEvidenceFeature).forEach((feature) => {
-    const point = toLatLng(feature.geometry.coordinates as number[]);
-    if (!point) {
+
+  evidence.forEach((item) => {
+    const lat = Number(item.location?.latitude);
+    const lng = Number(item.location?.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
       return;
     }
+
+    const point: LatLngTuple = [lat, lng];
+    if (!isWithinTampaBounds(point)) {
+      return;
+    }
+
     overlays.push({
-      id: `live-${feature.featureId}`,
+      id: `live-${item.observationId}`,
       position: point,
-      title: feature.properties?.title || feature.featureType,
-      description: getFeatureDescription(feature),
+      title: item.observationType || 'live observation',
+      description: item.description,
       source: 'live evidence',
+      eventId: item.eventId,
     });
   });
+
   return overlays;
 }
 
-function extractPlanningOverlays(planningContext?: PlanningContextView | null): PointOverlay[] {
-  if (!planningContext?.matchesByCase?.length) {
+function extractPlanningOverlays(
+  planningContext?: PlanningContextView | null,
+  selectedCaseId?: string | null,
+): PointOverlay[] {
+  if (!planningContext?.requested || planningContext?.isLiveEvidence !== false || !planningContext?.matchesByCase?.length) {
     return [];
   }
 
   const items: PointOverlay[] = [];
 
-  planningContext.matchesByCase.forEach((caseEntry, caseIndex) => {
-    caseEntry.matches.forEach((match, matchIndex) => {
+  const caseSource = selectedCaseId
+    ? planningContext.matchesByCase.filter((entry) => entry.eventId === selectedCaseId)
+    : planningContext.matchesByCase;
+
+  const sortedCases = [...caseSource].sort((a, b) => {
+    const eventTypeCompare = String(a?.eventType || '').localeCompare(String(b?.eventType || ''));
+    if (eventTypeCompare !== 0) {
+      return eventTypeCompare;
+    }
+    return String(a?.eventId || '').localeCompare(String(b?.eventId || ''));
+  });
+
+  sortedCases.forEach((caseEntry, caseIndex) => {
+    const sortedMatches = [...(caseEntry.matches || [])].sort((a, b) => {
+      return String(a?.concept || '').localeCompare(String(b?.concept || ''));
+    });
+
+    sortedMatches.forEach((match, matchIndex) => {
       const lat = Number(match?.latitude ?? match?.lat ?? match?.location?.latitude ?? match?.location?.lat);
       const lng = Number(match?.longitude ?? match?.lon ?? match?.lng ?? match?.location?.longitude ?? match?.location?.lon ?? match?.location?.lng);
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
         return;
       }
+      const point: LatLngTuple = [lat, lng];
+      if (!isWithinTampaBounds(point)) {
+        return;
+      }
       items.push({
         id: `plan-${caseIndex}-${matchIndex}`,
-        position: [lat, lng],
+        position: point,
         title: `Planning Context: ${caseEntry.eventType || 'scenario'}`,
         description: typeof match?.description === 'string' ? match.description : 'Historical/planning context reference (not live evidence)',
         source: 'planning context',
@@ -291,6 +335,7 @@ function extractAlertOverlays(features: MapFeaturePayload[]): AlertGeometryOverl
             id: `alert-${feature.featureId}`,
             title,
             description,
+            eventId: feature.properties?.eventId,
             geometryType: 'Point',
             point,
           });
@@ -307,6 +352,7 @@ function extractAlertOverlays(features: MapFeaturePayload[]): AlertGeometryOverl
             id: `alert-${feature.featureId}`,
             title,
             description,
+            eventId: feature.properties?.eventId,
             geometryType: 'LineString',
             line,
           });
@@ -327,6 +373,7 @@ function extractAlertOverlays(features: MapFeaturePayload[]): AlertGeometryOverl
             id: `alert-${feature.featureId}`,
             title,
             description,
+            eventId: feature.properties?.eventId,
             geometryType: 'Polygon',
             polygon,
           });
@@ -344,6 +391,7 @@ function extractAlertOverlays(features: MapFeaturePayload[]): AlertGeometryOverl
             id: `alert-${feature.featureId}`,
             title,
             description,
+            eventId: feature.properties?.eventId,
             geometryType: 'MultiPolygon',
             multiPolygon: parts,
           });
@@ -352,6 +400,28 @@ function extractAlertOverlays(features: MapFeaturePayload[]): AlertGeometryOverl
     });
 
   return overlays;
+}
+
+function filterMapFeaturesBySelectedCase(
+  features: MapFeaturePayload[],
+  selectedCaseId?: string | null,
+): MapFeaturePayload[] {
+  if (!selectedCaseId) {
+    return features;
+  }
+
+  // Preserve full regional context, but promote selected incident-linked features.
+  return [...features].sort((a, b) => {
+    const aSelected = (
+      (a.featureType === 'event' && (a.dataId === selectedCaseId || a.properties?.eventId === selectedCaseId))
+      || ((a.featureType === 'disruption' || a.featureType === 'alert') && a.properties?.eventId === selectedCaseId)
+    ) ? 1 : 0;
+    const bSelected = (
+      (b.featureType === 'event' && (b.dataId === selectedCaseId || b.properties?.eventId === selectedCaseId))
+      || ((b.featureType === 'disruption' || b.featureType === 'alert') && b.properties?.eventId === selectedCaseId)
+    ) ? 1 : 0;
+    return bSelected - aSelected;
+  });
 }
 
 function BoundsController({ points }: { points: LatLngTuple[] }) {
@@ -381,12 +451,19 @@ function MapPlaceholder({
   map = null,
   fallbackFeatures = [],
   summary = null,
+  evidence = [],
   facilitiesData = null,
   planningContext = null,
+  selectedCaseId = null,
+  dataUpdatedAt = null,
   isProcessing = false,
   hasError = false,
 }: MapPlaceholderProps) {
-  const mapFeatures = map?.features || fallbackFeatures;
+  const baseMapFeatures = map?.features || fallbackFeatures;
+  const mapFeatures = useMemo(
+    () => filterMapFeaturesBySelectedCase(baseMapFeatures, selectedCaseId),
+    [baseMapFeatures, selectedCaseId],
+  );
   const facilityBaselineCount = summary?.facilities?.baselineCount ?? 0;
   const weatherSignals = summary?.signals?.weatherHazardSignals ?? 0;
   const facilityBuild = useMemo(() => {
@@ -409,8 +486,14 @@ function MapPlaceholder({
     return extractFacilityOverlaysFromMapFeatures(mapFeatures);
   }, [facilitiesData, mapFeatures]);
   const facilityOverlays = facilityBuild.overlays;
-  const liveEvidenceOverlays = useMemo(() => extractLiveEvidenceOverlays(mapFeatures), [mapFeatures]);
-  const planningOverlays = useMemo(() => extractPlanningOverlays(planningContext), [planningContext]);
+  const liveEvidenceOverlays = useMemo(
+    () => extractLiveEvidenceOverlays(evidence),
+    [evidence],
+  );
+  const planningOverlays = useMemo(
+    () => extractPlanningOverlays(planningContext, selectedCaseId),
+    [planningContext, selectedCaseId],
+  );
   const alertOverlays = useMemo(() => extractAlertOverlays(mapFeatures), [mapFeatures]);
 
   const clippedFacilities = facilityOverlays.slice(0, FACILITY_RENDER_LIMIT);
@@ -433,24 +516,21 @@ function MapPlaceholder({
         <h2>Tampa Bay Operational Map</h2>
         <span className="map-region-tag">Hillsborough · Pinellas · Pasco</span>
       </div>
-      <p className="panel-subtitle">Always-on regional view with facility baseline and active case overlays.</p>
+      <p className="panel-subtitle">Regional operations map with live evidence overlays and separate non-live planning baseline.</p>
+      {selectedCaseId ? <p className="empty-state-hint">Incident focus: {selectedCaseId}</p> : null}
 
       <div className="map-status-strip">
-        <span>Facilities: <strong>{facilityBaselineCount}</strong></span>
+        <span>Baseline Facilities: <strong>{facilityBaselineCount}</strong></span>
         <span>Weather Signals: <strong>{weatherSignals}</strong></span>
-        <span>Facilities Received: <strong>{facilityBuild.totalReceived}</strong></span>
-        <span>Facilities Rendered: <strong>{facilityOverlays.length}</strong></span>
-        <span>Facilities Skipped: <strong>{facilityBuild.skippedCount}</strong></span>
-        <span>Alert Geometries: <strong>{alertOverlays.length}</strong></span>
-        <span>Planning Points: <strong>{planningOverlays.length}</strong></span>
-        {isProcessing && <span className="map-status-live">Refreshing...</span>}
-        {hasError && <span className="map-status-warning">Data update issue</span>}
-        {facilityBuild.skippedReasons.length > 0 && (
-          <span className="map-status-warning">Skip reasons: {facilityBuild.skippedReasons.join(' | ')}</span>
-        )}
-        {facilitiesData?.warnings?.length ? (
-          <span className="map-status-warning">Facility source warnings: {facilitiesData.warnings.join(' | ')}</span>
-        ) : null}
+        <span>Facilities in Feed: <strong>{facilityBuild.totalReceived}</strong></span>
+        <span>Facilities on Map: <strong>{facilityOverlays.length}</strong></span>
+        <span>Alert Areas: <strong>{alertOverlays.length}</strong></span>
+        <span>Planning Baseline Points: <strong>{planningOverlays.length}</strong></span>
+        <span>Updated: <strong>{formatRecency(dataUpdatedAt)}</strong></span>
+        {isProcessing && <span className="map-status-live">Updating map layers...</span>}
+        {hasError && <span className="map-status-warning">Using last stable update.</span>}
+        {facilityBuild.skippedReasons.length > 0 && <span className="map-status-warning">Some facilities were excluded by quality/scope rules.</span>}
+        {facilitiesData?.warnings?.length ? <span className="map-status-warning">Facility feed degraded; verified baseline points shown.</span> : null}
       </div>
 
       <div className="map-container">
@@ -503,13 +583,20 @@ function MapPlaceholder({
           })}
 
           {alertOverlays.map((alert) => {
+            const isSelectedAlert = Boolean(selectedCaseId && alert.eventId === selectedCaseId);
             if (alert.geometryType === 'Point' && alert.point) {
               return (
                 <CircleMarker
                   key={alert.id}
                   center={alert.point}
-                  radius={8}
-                  pathOptions={{ color: '#92400e', fillColor: '#f59e0b', fillOpacity: 0.25, weight: 2 }}
+                  radius={isSelectedAlert ? 10 : 6}
+                  pathOptions={{
+                    color: isSelectedAlert ? '#78350f' : '#92400e',
+                    fillColor: '#f59e0b',
+                    fillOpacity: isSelectedAlert ? 0.4 : 0.15,
+                    weight: isSelectedAlert ? 3 : 1.5,
+                    opacity: isSelectedAlert ? 1 : 0.6,
+                  }}
                 >
                   <Popup>
                     <strong>{alert.title}</strong>
@@ -528,7 +615,11 @@ function MapPlaceholder({
                 <Polyline
                   key={alert.id}
                   positions={alert.line}
-                  pathOptions={{ color: '#a16207', weight: 3, opacity: 0.9 }}
+                  pathOptions={{
+                    color: isSelectedAlert ? '#92400e' : '#a16207',
+                    weight: isSelectedAlert ? 4 : 2,
+                    opacity: isSelectedAlert ? 0.95 : 0.45,
+                  }}
                 >
                   <Popup>{alert.title}</Popup>
                 </Polyline>
@@ -539,7 +630,13 @@ function MapPlaceholder({
                 <Polygon
                   key={alert.id}
                   positions={alert.polygon}
-                  pathOptions={{ color: '#b45309', weight: 2, fillColor: '#f59e0b', fillOpacity: 0.16 }}
+                  pathOptions={{
+                    color: isSelectedAlert ? '#92400e' : '#b45309',
+                    weight: isSelectedAlert ? 3 : 1.5,
+                    fillColor: '#f59e0b',
+                    fillOpacity: isSelectedAlert ? 0.24 : 0.08,
+                    opacity: isSelectedAlert ? 0.95 : 0.5,
+                  }}
                 >
                   <Popup>{alert.title}</Popup>
                 </Polygon>
@@ -550,7 +647,13 @@ function MapPlaceholder({
                 <Polygon
                   key={alert.id}
                   positions={alert.multiPolygon}
-                  pathOptions={{ color: '#b45309', weight: 2, fillColor: '#f59e0b', fillOpacity: 0.16 }}
+                  pathOptions={{
+                    color: isSelectedAlert ? '#92400e' : '#b45309',
+                    weight: isSelectedAlert ? 3 : 1.5,
+                    fillColor: '#f59e0b',
+                    fillOpacity: isSelectedAlert ? 0.24 : 0.08,
+                    opacity: isSelectedAlert ? 0.95 : 0.5,
+                  }}
                 >
                   <Popup>{alert.title}</Popup>
                 </Polygon>
@@ -559,20 +662,29 @@ function MapPlaceholder({
             return null;
           })}
 
-          {liveEvidenceOverlays.map((item) => (
-            <CircleMarker
-              key={item.id}
-              center={item.position}
-              radius={4}
-              pathOptions={{ color: '#7f1d1d', fillColor: '#ef4444', fillOpacity: 0.55, weight: 1 }}
-            >
-              <Popup>
-                <strong>Live Evidence</strong>
-                <br />
-                {item.title}
-              </Popup>
-            </CircleMarker>
-          ))}
+          {liveEvidenceOverlays.map((item) => {
+            const isSelectedEvidence = Boolean(selectedCaseId && item.eventId === selectedCaseId);
+            return (
+              <CircleMarker
+                key={item.id}
+                center={item.position}
+                radius={isSelectedEvidence ? 5 : 3.5}
+                pathOptions={{
+                  color: '#7f1d1d',
+                  fillColor: '#ef4444',
+                  fillOpacity: isSelectedEvidence ? 0.78 : 0.32,
+                  weight: isSelectedEvidence ? 1.5 : 1,
+                  opacity: isSelectedEvidence ? 1 : 0.5,
+                }}
+              >
+                <Popup>
+                  <strong>Live Evidence</strong>
+                  <br />
+                  {item.title}
+                </Popup>
+              </CircleMarker>
+            );
+          })}
 
           {planningOverlays.map((item) => (
             <CircleMarker
@@ -598,21 +710,21 @@ function MapPlaceholder({
 
         <div className="map-overlay-panel">
           <div className="map-legend">
-            <span><i className="legend-dot fuel" />Fuel Facilities</span>
-            <span><i className="legend-dot grocery" />Grocery Facilities</span>
-            <span><i className="legend-dot alerts" />Weather Alerts</span>
+            <span><i className="legend-dot fuel" />Fuel Facility Baseline</span>
+            <span><i className="legend-dot grocery" />Grocery Facility Baseline</span>
+            <span><i className="legend-dot alerts" />Active Alert Geometry</span>
             <span><i className="legend-dot live" />Live Evidence</span>
-            <span><i className="legend-dot planning" />Planning Context</span>
+            <span><i className="legend-dot planning" />Planning Baseline (Non-live)</span>
           </div>
           {clippedNotice ? <p className="map-clipped-notice">{clippedNotice}</p> : null}
           {alertOverlays.length === 0 ? (
-            <p className="map-empty-overlay-note">No active weather overlay geometry. Regional map remains operational.</p>
+            <p className="map-empty-overlay-note">No active alert geometry currently. Regional map remains available.</p>
           ) : null}
           {hasError ? (
-            <p className="map-contained-error">Backend update error. Showing last known map context.</p>
+            <p className="map-contained-error">Latest update was degraded. Showing last stable map context.</p>
           ) : null}
           {isProcessing ? (
-            <p className="map-contained-loading">Refreshing map layers...</p>
+            <p className="map-contained-loading">Map refresh in progress...</p>
           ) : null}
         </div>
 

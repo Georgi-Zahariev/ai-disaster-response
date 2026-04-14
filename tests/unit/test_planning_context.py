@@ -6,6 +6,7 @@ from backend.api.controllers.incident_controller import (
     _attach_planning_context,
     process_incident_request,
 )
+from backend.services.fusion.signal_fusion_service import SignalFusionService
 
 
 def _base_request() -> dict:
@@ -160,3 +161,67 @@ async def test_controller_flow_planning_metadata_and_recommendations() -> None:
         alert_planning = response["alerts"][0].get("metadata", {}).get("planningContext")
         assert isinstance(alert_planning, dict)
         assert alert_planning.get("isLiveEvidence") is False
+
+
+def test_planning_match_dedupes_near_duplicates_and_adds_reason_tags() -> None:
+    """Planning matches should dedupe near-duplicates and carry concise reason/action metadata."""
+    service = SignalFusionService()
+    event = {
+        "eventId": "evt-plan-1",
+        "location": {"county": "hillsborough"},
+        "metadata": {"fusionBasis": {"routeIds": ["I-275:tampa"]}},
+    }
+    planning_records = [
+        {
+            "planningId": "plan-a",
+            "concept": "known_bottleneck",
+            "county": "hillsborough",
+            "corridorRef": "I-275:tampa",
+            "summary": "I-275 through Tampa is a recurring bottleneck for fuel and grocery access.",
+            "source": {"provider": "test"},
+        },
+        {
+            "planningId": "plan-b",
+            "concept": "known_bottleneck",
+            "county": "hillsborough",
+            "corridorRef": "I-275:tampa",
+            "summary": "I-275 through Tampa is a recurring bottleneck for fuel & grocery access.",
+            "source": {"provider": "test"},
+        },
+    ]
+
+    matches = service._match_planning_context(event, planning_records)
+
+    assert len(matches) == 1
+    assert matches[0].get("reasonTag") == "historical bottleneck"
+    assert isinstance(matches[0].get("action"), str)
+    assert "Pre-stage detour control" in matches[0].get("action", "")
+
+
+def test_planning_match_contains_grouping_fields_for_corridor_or_area() -> None:
+    """Matched planning records should expose corridor/locality/area fields for UI grouping."""
+    service = SignalFusionService()
+    event = {
+        "eventId": "evt-plan-2",
+        "location": {"county": "hillsborough"},
+        "metadata": {"fusionBasis": {"routeIds": ["US-301:riverview"]}},
+    }
+    planning_records = [
+        {
+            "planningId": "plan-c",
+            "concept": "seasonal_risk",
+            "county": "hillsborough",
+            "corridorRef": "US-301:riverview",
+            "areaRef": "south-county",
+            "summary": "Seasonal flooding and evacuation pressure increase route instability.",
+            "source": {"provider": "test"},
+        }
+    ]
+
+    matches = service._match_planning_context(event, planning_records)
+
+    assert len(matches) == 1
+    assert matches[0].get("corridorRef") == "US-301:riverview"
+    assert matches[0].get("locality") == "riverview"
+    assert matches[0].get("areaRef") == "south-county"
+    assert matches[0].get("reasonTag") in {"seasonal risk", "evacuation pressure"}

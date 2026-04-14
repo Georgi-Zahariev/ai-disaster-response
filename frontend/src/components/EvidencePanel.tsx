@@ -8,9 +8,12 @@ import type { EvidenceRecord } from '../types/incident';
 
 interface EvidencePanelProps {
   evidence: EvidenceRecord[];
+  selectedCaseId?: string | null;
+  selectedCaseTitle?: string | null;
+  isProcessing?: boolean;
 }
 
-function EvidencePanel({ evidence = [] }: EvidencePanelProps) {
+function EvidencePanel({ evidence = [], selectedCaseId = null, selectedCaseTitle = null, isProcessing = false }: EvidencePanelProps) {
   const formatTime = (timestamp?: string): string => {
     if (!timestamp) return 'n/a';
     return new Date(timestamp).toLocaleString();
@@ -20,16 +23,23 @@ function EvidencePanel({ evidence = [] }: EvidencePanelProps) {
     <div className="panel evidence-panel">
       <h2>Live Evidence</h2>
       <p className="panel-subtitle">Source-backed observations used in live case fusion (planning context excluded).</p>
+      {selectedCaseId ? (
+        <p className="empty-state-hint">Focused evidence for {selectedCaseTitle || selectedCaseId}</p>
+      ) : null}
+      {isProcessing && <p className="empty-state-hint">Refreshing live evidence...</p>}
 
       {evidence.length === 0 ? (
         <div className="empty-state">
-          <p>No live evidence records</p>
-          <p className="empty-state-hint">Evidence appears after signal extraction and fusion</p>
+          <p>No live evidence records yet</p>
+          <p className="empty-state-hint">Live observations appear after signal extraction and fusion.</p>
         </div>
       ) : (
         <div className="evidence-list">
           {evidence.map((item) => (
-            <div key={item.observationId} className="evidence-item">
+            <div
+              key={item.observationId}
+              className={`evidence-item ${selectedCaseId && item.eventId === selectedCaseId ? 'selected-evidence-item' : ''}`}
+            >
               <div className="evidence-header">
                 <span className="evidence-type">{item.observationType}</span>
                 <span className="evidence-confidence">

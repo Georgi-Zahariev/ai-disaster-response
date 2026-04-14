@@ -54,6 +54,7 @@ export interface IncidentInputData {
 export interface SummaryCardData {
   label: string;
   value: number | string;
+  helpText?: string;
   severity?: 'critical' | 'high' | 'moderate' | 'low' | 'info';
   trend?: 'up' | 'down' | 'stable';
   changePercent?: number;

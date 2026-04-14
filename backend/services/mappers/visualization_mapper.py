@@ -10,7 +10,7 @@ Used By: IncidentOrchestrator (Phase 5), API routes for visualization endpoints
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 
-from backend.logging import get_logger
+from backend.app_logging import get_logger
 from backend.services.mappers.map_feature_mapper import MapFeatureMapper
 from backend.services.mappers.dashboard_mapper import DashboardMapper
 

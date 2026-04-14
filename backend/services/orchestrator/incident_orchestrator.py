@@ -15,7 +15,7 @@ import time
 import uuid
 
 from config.config import Config
-from backend.logging import get_logger
+from backend.app_logging import get_logger
 
 
 logger = get_logger(__name__)

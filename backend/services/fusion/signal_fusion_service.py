@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 import math
 import uuid
 
-from backend.logging import get_logger
+from backend.app_logging import get_logger
 
 
 logger = get_logger(__name__)
@@ -796,7 +796,8 @@ class SignalFusionService:
         fusion_basis = metadata.get("fusionBasis") if isinstance(metadata.get("fusionBasis"), dict) else {}
         event_route_ids = set(fusion_basis.get("routeIds", []) if isinstance(fusion_basis.get("routeIds"), list) else [])
 
-        matches: List[Dict[str, Any]] = []
+        event_id = str(event.get("eventId") or "")
+        deduped: Dict[str, Dict[str, Any]] = {}
         for record in planning_records:
             if not isinstance(record, dict):
                 continue
@@ -809,18 +810,150 @@ class SignalFusionService:
             if isinstance(corridor, str) and corridor and event_route_ids and corridor not in event_route_ids:
                 continue
 
-            matches.append({
+            area_ref = record.get("areaRef")
+            locality = self._extract_planning_locality(corridor, area_ref)
+            reason_tag = self._planning_reason_tag(record)
+            action = self._planning_prep_action(record, locality)
+            summary = record.get("summary") if isinstance(record.get("summary"), str) else ""
+
+            candidate = {
                 "planningId": record.get("planningId"),
                 "concept": record.get("concept"),
                 "county": record.get("county"),
                 "corridorRef": corridor,
-                "areaRef": record.get("areaRef"),
-                "summary": record.get("summary"),
+                "areaRef": area_ref,
+                "locality": locality,
+                "summary": summary,
+                "reasonTag": reason_tag,
+                "action": action,
                 "source": record.get("source"),
                 "validity": record.get("validity"),
-            })
+            }
+
+            dedup_key = self._planning_dedupe_key(
+                event_id=event_id,
+                concept=record.get("concept"),
+                county=record.get("county"),
+                corridor_ref=corridor,
+                locality=locality,
+                action_text=action,
+                evidence_text=summary,
+            )
+
+            score = self._planning_relevance_score(candidate, event_route_ids)
+            candidate["relevanceScore"] = score
+
+            existing = deduped.get(dedup_key)
+            if existing is None or score > float(existing.get("relevanceScore", 0)):
+                deduped[dedup_key] = candidate
+
+        matches = sorted(
+            deduped.values(),
+            key=lambda item: (
+                -float(item.get("relevanceScore", 0)),
+                str(item.get("concept") or ""),
+                str(item.get("planningId") or ""),
+            ),
+        )
 
         return matches
+
+    def _normalize_planning_text(self, value: Any) -> str:
+        if not isinstance(value, str):
+            return ""
+        lowered = value.strip().lower()
+        compact = "".join(ch if ch.isalnum() else " " for ch in lowered)
+        stopwords = {"and", "the", "a", "an", "for", "of"}
+        tokens = [token for token in compact.split() if token and token not in stopwords]
+        return " ".join(tokens)
+
+    def _extract_planning_locality(self, corridor_ref: Any, area_ref: Any) -> str:
+        if isinstance(corridor_ref, str) and ":" in corridor_ref:
+            parts = [part.strip() for part in corridor_ref.split(":", 1)]
+            if len(parts) == 2 and parts[1]:
+                return parts[1]
+        if isinstance(area_ref, str) and area_ref.strip():
+            return area_ref.strip()
+        return ""
+
+    def _planning_reason_tag(self, record: Dict[str, Any]) -> str:
+        summary = self._normalize_planning_text(record.get("summary"))
+        if "evac" in summary:
+            return "evacuation pressure"
+
+        concept = self._normalize_planning_text(record.get("concept"))
+        if concept == "known bottleneck":
+            return "historical bottleneck"
+        if concept == "seasonal risk":
+            return "seasonal risk"
+        if concept == "historical pattern":
+            return "prior delay pattern"
+        return "planning baseline"
+
+    def _planning_prep_action(self, record: Dict[str, Any], locality: str) -> str:
+        concept = self._normalize_planning_text(record.get("concept"))
+        corridor = record.get("corridorRef") if isinstance(record.get("corridorRef"), str) else ""
+        county = record.get("county") if isinstance(record.get("county"), str) else ""
+
+        scope = corridor or locality or county or "the affected area"
+        if concept == "known bottleneck":
+            return f"Pre-stage detour control for {scope} and preserve one fuel and one grocery access route."
+        if concept == "seasonal risk":
+            return f"Pre-position drainage and traffic-control resources for {scope} before forecast stress windows."
+        if concept == "historical pattern":
+            return f"Plan earlier dispatch and quick-clear crews around {scope} based on recurring delay behavior."
+        return f"Use planning baseline for preparatory route-access actions in {scope}."
+
+    def _planning_dedupe_key(
+        self,
+        event_id: str,
+        concept: Any,
+        county: Any,
+        corridor_ref: Any,
+        locality: Any,
+        action_text: Any,
+        evidence_text: Any,
+    ) -> str:
+        return "::".join([
+            self._normalize_planning_text(event_id),
+            self._normalize_planning_text(concept),
+            self._normalize_planning_text(county),
+            self._normalize_planning_text(corridor_ref),
+            self._normalize_planning_text(locality),
+            self._normalize_planning_text(action_text),
+            self._normalize_planning_text(evidence_text),
+        ])
+
+    def _planning_relevance_score(self, match: Dict[str, Any], event_route_ids: Set[str]) -> float:
+        score = 0.0
+
+        corridor = match.get("corridorRef") if isinstance(match.get("corridorRef"), str) else ""
+        locality = match.get("locality") if isinstance(match.get("locality"), str) else ""
+        area_ref = match.get("areaRef") if isinstance(match.get("areaRef"), str) else ""
+        summary = match.get("summary") if isinstance(match.get("summary"), str) else ""
+        concept = self._normalize_planning_text(match.get("concept"))
+
+        if corridor and corridor in event_route_ids:
+            score += 4.0
+        elif corridor:
+            score += 2.0
+
+        if locality:
+            score += 1.5
+        if area_ref:
+            score += 1.0
+
+        if concept == "known bottleneck":
+            score += 1.0
+        elif concept == "historical pattern":
+            score += 0.8
+        elif concept == "seasonal risk":
+            score += 0.7
+
+        if len(summary.strip()) >= 60:
+            score += 0.5
+
+        return round(score, 2)
     
     def _aggregate_confidence(self, cluster: List[Dict[str, Any]]) -> float:
         """

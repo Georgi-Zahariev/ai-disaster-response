@@ -22,7 +22,7 @@ Provides consistent logging across the entire backend:
 ## Usage
 
 ```python
-from backend.logging import get_logger
+from backend.app_logging import get_logger
 
 logger = get_logger(__name__)
 

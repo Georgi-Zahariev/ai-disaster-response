@@ -8,9 +8,19 @@ import type { AlertRecommendation } from '../types/incident';
 
 interface AlertsPanelProps {
   alerts: AlertRecommendation[];
+  selectedCaseId?: string | null;
+  selectedCaseTitle?: string | null;
+  onSelectCase?: (caseId: string) => void;
+  isProcessing?: boolean;
 }
 
-function AlertsPanel({ alerts = [] }: AlertsPanelProps) {
+function AlertsPanel({
+  alerts = [],
+  selectedCaseId = null,
+  selectedCaseTitle = null,
+  onSelectCase,
+  isProcessing = false,
+}: AlertsPanelProps) {
 
   const getPriorityClass = (priority: string) => {
     return `alert-priority-${priority}`;
@@ -29,23 +39,45 @@ function AlertsPanel({ alerts = [] }: AlertsPanelProps) {
   return (
     <div className="panel alerts-panel">
       <h2>Active Alerts</h2>
-      <p className="panel-subtitle">Immediate operational actions for route, fuel, and grocery access continuity.</p>
+      <p className="panel-subtitle">
+        {selectedCaseId
+          ? `Actions linked to ${selectedCaseTitle || selectedCaseId}. Select any alert to change focus.`
+          : 'Priority actions for route, fuel, and grocery continuity.'}
+      </p>
+
+      {isProcessing && (
+        <p className="empty-state-hint">Refreshing alert recommendations...</p>
+      )}
       
       {alerts.length === 0 ? (
         <div className="empty-state">
-          <p>No active alerts</p>
+          <p>No active alerts at this time</p>
           <p className="empty-state-hint">
-            Route, fuel, and grocery access alerts will appear after analysis
+            Alerts appear when disruption severity and confidence cross response thresholds.
           </p>
         </div>
       ) : (
         <div className="alerts-list">
           {alerts.map((alert) => (
-            <div key={alert.alertId} className={`alert-item ${getPriorityClass(alert.priority)}`}>
+            <div
+              key={alert.alertId}
+              className={`alert-item ${getPriorityClass(alert.priority)} ${alert.eventId === selectedCaseId ? 'alert-item-selected' : ''}`}
+              onClick={() => alert.eventId && onSelectCase?.(alert.eventId)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  if (alert.eventId) {
+                    onSelectCase?.(alert.eventId);
+                  }
+                }
+              }}
+            >
               <div className="alert-header">
                 <span className="alert-priority">{getPriorityLabel(alert.priority)}</span>
                 <span className="alert-time">
-                  {new Date(alert.createdAt).toLocaleTimeString()}
+                  {new Date(alert.createdAt).toLocaleString()}
                 </span>
               </div>
               <div className="alert-title">{alert.title}</div>

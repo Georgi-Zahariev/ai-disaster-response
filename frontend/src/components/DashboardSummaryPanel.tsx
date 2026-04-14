@@ -8,18 +8,21 @@ import type { DashboardSummary } from '../types/incident';
 
 interface DashboardSummaryPanelProps {
   dashboardSummary?: DashboardSummary | null;
+  isProcessing?: boolean;
 }
 
-function DashboardSummaryPanel({ dashboardSummary }: DashboardSummaryPanelProps) {
+function DashboardSummaryPanel({ dashboardSummary, isProcessing = false }: DashboardSummaryPanelProps) {
   return (
     <div className="panel dashboard-summary-panel">
       <h2>Operational Snapshot</h2>
-      <p className="panel-subtitle">Backend-computed summary indicators for quick briefings.</p>
+      <p className="panel-subtitle">Global indicators from backend computation (not filtered by selected incident).</p>
+
+      {isProcessing ? <p className="empty-state-hint">Refreshing global snapshot...</p> : null}
 
       {!dashboardSummary ? (
         <div className="empty-state">
-          <p>No dashboard summary available</p>
-          <p className="empty-state-hint">Summary metrics appear after analysis completes</p>
+          <p>No global snapshot available yet</p>
+          <p className="empty-state-hint">Summary metrics appear after analysis completes.</p>
         </div>
       ) : (
         <div className="dashboard-summary-grid">
